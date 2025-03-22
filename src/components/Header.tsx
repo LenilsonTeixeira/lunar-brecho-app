@@ -1,4 +1,4 @@
-import { Menu, Search, ShoppingBag, User } from "lucide-react"
+import { Menu, Search, ShoppingBag, User, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link, NavLink } from "react-router"
 
@@ -23,7 +23,7 @@ const Header = () => {
                 {menuItems.map((item) => (
                         <NavLink key={item.path} to={item.path}>
                             {({ isActive }) => (
-                                <li className={`py-3 px-5 text-sm md:text-base border-b lg:border-0 h-20 items-center flex
+                                <li className={`py-2 px-5 text-sm md:text-base border-b lg:border-0 h-10 lg:h-20 items-center flex
                                     ${isActive ? 'bg-slate-700 text-white' : 'text-slate-700'}`}>
                                     {item.name}
                                 </li>
@@ -36,7 +36,12 @@ const Header = () => {
                 <Search />
                 <User />
                 <ShoppingBag />
-                <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden"><Menu/></button>
+                <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden transition-all duration-300 ease-in-out">
+                <div className={`transform transition-transform duration-300 ${menuOpen ? "scale-110" : "scale-100"}`}>
+                    {menuOpen ? <X /> : <Menu />}
+                </div>
+                
+                </button>
             </div>
         </div>
     </div>
