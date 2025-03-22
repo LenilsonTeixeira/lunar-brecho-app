@@ -37,10 +37,9 @@ const Header = () => {
                 <User />
                 <ShoppingBag />
                 <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden transition-all duration-300 ease-in-out">
-                <div className={`transform transition-transform duration-300 ${menuOpen ? "scale-110" : "scale-100"}`}>
-                    {menuOpen ? <X /> : <Menu />}
-                </div>
-                
+                    <div className={`transform transition-transform duration-300 ${menuOpen ? "scale-110" : "scale-100"}`}>
+                        {menuOpen ? <X /> : <Menu />}
+                    </div>       
                 </button>
             </div>
         </div>
