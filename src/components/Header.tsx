@@ -15,10 +15,10 @@ const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false)
     useEffect(() => console.log(menuOpen),[menuOpen])
   return (
-    <div className="w-full flex items-center h-20 font-medium shadow-xl relative">
+    <div className="w-full flex items-center h-20 font-medium shadow-xl relative bg-slate-100">
         <div className="flex h-20 items-center justify-between w-full px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
             <Link to="/"><h1 className="text-xl font-bold text-slate-700">LUNAR</h1></Link>
-            <ul className={`h-full items-center absolute top-[83px] left-0 w-full bg-white shadow-lg justify-center lg:static lg:flex md:shadow-none
+            <ul className={`h-full items-center absolute top-[83px] left-0 w-full  shadow-lg justify-center lg:static lg:flex md:shadow-none
           ${menuOpen ? "block" : "hidden"}`}>
                 {menuItems.map((item) => (
                         <NavLink key={item.path} to={item.path}>
