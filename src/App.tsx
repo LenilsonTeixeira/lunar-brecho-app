@@ -1,7 +1,13 @@
+import { Routes } from "react-router"
+import Header from "./components/Header"
+
 function App() {
 
   return (
-    <h1>Lunar Brecho</h1>
+    <>
+        <Header/>
+        <Routes></Routes>
+    </>
   )
 }
 
