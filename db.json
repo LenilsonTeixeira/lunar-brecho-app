@@ -1,0 +1,184 @@
+{
+    "produtos": [
+      {
+        "id": "1",
+        "image": [
+          "https://images.tcdn.com.br/img/img_prod/1265389/blusa_feminina_paetes_preta_3059_3_28b72c455b152f55285d812210d55abf.jpg"
+        ],
+        "name": "Blusa Feminina Paetês Preta",
+        "price": 49.90,
+        "brand": "Chic Charmosa"
+      },
+      {
+        "id": "2",
+        "image": [
+          "https://images.tcdn.com.br/img/img_prod/1265389/kit_blusas_sem_alca_completo_3579_1_510332e2894319cd2de40ceb8cadd16e.jpg"
+        ],
+        "name": "Kit Blusas Sem Alça Completo",
+        "price": 129.90,
+        "brand": "Levi's"
+      },
+      {
+        "id": "3",
+        "image": [
+          "https://static.ecosweb.com.br/public/produtos/moda-feminina/vestido-midi/vestido-marinho-com-perolas-moda-evangelica_311903_600_1.webp"
+        ],
+        "name": "Vestido Marinho com Pérolas",
+        "price": 199.99,
+        "brand": "Rosalie"
+      },
+      {
+        "id": "4",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      },
+      {
+        "id": "5",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      },
+      {
+        "id": "6",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      },
+      {
+        "id": "7",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      },
+      {
+        "id": "8",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      },
+      {
+        "id": "9",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      },
+      {
+        "id": "10",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      },
+      {
+        "id": "11",
+        "image": [
+          "https://images.tcdn.com.br/img/img_prod/1265389/blusa_feminina_paetes_preta_3059_3_28b72c455b152f55285d812210d55abf.jpg"
+        ],
+        "name": "Blusa Feminina Paetês Preta",
+        "price": 49.90,
+        "brand": "Chic Charmosa"
+      },
+      {
+        "id": "12",
+        "image": [
+          "https://images.tcdn.com.br/img/img_prod/1265389/kit_blusas_sem_alca_completo_3579_1_510332e2894319cd2de40ceb8cadd16e.jpg"
+        ],
+        "name": "Kit Blusas Sem Alça Completo",
+        "price": 129.90,
+        "brand": "Levi's"
+      },
+      {
+        "id": "13",
+        "image": [
+          "https://static.ecosweb.com.br/public/produtos/moda-feminina/vestido-midi/vestido-marinho-com-perolas-moda-evangelica_311903_600_1.webp"
+        ],
+        "name": "Vestido Marinho com Pérolas",
+        "price": 199.99,
+        "brand": "Rosalie"
+      },
+      {
+        "id": "14",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      },
+      {
+        "id": "15",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      },
+      {
+        "id": "16",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      },
+      {
+        "id": "17",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      },
+      {
+        "id": "18",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      },
+      {
+        "id": "19",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      },
+      {
+        "id": "20",
+        "image": [
+          "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
+        ],
+        "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
+        "price": 89.90,
+        "brand": "Amanda"
+      }
+    ]
+  }
