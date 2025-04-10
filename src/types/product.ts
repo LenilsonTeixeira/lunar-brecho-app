@@ -1,7 +1,12 @@
 export interface Product {
-    id: string
-    image: string[]
-    name: string
-    price: number
-    brand: string
-  }
+  id: string;
+  images: string[];
+  name: string;
+  price: number;
+  brand: string;
+  description: string;
+  sizes: string[];
+  type: 'Novo' | 'Bazar';
+  category: 'Blusas' | 'Vestidos' | 'Conjuntinhos';
+  amount: number;
+}

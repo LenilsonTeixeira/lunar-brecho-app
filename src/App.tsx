@@ -1,16 +1,15 @@
 import { Route, Routes } from "react-router"
-import Header from "./components/Header"
-import SearchBar from "./components/SearchBar"
+import Header from "./components/layout/Header"
 import Home from "./pages/Home"
-
+import ProductDetail from "./pages/ProductDetail"
 function App() {
 
   return (
     <>
         <Header/>
-        <SearchBar/>
         <Routes>
             <Route path="/" element={<Home/>} />
+            <Route path="/produtos/:productId" element={<ProductDetail/>}/>
         </Routes>
     </>
   )
