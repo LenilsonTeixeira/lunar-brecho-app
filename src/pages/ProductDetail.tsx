@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { Product } from "../types/product";
 import axios from "axios";
 import { useParams } from "react-router";
-import ProductDetailLayout from "../components/products/ProductDetailLayout";
-import ProductImageSection from "../components/products/ProductImageSection";
-import ProductInfoSection from "../components/products/ProductInfoSection";
+import ProductDetailLayout from "../components/product/ProductDetailLayout";
+import ProductImageSection from "../components/product/ProductImageSection";
+import ProductInfoSection from "../components/product/ProductInfoSection";
 
 const ProductDetail = () => {
   const { productId } = useParams()

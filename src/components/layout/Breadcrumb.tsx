@@ -20,7 +20,7 @@ const Breadcrumb = ({ items }: BreadcrumbProps) => {
               return (
                 <li key={index} className="inline-flex items-center">
                   {index > 0 && (
-                    <ChevronRight />
+                    <ChevronRight size={15} />
                   )}
     
                   {isLast ? (

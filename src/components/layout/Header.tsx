@@ -33,7 +33,7 @@ const Header = () => {
             <div className="flex gap-3">
                 <Search />
                 <User />
-                <ShoppingBag />
+                <Link to="/carrinho"><ShoppingBag /></Link> 
                 <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden transition-all duration-300 ease-in-out">
                     <div className={`transform transition-transform duration-300 ${menuOpen ? "scale-110" : "scale-100"}`}>
                         {menuOpen ? <X /> : <Menu />}

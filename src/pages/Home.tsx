@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Product } from "../types/product";
 import axios from "axios";
 import Title from "../components/commom/Title";
-import ProductItem from "../components/products/ProductItem";
+import ProductItem from "../components/product/ProductItem";
 import CategoryCarousel from "../components/carousel/CategoryCarousel";
 import SearchBar from "../components/layout/SearchBar";
 

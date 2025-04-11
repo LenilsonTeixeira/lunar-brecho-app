@@ -1,6 +1,6 @@
 type LayoutProps = {
     children: React.ReactNode;
-  };
+};
 
 
 const ProductDetailLayout = ({ children }: LayoutProps) => {
