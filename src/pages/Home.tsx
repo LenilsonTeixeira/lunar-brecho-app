@@ -34,7 +34,7 @@ const Home = () => {
       <SearchBar/>
       <CategoryCarousel/>
       <div className="flex flex-col items-start w-full">
-        <Title texts={["GARIMPOS"]}/>
+        <Title name="Todos os Produtos"/>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 w-full gap-4">
           {products.map((item) => (
             <ProductItem

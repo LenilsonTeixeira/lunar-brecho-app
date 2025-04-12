@@ -1,32 +1,53 @@
-const Stepper = () => {
-  return (
-        <ol className="flex justify-between sm:justify-center items-center w-full mt-20 p-3 space-x-2 text-sm bg-slate-800 font-medium text-center border-y text-slate-800 sm:text-base  sm:p-4 sm:space-x-4 fixed top-0 left-0 z-50">
-            <li className="flex items-center text-sky-500">
-                <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-sky-500 rounded-full shrink-0">
-                    1
+interface StepperProps {
+    currentStep: number;
+    steps: string[];
+  }
+  
+  const Stepper = ({ currentStep, steps }: StepperProps) => {
+    return (
+      <div className="w-full mt-20 px-2 sm:px-4 bg-slate-800 border-y fixed top-0 left-0 z-50 overflow-x-auto">
+        <ol className="flex flex-wrap sm:flex-nowrap justify-start sm:justify-center items-center w-full gap-2 sm:gap-4 py-3 text-sm font-medium text-center text-slate-800 sm:text-base">
+          {steps.map((label, index) => {
+            const isActive = index === currentStep;
+            const isCompleted = index < currentStep;
+  
+            return (
+              <li
+                key={index}
+                className={`flex items-center min-w-0 ${
+                  isActive ? "text-sky-500" : "text-slate-50"
+                }`}
+              >
+                <span
+                  className={`flex items-center justify-center w-5 h-5 me-2 text-xs border rounded-full shrink-0 ${
+                    isActive
+                      ? "border-sky-500"
+                      : isCompleted
+                      ? "border-emerald-400"
+                      : "border-slate-50"
+                  }`}
+                >
+                  {index + 1}
                 </span>
-               Carrinho
-                <svg className="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 12 10">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 9 4-4-4-4M1 9l4-4-4-4"/>
-                </svg>
-            </li>
-            <li className="flex items-center text-slate-50">
-                <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-slate-50 rounded-full shrink-0 ">
-                    2
-                </span>
-                Entrega
-                <svg className="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 12 10">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 9 4-4-4-4M1 9l4-4-4-4"/>
-                </svg>
-            </li>
-            <li className="flex items-center text-slate-50">
-                <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-slate-50 rounded-full shrink-0 ">
-                    3
-                </span>
-                Pagamento
-            </li>
+                <span className="truncate">{label}</span>
+                {index !== steps.length - 1 && (
+                  <div
+                    className={`transition-all duration-300 ease-in-out rounded-full h-0.5 ml-2 sm:ml-4 ${
+                      index < currentStep - 1
+                        ? "bg-emerald-400 w-6 sm:w-12"
+                        : index === currentStep - 1
+                        ? "bg-sky-500 w-4 sm:w-10"
+                        : "bg-slate-400 w-3 sm:w-8"
+                    }`}
+                  />
+                )}
+              </li>
+            );
+          })}
         </ol>
-  )
-}
-
-export default Stepper
+      </div>
+    );
+  };
+  
+  export default Stepper;
+  

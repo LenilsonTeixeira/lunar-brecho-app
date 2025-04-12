@@ -1,10 +1,9 @@
-import { Menu, Search, ShoppingBag, User, X } from "lucide-react"
+import { Menu, ShoppingBag, User, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link, NavLink } from "react-router"
 
 const menuItems = [
-    { name: "INÍCIO", path: "/" },
-    { name: "NOVIDADES", path: "/novidades" },
+    { name: "NOVIDADES", path: "/" },
     { name: "PROMOÇÕES", path: "/promocoes" },
     { name: "CONTATO", path: "/contato" },
 ]
@@ -31,7 +30,6 @@ const Header = () => {
             </ul>
 
             <div className="flex gap-3">
-                <Search />
                 <User />
                 <Link to="/carrinho"><ShoppingBag /></Link> 
                 <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden transition-all duration-300 ease-in-out">
