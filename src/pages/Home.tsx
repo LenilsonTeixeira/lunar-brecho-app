@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import { Product } from "../types/product";
 import axios from "axios";
-import Title from "../components/commom/Title";
-import ProductItem from "../components/product/ProductItem";
-import CategoryCarousel from "../components/carousel/CategoryCarousel";
-import SearchBar from "../components/layout/SearchBar";
-import Container from "../components/layout/Container";
+import HomeLayout from "../components/home/HomeLayout";
+import ProductSection from "../components/home/ProductSection";
 
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -31,21 +28,9 @@ const Home = () => {
   }, []);
 
   return (
-    <Container>
-      <SearchBar/>
-      <CategoryCarousel/>
-      <div className="flex flex-col items-start w-full">
-        <Title name="Produtos"/>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 w-full gap-4">
-          {products.map((item) => (
-            <ProductItem
-              key={item.id}
-              product={item}
-            />
-          ))}
-        </div>
-      </div>
-    </Container>
+    <HomeLayout>
+      <ProductSection products={products} />
+    </HomeLayout>
   );
 };
 
