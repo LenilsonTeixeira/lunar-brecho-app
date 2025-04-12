@@ -30,11 +30,11 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="px-4 mt-20">
+    <div className="px-4 mt-30">
       <SearchBar/>
       <CategoryCarousel/>
       <div className="flex flex-col items-start w-full">
-        <Title name="Todos os Produtos"/>
+        <Title name="Produtos"/>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 w-full gap-4">
           {products.map((item) => (
             <ProductItem

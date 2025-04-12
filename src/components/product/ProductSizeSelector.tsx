@@ -16,8 +16,8 @@ const ProductSizeSelector = ({ sizes, selectedSize, onSelectSize }: SizeSelector
                 className={`py-1 px-2 border w-fit rounded-md cursor-pointer font-medium transition-colors 
                   ${
                     selectedSize === sizeOption
-                      ? "bg-slate-900 text-white border-slate-900"
-                      : "bg-slate-100 text-slate-900 hover:bg-slate-900 hover:text-white"
+                      ? "bg-slate-800 text-white border-slate-800"
+                      : "bg-slate-100 text-slate-800 hover:bg-slate-800 hover:text-white"
                   }`}
               >
                 {sizeOption}

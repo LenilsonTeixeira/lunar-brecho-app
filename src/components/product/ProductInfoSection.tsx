@@ -23,7 +23,7 @@ const ProductInfoSection = ({ product, selectedSize, onSelectSize }: Props) => {
         <ProductTitleSection product={product}/>
         <ProductSizeSelector sizes={product.sizes} selectedSize={selectedSize} onSelectSize={onSelectSize}/>
         <ProductObservations/>
-        <ProductActions/>
+        <ProductActions product={product}/>
         <ProductStoreInfo/>
     </div>
   )
