@@ -1,4 +1,4 @@
-import { Search, X } from "lucide-react"
+import { Search } from "lucide-react"
 
 const SearchBar = () => {
   return (
@@ -7,7 +7,6 @@ const SearchBar = () => {
             <input type="text" className="flex-1 outline-none bg-inherit text-sm" placeholder="O que você procura hoje?"/>
             <button><Search/></button>
         </div>
-        <button><X/></button>
     </div>
   )
 }
