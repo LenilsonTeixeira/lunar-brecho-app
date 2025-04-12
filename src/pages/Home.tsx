@@ -5,6 +5,7 @@ import Title from "../components/commom/Title";
 import ProductItem from "../components/product/ProductItem";
 import CategoryCarousel from "../components/carousel/CategoryCarousel";
 import SearchBar from "../components/layout/SearchBar";
+import Container from "../components/layout/Container";
 
 const Home = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -30,7 +31,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="px-4 mt-30">
+    <Container>
       <SearchBar/>
       <CategoryCarousel/>
       <div className="flex flex-col items-start w-full">
@@ -44,7 +45,7 @@ const Home = () => {
           ))}
         </div>
       </div>
-    </div>
+    </Container>
   );
 };
 
