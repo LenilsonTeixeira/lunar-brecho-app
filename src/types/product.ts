@@ -9,4 +9,6 @@ export interface Product {
   type: 'Novo' | 'Bazar';
   category: 'Blusas' | 'Vestidos' | 'Conjuntinhos';
   amount: number;
+  isReserved: boolean;
+  observations: string;
 }

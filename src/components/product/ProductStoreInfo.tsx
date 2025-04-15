@@ -9,7 +9,7 @@ const ProductStoreInfo = () => {
               Loja física: Avenida Camilo Chaves nº 470 - Ituiutaba MG
             </span>
           </div>
-          <div className="flex items-start sm:items-center text-slate-800 gap-1 mt-5">
+          <div className="flex items-start sm:items-center text-slate-800 gap-1 mt-3">
             <Info className="w-8 h-8 sm:w-5 sm:h-5 mt-[2px] sm:mt-0" />
             <span>
               Reservas feita pelo WhatsApp somente mediante a confirmação de pagamento.

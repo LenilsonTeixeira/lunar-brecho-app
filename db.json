@@ -12,9 +12,11 @@
       "brand": "Chic Charmosa",
       "description": "Blusa elegante com paetês, perfeita para ocasiões especiais.",
       "sizes": ["P", "M", "G"],
-      "type": "Novo",
+      "type": "Bazar",
       "category": "Blusas",
-      "amount": 10
+      "amount": 10,
+      "isReserved": true,
+      "observations": "Pequeno defeito próximo à costura lateral."
     },
     {
       "id": "2",
@@ -28,7 +30,9 @@
       "sizes": ["PP", "P", "M", "G", "GG"],
       "type": "Novo",
       "category": "Blusas",
-      "amount": 5
+      "amount": 5,
+      "isReserved": false,
+      "observations": "Pouquíssimo uso, tecido em excelente estado."
     },
     {
       "id": "3",
@@ -42,7 +46,9 @@
       "sizes": ["P", "M", "G"],
       "type": "Novo",
       "category": "Vestidos",
-      "amount": 8
+      "amount": 8,
+      "isReserved": true,
+      "observations": "Pequena mancha quase imperceptível na parte de trás."
     },
     {
       "id": "4",
@@ -56,10 +62,11 @@
       "sizes": ["PP", "P", "M", "G"],
       "type": "Novo",
       "category": "Vestidos",
-      "amount": 12
+      "amount": 12,
+      "isReserved": false
     },
     {
-      "id": "1",
+      "id": "5",
       "images": [
         "https://images.tcdn.com.br/img/img_prod/1265389/blusa_feminina_paetes_preta_3059_3_28b72c455b152f55285d812210d55abf.jpg",
         "https://images.tcdn.com.br/img/img_prod/1265389/blusa_feminina_paetes_preta_3059_2_ce7e6fdf521cd164f94f39449ff07ee7.jpg",
@@ -72,10 +79,12 @@
       "sizes": ["P", "M", "G"],
       "type": "Novo",
       "category": "Blusas",
-      "amount": 10
+      "amount": 10,
+      "isReserved": false,
+      "observations": "Apresenta leve desgaste no brilho dos paetês."
     },
     {
-      "id": "2",
+      "id": "6",
       "images": [
         "https://images.tcdn.com.br/img/img_prod/1265389/kit_blusas_sem_alca_completo_3579_1_510332e2894319cd2de40ceb8cadd16e.jpg"
       ],
@@ -86,10 +95,11 @@
       "sizes": ["PP", "P", "M", "G", "GG"],
       "type": "Novo",
       "category": "Blusas",
-      "amount": 5
+      "amount": 5,
+      "isReserved": false
     },
     {
-      "id": "3",
+      "id": "7",
       "images": [
         "https://static.ecosweb.com.br/public/produtos/moda-feminina/vestido-midi/vestido-marinho-com-perolas-moda-evangelica_311903_600_1.webp"
       ],
@@ -100,10 +110,11 @@
       "sizes": ["P", "M", "G"],
       "type": "Novo",
       "category": "Vestidos",
-      "amount": 8
+      "amount": 8,
+      "isReserved": false
     },
     {
-      "id": "4",
+      "id": "8",
       "images": [
         "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
       ],
@@ -114,10 +125,12 @@
       "sizes": ["PP", "P", "M", "G"],
       "type": "Novo",
       "category": "Vestidos",
-      "amount": 12
+      "amount": 12,
+      "isReserved": false,
+      "observations": "Produto com etiqueta, nunca usado."
     },
     {
-      "id": "1",
+      "id": "9",
       "images": [
         "https://images.tcdn.com.br/img/img_prod/1265389/blusa_feminina_paetes_preta_3059_3_28b72c455b152f55285d812210d55abf.jpg",
         "https://images.tcdn.com.br/img/img_prod/1265389/blusa_feminina_paetes_preta_3059_2_ce7e6fdf521cd164f94f39449ff07ee7.jpg",
@@ -130,10 +143,12 @@
       "sizes": ["P", "M", "G"],
       "type": "Novo",
       "category": "Blusas",
-      "amount": 10
+      "amount": 10,
+      "isReserved": false,
+      "observations": "Costura reforçada recentemente na manga esquerda."
     },
     {
-      "id": "2",
+      "id": "10",
       "images": [
         "https://images.tcdn.com.br/img/img_prod/1265389/kit_blusas_sem_alca_completo_3579_1_510332e2894319cd2de40ceb8cadd16e.jpg"
       ],
@@ -144,10 +159,11 @@
       "sizes": ["PP", "P", "M", "G", "GG"],
       "type": "Novo",
       "category": "Blusas",
-      "amount": 5
+      "amount": 5,
+      "isReserved": false
     },
     {
-      "id": "3",
+      "id": "11",
       "images": [
         "https://static.ecosweb.com.br/public/produtos/moda-feminina/vestido-midi/vestido-marinho-com-perolas-moda-evangelica_311903_600_1.webp"
       ],
@@ -158,10 +174,12 @@
       "sizes": ["P", "M", "G"],
       "type": "Novo",
       "category": "Vestidos",
-      "amount": 8
+      "amount": 8,
+      "isReserved": false,
+      "observations": "Forro interno um pouco solto na região da barra."
     },
     {
-      "id": "4",
+      "id": "12",
       "images": [
         "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
       ],
@@ -172,65 +190,9 @@
       "sizes": ["PP", "P", "M", "G"],
       "type": "Novo",
       "category": "Vestidos",
-      "amount": 12
-    },
-    {
-      "id": "1",
-      "images": [
-        "https://images.tcdn.com.br/img/img_prod/1265389/blusa_feminina_paetes_preta_3059_3_28b72c455b152f55285d812210d55abf.jpg",
-        "https://images.tcdn.com.br/img/img_prod/1265389/blusa_feminina_paetes_preta_3059_2_ce7e6fdf521cd164f94f39449ff07ee7.jpg",
-        "https://images.tcdn.com.br/img/img_prod/1265389/blusa_feminina_paetes_preta_3059_5_84b3c172ab35b9870ca0a76dbbb6f27c.jpg"
-      ],
-      "name": "Blusa Feminina Paetês Preta",
-      "price": 50.00,
-      "brand": "Chic Charmosa",
-      "description": "Blusa elegante com paetês, perfeita para ocasiões especiais.",
-      "sizes": ["P", "M", "G"],
-      "type": "Novo",
-      "category": "Blusas",
-      "amount": 10
-    },
-    {
-      "id": "2",
-      "images": [
-        "https://images.tcdn.com.br/img/img_prod/1265389/kit_blusas_sem_alca_completo_3579_1_510332e2894319cd2de40ceb8cadd16e.jpg"
-      ],
-      "name": "Kit Blusas Sem Alça Completo",
-      "price": 129.90,
-      "brand": "Levi's",
-      "description": "Kit com blusas sem alça, ideal para dias quentes e confortáveis.",
-      "sizes": ["PP", "P", "M", "G", "GG"],
-      "type": "Novo",
-      "category": "Blusas",
-      "amount": 5
-    },
-    {
-      "id": "3",
-      "images": [
-        "https://static.ecosweb.com.br/public/produtos/moda-feminina/vestido-midi/vestido-marinho-com-perolas-moda-evangelica_311903_600_1.webp"
-      ],
-      "name": "Vestido Marinho com Pérolas",
-      "price": 200.00,
-      "brand": "Rosalie",
-      "description": "Vestido midi sofisticado com detalhes em pérolas, perfeito para eventos.",
-      "sizes": ["P", "M", "G"],
-      "type": "Novo",
-      "category": "Vestidos",
-      "amount": 8
-    },
-    {
-      "id": "4",
-      "images": [
-        "https://fernandaramosstore.com.br/wp-content/uploads/2023/09/fernandaramosstore_com_br-vestido-curto-com-bojo-amanda-estampado-floral-rosa-585x700.jpeg"
-      ],
-      "name": "Vestido Curto com Bojo Amanda Estampado Floral Rosa",
-      "price": 89.90,
-      "brand": "Amanda",
-      "description": "Vestido curto com bojo, confortável e estiloso para qualquer ocasião.",
-      "sizes": ["PP", "P", "M", "G"],
-      "type": "Novo",
-      "category": "Vestidos",
-      "amount": 12
+      "amount": 12,
+      "isReserved": false,
+      "observations": "Pequeno ajuste na cintura feito por costureira."
     }
   ]
 }

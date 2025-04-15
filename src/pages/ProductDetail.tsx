@@ -34,7 +34,7 @@ const ProductDetail = () => {
 
   return product && (
           <ProductDetailLayout>
-              <ProductImageSection images={product.images} alt={product.name} />
+              <ProductImageSection images={product.images} alt={product.name} isReserved={product.isReserved} />
               <ProductInfoSection product={product} selectedSize={size} onSelectSize={setSize} />
           </ProductDetailLayout>
   )
