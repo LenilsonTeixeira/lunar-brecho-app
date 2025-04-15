@@ -1,7 +1,7 @@
-import { Product } from "../../types/product";
-import Title from "../commom/Title";
-import ProductItem from "../product/ProductItem";
-import NoProductsFound from "../product/NoProductsFound";
+import { Product } from '../../types/product';
+import Title from '../commom/Title';
+import ProductItem from '../product/ProductItem';
+import NoProductsFound from '../product/NoProductsFound';
 
 type Props = {
   title: string;
@@ -16,9 +16,9 @@ const ProductSection = ({ products, title, searchQuery, selectedCategory }: Prop
   }
 
   return (
-    <section className="flex flex-col items-start w-full mt-6">
+    <section className='flex flex-col items-start w-full mt-6'>
       <Title name={title} />
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 w-full gap-4 mt-4">
+      <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 w-full gap-4 mt-4'>
         {products.map((item) => (
           <ProductItem key={item.id} product={item} />
         ))}

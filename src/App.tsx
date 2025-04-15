@@ -1,21 +1,21 @@
-import { Route, Routes } from "react-router"
-import Header from "./components/layout/Header"
-import Home from "./pages/Home"
-import ProductDetail from "./pages/ProductDetail"
-import Footer from "./components/footer/Footer"
-import { ProductProvider } from "./contexts/ProductContext"
+import { Route, Routes } from 'react-router';
+import Header from './components/layout/Header';
+import Home from './pages/Home';
+import ProductDetail from './pages/ProductDetail';
+import Footer from './components/footer/Footer';
+import { ProductProvider } from './contexts/ProductContext';
 
-function App() {
+const App = () => {
   return (
     <ProductProvider>
-      <Header/>
+      <Header />
       <Routes>
-          <Route path="/" element={<Home/>} />
-          <Route path="/produtos/:productId" element={<ProductDetail/>}/>
+        <Route path='/' element={<Home />} />
+        <Route path='/produtos/:productId' element={<ProductDetail />} />
       </Routes>
-      <Footer/>
+      <Footer />
     </ProductProvider>
-  )
-}
+  );
+};
 
-export default App
+export default App;

@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
-import { Product } from "../types/product";
-import axios from "axios";
-import { useParams } from "react-router";
-import ProductDetailLayout from "../components/product/ProductDetailLayout";
-import ProductImageSection from "../components/product/ProductImageSection";
-import ProductInfoSection from "../components/product/ProductInfoSection";
+import { useEffect, useState } from 'react';
+import { Product } from '../types/product';
+import axios from 'axios';
+import { useParams } from 'react-router';
+import ProductDetailLayout from '../components/product/ProductDetailLayout';
+import ProductImageSection from '../components/product/ProductImageSection';
+import ProductInfoSection from '../components/product/ProductInfoSection';
 
 const ProductDetail = () => {
-  const { productId } = useParams()
+  const { productId } = useParams();
   const [product, setProduct] = useState<Product>();
-  const [size, setSize] = useState('')
+  const [size, setSize] = useState('');
 
   const getProductById = async () => {
     const API_URL = `http://localhost:3001/produtos/${productId}`;
@@ -17,27 +17,32 @@ const ProductDetail = () => {
       const response = await axios.get<Product>(API_URL);
       return response.data;
     } catch (error) {
-      console.error("Erro ao buscar produtos:", error);
-      throw error
+      console.error('Erro ao buscar produtos:', error);
+      throw error;
     }
   };
 
-    useEffect(() => {
-      const fetchProducts = async () => {
-        const data = await getProductById();
-        setProduct(data);
-        console.log(data)
-      };
-  
-      fetchProducts();
-    }, []);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const data = await getProductById();
+      setProduct(data);
+    };
 
-  return product && (
-          <ProductDetailLayout>
-              <ProductImageSection images={product.images} alt={product.name} isReserved={product.isReserved} />
-              <ProductInfoSection product={product} selectedSize={size} onSelectSize={setSize} />
-          </ProductDetailLayout>
-  )
-}
+    fetchProducts();
+  }, []);
 
-export default ProductDetail
+  return (
+    product && (
+      <ProductDetailLayout>
+        <ProductImageSection
+          images={product.images}
+          alt={product.name}
+          isReserved={product.isReserved}
+        />
+        <ProductInfoSection product={product} selectedSize={size} onSelectSize={setSize} />
+      </ProductDetailLayout>
+    )
+  );
+};
+
+export default ProductDetail;

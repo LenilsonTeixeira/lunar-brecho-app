@@ -1,5 +1,5 @@
-import { ChevronUp, ChevronDown } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
+import { ChevronUp, ChevronDown } from 'lucide-react';
+import { useRef, useState, useEffect } from 'react';
 
 export interface ThumbnailsProps {
   images: string[];
@@ -30,26 +30,26 @@ const Thumbnails = ({ images, alt, onSelect, selectedImage }: ThumbnailsProps) =
       const scrollAmount = 150;
       containerRef.current.scrollBy({
         top: direction === 'up' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   };
 
   return (
-    <div className="relative sm:w-[18%] w-full max-h-[80vh]">
+    <div className='relative sm:w-[18%] w-full max-h-[80vh]'>
       {showArrows && (
         <button
           onClick={() => scroll('up')}
-          className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100 z-10"
-          aria-label="Rolar para cima"
+          className='absolute -top-6 left-1/2 transform -translate-x-1/2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100 z-10'
+          aria-label='Rolar para cima'
         >
-          <ChevronUp className="w-4 h-4" />
+          <ChevronUp className='w-4 h-4' />
         </button>
       )}
 
       <div
         ref={containerRef}
-        className="flex sm:flex-col overflow-x-auto sm:overflow-y-auto h-auto max-h-[70vh] justify-between sm:justify-start w-full gap-2 sm:gap-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 p-1"
+        className='flex sm:flex-col overflow-x-auto sm:overflow-y-auto h-auto max-h-[70vh] justify-between sm:justify-start w-full gap-2 sm:gap-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 p-1'
       >
         {images.map((img, idx) => (
           <img
@@ -69,10 +69,10 @@ const Thumbnails = ({ images, alt, onSelect, selectedImage }: ThumbnailsProps) =
       {showArrows && (
         <button
           onClick={() => scroll('down')}
-          className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100 z-10"
-          aria-label="Rolar para baixo"
+          className='absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100 z-10'
+          aria-label='Rolar para baixo'
         >
-          <ChevronDown className="w-4 h-4" />
+          <ChevronDown className='w-4 h-4' />
         </button>
       )}
     </div>
