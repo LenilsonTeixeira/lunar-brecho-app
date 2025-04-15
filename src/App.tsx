@@ -3,17 +3,18 @@ import Header from "./components/layout/Header"
 import Home from "./pages/Home"
 import ProductDetail from "./pages/ProductDetail"
 import Footer from "./components/footer/Footer"
-function App() {
+import { ProductProvider } from "./contexts/ProductContext"
 
+function App() {
   return (
-    <>
-        <Header/>
-        <Routes>
-            <Route path="/" element={<Home/>} />
-            <Route path="/produtos/:productId" element={<ProductDetail/>}/>
-        </Routes>
-        <Footer/>
-    </>
+    <ProductProvider>
+      <Header/>
+      <Routes>
+          <Route path="/" element={<Home/>} />
+          <Route path="/produtos/:productId" element={<ProductDetail/>}/>
+      </Routes>
+      <Footer/>
+    </ProductProvider>
   )
 }
 
