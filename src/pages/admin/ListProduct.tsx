@@ -471,7 +471,7 @@ const ListProduct = () => {
         </div>
 
         {/* Products Table */}
-        <div className='bg-white rounded-xl shadow-lg overflow-hidden'>
+        <div className='bg-slate-50 rounded-xl shadow-lg overflow-hidden'>
           <div className='overflow-x-auto'>
             <table className='w-full'>
               <thead className='bg-slate-50 border-b border-slate-200'>
@@ -502,7 +502,10 @@ const ListProduct = () => {
               </thead>
               <tbody className='divide-y divide-slate-200'>
                 {filteredProducts.map((product) => (
-                  <tr key={product.id} className='hover:bg-slate-50 transition-colors duration-200'>
+                  <tr
+                    key={product.id}
+                    className='hover:bg-slate-50 transition-colors duration-200 shadow-sm'
+                  >
                     <td className='px-6 py-4'>
                       <div className='flex items-center gap-3'>
                         <img
@@ -550,10 +553,10 @@ const ListProduct = () => {
                             key={index}
                             className='flex items-center justify-between min-w-[80px]'
                           >
-                            <span className='text-xs font-medium text-slate-600 bg-slate-100 px-2 py-1 rounded'>
+                            <span className='text-xs font-medium text-slate-600 bg-slate-200 px-2 py-1 rounded'>
                               {sizeItem.size}
                             </span>
-                            <span className='text-sm font-medium text-slate-700 ml-2'>
+                            <span className='text-sm font-medium text-slate-50 bg-black w-6 h-6 rounded-full flex items-center justify-center'>
                               {sizeItem.quantity}
                             </span>
                           </div>
