@@ -76,7 +76,7 @@ const Sidebar = () => {
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         h-screen text-base border-r border-slate-100 
-        flex flex-col bg-slate-50 shadow-2xl
+        flex flex-col bg-slate-950 shadow-2xl
       `}
       >
         {/* Logo Section */}
@@ -106,7 +106,7 @@ const Sidebar = () => {
                               ${
                                 isActive
                                   ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-lg'
-                                  : 'hover:bg-white text-slate-600 hover:text-slate-800'
+                                  : 'hover:bg-white text-slate-50 hover:text-slate-800'
                               }`}
               >
                 {/* Active indicator - left border */}
@@ -129,7 +129,7 @@ const Sidebar = () => {
                   </div>
                   <p
                     className={`font-medium transition-all duration-300 flex-1 ${
-                      isActive ? 'text-white' : 'text-slate-600 group-hover:text-slate-800'
+                      isActive ? 'text-white' : 'text-slate-50 group-hover:text-slate-800'
                     }`}
                   >
                     {item.label}
@@ -141,10 +141,10 @@ const Sidebar = () => {
         </div>
 
         {/* Logout Section */}
-        <div className='p-4 border-t border-slate-200 bg-white'>
+        <div className='p-4 border-t border-slate-200 bg-slate-950'>
           <button
             onClick={handleLogout}
-            className='w-full flex items-center py-3 px-4 gap-3 transition-all duration-300 rounded-lg hover:bg-red-50 text-slate-600 hover:text-red-600 group'
+            className='w-full flex items-center py-3 px-4 gap-3 transition-all duration-300 rounded-lg hover:bg-red-50 text-slate-50 hover:text-red-600 group'
           >
             <div className='transition-all duration-300 flex-shrink-0 group-hover:scale-105'>
               <LogOut className='w-5 h-5' />

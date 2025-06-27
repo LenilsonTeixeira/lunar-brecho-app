@@ -9,6 +9,7 @@ import Layout from './pages/admin/Layout';
 import Dashboard from './pages/admin/Dashboard';
 import Banner from './components/banner/Banner';
 import AddProduct from './pages/admin/AddProduct';
+import ListProduct from './pages/admin/ListProduct';
 
 const App = () => {
   const isAdminPath = useLocation().pathname.includes('admin');
@@ -37,6 +38,7 @@ const App = () => {
           <Route path='usuarios' element={<div>Página de Usuários</div>} />
           <Route path='relatorios' element={<div>Página de Relatórios</div>} />
           <Route path='configuracoes' element={<div>Página de Configurações</div>} />
+          <Route path='produtos' element={<ListProduct />} />
         </Route>
       </Routes>
       {!isAdminPath && <Footer />}

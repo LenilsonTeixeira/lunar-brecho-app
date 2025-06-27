@@ -1,4 +1,44 @@
+import { useState } from 'react';
+import { Plus, X } from 'lucide-react';
+
 const AddProduct = () => {
+  const [sizes, setSizes] = useState([{ id: 1, size: '', quantity: 1 }]);
+
+  const availableSizes = [
+    'PP',
+    'P',
+    'M',
+    'G',
+    'GG',
+    'XG',
+    'XXG',
+    '34',
+    '36',
+    '38',
+    '40',
+    '42',
+    '44',
+    '46',
+    '48',
+    'Único',
+    'Livre',
+  ];
+
+  const addSize = () => {
+    const newId = Math.max(...sizes.map((s) => s.id), 0) + 1;
+    setSizes([...sizes, { id: newId, size: '', quantity: 1 }]);
+  };
+
+  const removeSize = (id: number) => {
+    if (sizes.length > 1) {
+      setSizes(sizes.filter((s) => s.id !== id));
+    }
+  };
+
+  const updateSize = (id: number, field: 'size' | 'quantity', value: string | number) => {
+    setSizes(sizes.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
+  };
+
   return (
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
       <div className='w-full max-w-7xl mx-auto'>
@@ -14,7 +54,7 @@ const AddProduct = () => {
               Imagens do Produto
             </label>
 
-            <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4'>
+            <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4'>
               {/* Main Image */}
               <label htmlFor='main-image' className='cursor-pointer group'>
                 <input accept='image/*' type='file' id='main-image' className='hidden' required />
@@ -43,7 +83,7 @@ const AddProduct = () => {
               </label>
 
               {/* Additional Images */}
-              {Array(4)
+              {Array(5)
                 .fill('')
                 .map((_, index) => (
                   <label key={index} htmlFor={`image${index}`} className='cursor-pointer group'>
@@ -132,64 +172,95 @@ const AddProduct = () => {
               <label className='text-base font-semibold text-slate-700' htmlFor='type'>
                 Tipo
               </label>
-              <input
+              <select
                 id='type'
-                type='text'
-                placeholder='Digite o tipo do produto'
                 className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-              />
+              >
+                <option value=''>Selecione o tipo</option>
+                <option value='novo'>Novo</option>
+                <option value='bazar'>Bazar</option>
+              </select>
             </div>
           </div>
 
-          {/* Size and Quantity - Side by side on larger screens */}
-          <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-            <div className='flex flex-col gap-2'>
-              <label className='text-base font-semibold text-slate-700' htmlFor='size'>
-                Tamanho
+          {/* Sizes and Quantities - Dynamic Management */}
+          <div>
+            <div className='flex items-center justify-between mb-4'>
+              <label className='text-base font-semibold text-slate-700'>
+                Tamanhos e Quantidades
               </label>
-              <select
-                id='size'
-                className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+              <button
+                type='button'
+                onClick={addSize}
+                className='flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all duration-300'
               >
-                <option value=''>Selecione o tamanho</option>
-                {[
-                  'PP',
-                  'P',
-                  'M',
-                  'G',
-                  'GG',
-                  'XG',
-                  'XXG',
-                  '34',
-                  '36',
-                  '38',
-                  '40',
-                  '42',
-                  '44',
-                  '46',
-                  '48',
-                  'Único',
-                  'Livre',
-                ].map((size, index) => (
-                  <option key={index} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
+                <Plus className='w-4 h-4' />
+                Adicionar Tamanho
+              </button>
             </div>
 
-            <div className='flex flex-col gap-2'>
-              <label className='text-base font-semibold text-slate-700' htmlFor='quantity'>
-                Quantidade
-              </label>
-              <input
-                id='quantity'
-                type='number'
-                min='1'
-                placeholder='Digite a quantidade disponível'
-                className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                required
-              />
+            <div className='space-y-3'>
+              {sizes.map((sizeItem, index) => (
+                <div
+                  key={sizeItem.id}
+                  className='flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200'
+                >
+                  <div className='flex-1'>
+                    <label className='text-sm font-medium text-slate-600 mb-2 block'>
+                      Tamanho {index + 1}
+                    </label>
+                    <select
+                      value={sizeItem.size}
+                      onChange={(e) => updateSize(sizeItem.id, 'size', e.target.value)}
+                      className='w-full outline-none py-2 px-3 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                    >
+                      <option value=''>Selecione o tamanho</option>
+                      {availableSizes.map((size) => (
+                        <option key={size} value={size}>
+                          {size}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className='flex-1'>
+                    <label className='text-sm font-medium text-slate-600 mb-2 block'>
+                      Quantidade
+                    </label>
+                    <input
+                      type='number'
+                      min='1'
+                      value={sizeItem.quantity}
+                      onChange={(e) =>
+                        updateSize(sizeItem.id, 'quantity', parseInt(e.target.value) || 1)
+                      }
+                      placeholder='Qtd'
+                      className='w-full outline-none py-2 px-3 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                    />
+                  </div>
+
+                  {sizes.length > 1 && (
+                    <button
+                      type='button'
+                      onClick={() => removeSize(sizeItem.id)}
+                      className='mt-6 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300'
+                      aria-label='Remover tamanho'
+                    >
+                      <X className='w-4 h-4' />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Total Quantity Display */}
+            <div className='mt-4 p-3 bg-purple-50 rounded-lg border border-purple-200'>
+              <div className='flex items-center justify-between'>
+                <span className='text-sm font-medium text-purple-700'>Quantidade Total:</span>
+                <span className='text-lg font-bold text-purple-800'>
+                  {sizes.reduce((total, item) => total + item.quantity, 0)} unidades
+                </span>
+              </div>
             </div>
           </div>
 
