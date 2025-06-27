@@ -13,7 +13,36 @@ const AddProduct = () => {
             <label className='text-base font-semibold text-slate-700 mb-3 block'>
               Imagens do Produto
             </label>
-            <div className='grid grid-cols-2 sm:grid-cols-4 gap-4'>
+
+            <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4'>
+              {/* Main Image */}
+              <label htmlFor='main-image' className='cursor-pointer group'>
+                <input accept='image/*' type='file' id='main-image' className='hidden' required />
+                <div className='aspect-square border-2 border-dashed border-purple-400 rounded-lg flex items-center justify-center bg-purple-50 group-hover:border-purple-500 group-hover:bg-purple-100 transition-all duration-300'>
+                  <div className='text-center'>
+                    <div className='w-8 h-8 mx-auto mb-2 bg-purple-200 rounded-full flex items-center justify-center group-hover:bg-purple-300 transition-colors'>
+                      <svg
+                        className='w-4 h-4 text-purple-600 group-hover:text-purple-700'
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                        />
+                      </svg>
+                    </div>
+                    <p className='text-xs text-purple-600 group-hover:text-purple-700 font-medium'>
+                      Imagem Principal
+                    </p>
+                  </div>
+                </div>
+              </label>
+
+              {/* Additional Images */}
               {Array(4)
                 .fill('')
                 .map((_, index) => (
@@ -85,6 +114,85 @@ const AddProduct = () => {
             </div>
           </div>
 
+          {/* Brand and Type - Side by side on larger screens */}
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+            <div className='flex flex-col gap-2'>
+              <label className='text-base font-semibold text-slate-700' htmlFor='brand'>
+                Marca
+              </label>
+              <input
+                id='brand'
+                type='text'
+                placeholder='Digite a marca do produto'
+                className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+              />
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              <label className='text-base font-semibold text-slate-700' htmlFor='type'>
+                Tipo
+              </label>
+              <input
+                id='type'
+                type='text'
+                placeholder='Digite o tipo do produto'
+                className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+              />
+            </div>
+          </div>
+
+          {/* Size and Quantity - Side by side on larger screens */}
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+            <div className='flex flex-col gap-2'>
+              <label className='text-base font-semibold text-slate-700' htmlFor='size'>
+                Tamanho
+              </label>
+              <select
+                id='size'
+                className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+              >
+                <option value=''>Selecione o tamanho</option>
+                {[
+                  'PP',
+                  'P',
+                  'M',
+                  'G',
+                  'GG',
+                  'XG',
+                  'XXG',
+                  '34',
+                  '36',
+                  '38',
+                  '40',
+                  '42',
+                  '44',
+                  '46',
+                  '48',
+                  'Único',
+                  'Livre',
+                ].map((size, index) => (
+                  <option key={index} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              <label className='text-base font-semibold text-slate-700' htmlFor='quantity'>
+                Quantidade
+              </label>
+              <input
+                id='quantity'
+                type='number'
+                min='1'
+                placeholder='Digite a quantidade disponível'
+                className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                required
+              />
+            </div>
+          </div>
+
           {/* Product Description */}
           <div className='flex flex-col gap-2'>
             <label className='text-base font-semibold text-slate-700' htmlFor='product-description'>
@@ -95,6 +203,19 @@ const AddProduct = () => {
               rows={4}
               className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
               placeholder='Digite a descrição do produto'
+            ></textarea>
+          </div>
+
+          {/* Observations */}
+          <div className='flex flex-col gap-2'>
+            <label className='text-base font-semibold text-slate-700' htmlFor='observations'>
+              Observações
+            </label>
+            <textarea
+              id='observations'
+              rows={3}
+              className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
+              placeholder='Informações adicionais, detalhes especiais, etc.'
             ></textarea>
           </div>
 
