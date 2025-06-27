@@ -1,9 +1,16 @@
 import { Link } from 'react-router';
 import MoonIcon from '../icon/MoonIcon';
 
-const Header = () => {
+interface HeaderProps {
+  showBanner: boolean;
+}
+
+const Header = ({ showBanner }: HeaderProps) => {
   return (
-    <div className='w-full flex items-center h-20 font-medium shadow-xl fixed top-0 left-0 z-50 bg-slate-100'>
+    <div
+      className='w-full flex items-center h-20 font-medium shadow-xl fixed left-0 z-50 bg-slate-100 transition-all duration-300 ease-in-out'
+      style={{ top: showBanner ? '2rem' : '0' }}
+    >
       <div className='flex h-20 items-center justify-center w-full px-4'>
         <Link
           to='/'
