@@ -1,4 +1,13 @@
-import { LayoutDashboard, Package, Users, Settings, BarChart3, Menu, X } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Package,
+  Users,
+  Settings,
+  BarChart3,
+  Menu,
+  X,
+  LogOut,
+} from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import { useState } from 'react';
 import MoonIcon from '../../icon/MoonIcon';
@@ -37,6 +46,11 @@ const Sidebar = () => {
 
   const toggleSidebar = () => setIsOpen(!isOpen);
   const closeSidebar = () => setIsOpen(false);
+
+  const handleLogout = () => {
+    // Implementar lógica de logout aqui
+    console.log('Logout clicked');
+  };
 
   return (
     <>
@@ -126,22 +140,17 @@ const Sidebar = () => {
           })}
         </div>
 
-        {/* User Section */}
+        {/* Logout Section */}
         <div className='p-4 border-t border-slate-200 bg-white'>
-          <div className='flex items-center gap-3 text-slate-600'>
-            <div className='relative flex-shrink-0'>
-              <img
-                className='h-12 w-12 rounded-full ring-2 ring-purple-500/30 shadow-md'
-                src='https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200'
-                alt='userImage1'
-              />
-              <div className='absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full shadow-sm'></div>
+          <button
+            onClick={handleLogout}
+            className='w-full flex items-center py-3 px-4 gap-3 transition-all duration-300 rounded-lg hover:bg-red-50 text-slate-600 hover:text-red-600 group'
+          >
+            <div className='transition-all duration-300 flex-shrink-0 group-hover:scale-105'>
+              <LogOut className='w-5 h-5' />
             </div>
-            <div className='min-w-0 flex-1'>
-              <p className='text-sm font-semibold text-slate-800 truncate'>Admin</p>
-              <p className='text-xs text-slate-500 truncate'>Administradora</p>
-            </div>
-          </div>
+            <span className='font-medium transition-all duration-300 flex-1 text-left'>Sair</span>
+          </button>
         </div>
       </div>
     </>
