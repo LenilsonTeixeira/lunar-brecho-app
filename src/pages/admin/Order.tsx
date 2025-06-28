@@ -178,6 +178,128 @@ const Order = () => {
       paymentMethod: 'Cartão de Crédito',
       deliveryAddress: 'Av. Rondon Pacheco, 456 - Tibery, Uberlândia/MG',
     },
+    {
+      id: 13,
+      orderNumber: '#ORD-2024-013',
+      customer: 'Camila Silva',
+      customerPhone: '(34) 99111-2222',
+      products: [
+        { name: 'Vestido Floral Vintage', quantity: 1, price: 59.9 },
+        { name: 'Blusa Básica Algodão', quantity: 1, price: 35.0 },
+        { name: 'Body Rendado', quantity: 1, price: 45.0 },
+      ],
+      total: 139.9,
+      status: 'pendente',
+      orderDate: '2024-01-10',
+      paymentMethod: 'PIX',
+      deliveryAddress: 'Rua das Palmeiras, 789 - Centro, Uberlândia/MG',
+    },
+    {
+      id: 14,
+      orderNumber: '#ORD-2024-014',
+      customer: 'Juliana Costa',
+      customerPhone: '(34) 99222-3333',
+      products: [
+        { name: 'Blazer Clássico', quantity: 1, price: 95.0 },
+        { name: 'Calça Palazzo', quantity: 1, price: 95.0 },
+      ],
+      total: 190.0,
+      status: 'aprovado',
+      orderDate: '2024-01-09',
+      paymentMethod: 'Cartão de Crédito',
+      deliveryAddress: 'Av. Cesário Alvim, 321 - Santa Mônica, Uberlândia/MG',
+    },
+    {
+      id: 15,
+      orderNumber: '#ORD-2024-015',
+      customer: 'Mariana Santos',
+      customerPhone: '(34) 99333-4444',
+      products: [
+        { name: 'Sapatos de Salto', quantity: 1, price: 140.0 },
+        { name: 'Bolsa de Couro', quantity: 1, price: 89.9 },
+      ],
+      total: 229.9,
+      status: 'enviado',
+      orderDate: '2024-01-08',
+      paymentMethod: 'PIX',
+      deliveryAddress: 'Rua Duque de Caxias, 654 - Fundinho, Uberlândia/MG',
+    },
+    {
+      id: 16,
+      orderNumber: '#ORD-2024-016',
+      customer: 'Fernanda Lima',
+      customerPhone: '(34) 99444-5555',
+      products: [
+        { name: 'Jeans Mom Fit', quantity: 1, price: 120.0 },
+        { name: 'Cropped Top Estampado', quantity: 1, price: 40.0 },
+      ],
+      total: 160.0,
+      status: 'entregue',
+      orderDate: '2024-01-07',
+      paymentMethod: 'Cartão de Débito',
+      deliveryAddress: 'Av. Rondon Pacheco, 147 - Tibery, Uberlândia/MG',
+    },
+    {
+      id: 17,
+      orderNumber: '#ORD-2024-017',
+      customer: 'Carolina Almeida',
+      customerPhone: '(34) 99555-6666',
+      products: [
+        { name: 'Conjunto Shorts + Top', quantity: 1, price: 85.0 },
+        { name: 'Body Esportivo', quantity: 1, price: 65.0 },
+      ],
+      total: 150.0,
+      status: 'pendente',
+      orderDate: '2024-01-06',
+      paymentMethod: 'PIX',
+      deliveryAddress: 'Rua João Pinheiro, 456 - Martins, Uberlândia/MG',
+    },
+    {
+      id: 18,
+      orderNumber: '#ORD-2024-018',
+      customer: 'Patrícia Martins',
+      customerPhone: '(34) 99666-7777',
+      products: [
+        { name: 'Vestido Longo Elegante', quantity: 1, price: 75.0 },
+        { name: 'Blusa Transparente', quantity: 1, price: 55.0 },
+        { name: 'Body Lace', quantity: 1, price: 65.0 },
+      ],
+      total: 195.0,
+      status: 'aprovado',
+      orderDate: '2024-01-05',
+      paymentMethod: 'Cartão de Crédito',
+      deliveryAddress: 'Av. João Naves de Ávila, 852 - Santa Rosa, Uberlândia/MG',
+    },
+    {
+      id: 19,
+      orderNumber: '#ORD-2024-019',
+      customer: 'Luciana Oliveira',
+      customerPhone: '(34) 99777-8888',
+      products: [
+        { name: 'Jeans Boyfriend', quantity: 1, price: 110.0 },
+        { name: 'Blusa de Seda', quantity: 1, price: 85.0 },
+      ],
+      total: 195.0,
+      status: 'enviado',
+      orderDate: '2024-01-04',
+      paymentMethod: 'PIX',
+      deliveryAddress: 'Rua Coronel Antônio Alves, 963 - Lídice, Uberlândia/MG',
+    },
+    {
+      id: 20,
+      orderNumber: '#ORD-2024-020',
+      customer: 'Gabriela Rodrigues',
+      customerPhone: '(34) 99888-9999',
+      products: [
+        { name: 'Vestido Midi Floral', quantity: 1, price: 65.0 },
+        { name: 'Cropped Cardigan', quantity: 1, price: 75.0 },
+      ],
+      total: 140.0,
+      status: 'entregue',
+      orderDate: '2024-01-03',
+      paymentMethod: 'Cartão de Débito',
+      deliveryAddress: 'Av. Cesário Alvim, 741 - Santa Mônica, Uberlândia/MG',
+    },
   ]);
 
   const statusOptions = [
@@ -239,7 +361,7 @@ const Order = () => {
   };
 
   return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50'>
+    <div className='py-6 flex flex-col bg-slate-50'>
       <div className='w-full max-w-7xl mx-auto'>
         {/* Header */}
         <div className='mb-8'>
@@ -302,8 +424,8 @@ const Order = () => {
 
         {/* Orders Table */}
         <div className='bg-slate-50 rounded-xl shadow-lg overflow-hidden'>
-          <div className='overflow-x-auto'>
-            <table className='w-full'>
+          <div className='overflow-x-auto md:overflow-x-visible'>
+            <table className='w-full md:min-w-full min-w-[800px]'>
               <thead className='bg-slate-50 border-b border-slate-200'>
                 <tr>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[140px]'>
