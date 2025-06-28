@@ -43,14 +43,16 @@ const AddProduct = () => {
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
       <div className='w-full max-w-7xl mx-auto'>
         <div className='mb-8'>
-          <h1 className='text-3xl font-bold text-slate-800 mb-2'>Adicionar Produto</h1>
-          <p className='text-slate-600'>Preencha as informações do produto abaixo</p>
+          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Adicionar Produto</h1>
+          <p className='text-sm sm:text-base text-slate-600'>
+            Preencha as informações do produto abaixo
+          </p>
         </div>
 
-        <form className='bg-white rounded-xl shadow-lg p-6 sm:p-8 space-y-6'>
+        <form className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'>
           {/* Product Images */}
           <div>
-            <label className='text-base font-semibold text-slate-700 mb-3 block'>
+            <label className='text-sm sm:text-base font-semibold text-slate-700 mb-3 block'>
               Imagens do Produto
             </label>
 
@@ -118,25 +120,31 @@ const AddProduct = () => {
           {/* Product Name and Category - Side by side on larger screens */}
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
             <div className='flex flex-col gap-2'>
-              <label className='text-base font-semibold text-slate-700' htmlFor='product-name'>
+              <label
+                className='text-sm sm:text-base font-semibold text-slate-700'
+                htmlFor='product-name'
+              >
                 Nome do Produto
               </label>
               <input
                 id='product-name'
                 type='text'
                 placeholder='Digite o nome do produto'
-                className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                 required
               />
             </div>
 
             <div className='flex flex-col gap-2'>
-              <label className='text-base font-semibold text-slate-700' htmlFor='category'>
+              <label
+                className='text-sm sm:text-base font-semibold text-slate-700'
+                htmlFor='category'
+              >
                 Categoria
               </label>
               <select
                 id='category'
-                className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
               >
                 <option value=''>Selecione uma categoria</option>
                 {[
@@ -157,24 +165,24 @@ const AddProduct = () => {
           {/* Brand and Type - Side by side on larger screens */}
           <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
             <div className='flex flex-col gap-2'>
-              <label className='text-base font-semibold text-slate-700' htmlFor='brand'>
+              <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='brand'>
                 Marca
               </label>
               <input
                 id='brand'
                 type='text'
                 placeholder='Digite a marca do produto'
-                className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
               />
             </div>
 
             <div className='flex flex-col gap-2'>
-              <label className='text-base font-semibold text-slate-700' htmlFor='type'>
+              <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='type'>
                 Tipo
               </label>
               <select
                 id='type'
-                className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
               >
                 <option value=''>Selecione o tipo</option>
                 <option value='novo'>Novo</option>
@@ -186,13 +194,13 @@ const AddProduct = () => {
           {/* Sizes and Quantities - Dynamic Management */}
           <div>
             <div className='flex items-center justify-between mb-4'>
-              <label className='text-base font-semibold text-slate-700'>
+              <label className='text-sm sm:text-base font-semibold text-slate-700'>
                 Tamanhos e Quantidades
               </label>
               <button
                 type='button'
                 onClick={addSize}
-                className='flex items-center gap-2 px-3 py-2 text-sm font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all duration-300'
+                className='flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all duration-300'
               >
                 <Plus className='w-4 h-4' />
                 Adicionar Tamanho
@@ -206,13 +214,13 @@ const AddProduct = () => {
                   className='flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200'
                 >
                   <div className='flex-1'>
-                    <label className='text-sm font-medium text-slate-600 mb-2 block'>
+                    <label className='text-xs sm:text-sm font-medium text-slate-600 mb-2 block'>
                       Tamanho {index + 1}
                     </label>
                     <select
                       value={sizeItem.size}
                       onChange={(e) => updateSize(sizeItem.id, 'size', e.target.value)}
-                      className='w-full outline-none py-2 px-3 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                      className='w-full outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                     >
                       <option value=''>Selecione o tamanho</option>
                       {availableSizes.map((size) => (
@@ -224,7 +232,7 @@ const AddProduct = () => {
                   </div>
 
                   <div className='flex-1'>
-                    <label className='text-sm font-medium text-slate-600 mb-2 block'>
+                    <label className='text-xs sm:text-sm font-medium text-slate-600 mb-2 block'>
                       Quantidade
                     </label>
                     <input
@@ -235,7 +243,7 @@ const AddProduct = () => {
                         updateSize(sizeItem.id, 'quantity', parseInt(e.target.value) || 1)
                       }
                       placeholder='Qtd'
-                      className='w-full outline-none py-2 px-3 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                      className='w-full outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                     />
                   </div>
 
@@ -256,8 +264,10 @@ const AddProduct = () => {
             {/* Total Quantity Display */}
             <div className='mt-4 p-3 bg-purple-50 rounded-lg border border-purple-200'>
               <div className='flex items-center justify-between'>
-                <span className='text-sm font-medium text-purple-700'>Quantidade Total:</span>
-                <span className='text-lg font-bold text-purple-800'>
+                <span className='text-xs sm:text-sm font-medium text-purple-700'>
+                  Quantidade Total:
+                </span>
+                <span className='text-sm sm:text-lg font-bold text-purple-800'>
                   {sizes.reduce((total, item) => total + item.quantity, 0)} unidades
                 </span>
               </div>
@@ -266,26 +276,32 @@ const AddProduct = () => {
 
           {/* Product Description */}
           <div className='flex flex-col gap-2'>
-            <label className='text-base font-semibold text-slate-700' htmlFor='product-description'>
+            <label
+              className='text-sm sm:text-base font-semibold text-slate-700'
+              htmlFor='product-description'
+            >
               Descrição do Produto
             </label>
             <textarea
               id='product-description'
               rows={4}
-              className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
+              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
               placeholder='Digite a descrição do produto'
             ></textarea>
           </div>
 
           {/* Observations */}
           <div className='flex flex-col gap-2'>
-            <label className='text-base font-semibold text-slate-700' htmlFor='observations'>
+            <label
+              className='text-sm sm:text-base font-semibold text-slate-700'
+              htmlFor='observations'
+            >
               Observações
             </label>
             <textarea
               id='observations'
               rows={3}
-              className='outline-none py-3 px-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
+              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
               placeholder='Informações adicionais, detalhes especiais, etc.'
             ></textarea>
           </div>
@@ -293,35 +309,41 @@ const AddProduct = () => {
           {/* Prices - Side by side on larger screens */}
           <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6'>
             <div className='flex flex-col gap-2'>
-              <label className='text-base font-semibold text-slate-700' htmlFor='product-price'>
+              <label
+                className='text-sm sm:text-base font-semibold text-slate-700'
+                htmlFor='product-price'
+              >
                 Preço Original
               </label>
               <div className='relative'>
-                <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500'>
+                <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-sm sm:text-base'>
                   R$
                 </span>
                 <input
                   id='product-price'
                   type='number'
                   placeholder='0,00'
-                  className='outline-none py-3 pl-10 pr-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full'
+                  className='outline-none py-2 sm:py-3 pl-10 pr-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full'
                   required
                 />
               </div>
             </div>
             <div className='flex flex-col gap-2'>
-              <label className='text-base font-semibold text-slate-700' htmlFor='offer-price'>
+              <label
+                className='text-sm sm:text-base font-semibold text-slate-700'
+                htmlFor='offer-price'
+              >
                 Preço com Desconto
               </label>
               <div className='relative'>
-                <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500'>
+                <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-sm sm:text-base'>
                   R$
                 </span>
                 <input
                   id='offer-price'
                   type='number'
                   placeholder='0,00'
-                  className='outline-none py-3 pl-10 pr-4 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full'
+                  className='outline-none py-2 sm:py-3 pl-10 pr-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full'
                   required
                 />
               </div>
@@ -332,7 +354,7 @@ const AddProduct = () => {
           <div className='pt-4'>
             <button
               type='submit'
-              className='w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
             >
               Adicionar Produto
             </button>

@@ -401,10 +401,12 @@ const ListProduct = () => {
         <div className='mb-8'>
           <div className='flex items-center justify-between mb-4'>
             <div>
-              <h1 className='text-3xl font-bold text-slate-800 mb-2'>Produtos</h1>
-              <p className='text-slate-600'>Gerencie o catálogo de produtos do brechó</p>
+              <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Produtos</h1>
+              <p className='text-sm sm:text-base text-slate-600'>
+                Gerencie o catálogo de produtos do brechó
+              </p>
             </div>
-            <button className='flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'>
+            <button className='flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'>
               <Plus className='w-4 h-4' />
               Adicionar Produto
             </button>
@@ -412,7 +414,7 @@ const ListProduct = () => {
         </div>
 
         {/* Filters and Search */}
-        <div className='bg-white rounded-xl shadow-lg p-6 mb-6'>
+        <div className='bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6'>
           <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
             {/* Search */}
             <div className='relative'>
@@ -422,7 +424,7 @@ const ListProduct = () => {
                 placeholder='Buscar produtos...'
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className='w-full pl-10 pr-4 py-3 border border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300'
+                className='w-full pl-10 pr-4 py-2 sm:py-3 text-sm border border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300'
               />
             </div>
 
@@ -431,7 +433,7 @@ const ListProduct = () => {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className='w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300'
+                className='w-full px-4 py-2 sm:py-3 text-sm border border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300'
               >
                 {categories.map((category) => (
                   <option key={category} value={category}>
@@ -446,7 +448,7 @@ const ListProduct = () => {
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
-                className='w-full px-4 py-3 border border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300'
+                className='w-full px-4 py-2 sm:py-3 text-sm border border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300'
               >
                 {types.map((type) => (
                   <option key={type} value={type}>
@@ -463,7 +465,7 @@ const ListProduct = () => {
                 setSelectedCategory('');
                 setSelectedType('');
               }}
-              className='px-4 py-3 text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all duration-300'
+              className='px-4 py-2 sm:py-3 text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all duration-300'
             >
               Limpar Filtros
             </button>
@@ -476,26 +478,28 @@ const ListProduct = () => {
             <table className='w-full'>
               <thead className='bg-slate-50 border-b border-slate-200'>
                 <tr>
-                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
+                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Produto
                   </th>
-                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
+                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Categoria
                   </th>
-                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
+                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Marca
                   </th>
-                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>Tipo</th>
-                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
+                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
+                    Tipo
+                  </th>
+                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Preços
                   </th>
-                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
+                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Estoque
                   </th>
-                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
+                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Status
                   </th>
-                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
+                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Ações
                   </th>
                 </tr>
@@ -514,20 +518,22 @@ const ListProduct = () => {
                           className='w-12 h-12 rounded-lg object-cover'
                         />
                         <div>
-                          <p className='font-medium text-slate-800'>{product.name}</p>
-                          <p className='text-sm text-slate-500'>ID: {product.id}</p>
+                          <p className='text-xs sm:text-sm font-medium text-slate-800'>
+                            {product.name}
+                          </p>
+                          <p className='text-xs text-slate-500'>ID: {product.id}</p>
                         </div>
                       </div>
                     </td>
                     <td className='px-6 py-4'>
-                      <span className='px-3 py-1 bg-purple-300 text-slate-950 rounded-sm text-sm font-medium'>
+                      <span className='px-3 py-1 bg-purple-300 text-slate-950 rounded-sm text-xs sm:text-sm font-medium'>
                         {product.category}
                       </span>
                     </td>
-                    <td className='px-6 py-4 text-slate-700'>{product.brand}</td>
+                    <td className='px-6 py-4 text-xs sm:text-sm text-slate-700'>{product.brand}</td>
                     <td className='px-6 py-4'>
                       <span
-                        className={`px-3 py-1 rounded-sm text-sm font-medium ${
+                        className={`px-3 py-1 rounded-sm text-xs sm:text-sm font-medium ${
                           product.type === 'novo'
                             ? 'bg-sky-300 text-slate-950'
                             : 'bg-yellow-300 text-slate-950'
@@ -538,10 +544,10 @@ const ListProduct = () => {
                     </td>
                     <td className='px-6 py-4'>
                       <div className='space-y-1'>
-                        <p className='text-sm text-slate-500 line-through'>
+                        <p className='text-xs sm:text-sm text-slate-500 line-through'>
                           {formatPrice(product.price)}
                         </p>
-                        <p className='font-semibold text-slate-800'>
+                        <p className='text-xs sm:text-sm font-semibold text-slate-800'>
                           {formatPrice(product.offerPrice)}
                         </p>
                       </div>
@@ -556,7 +562,7 @@ const ListProduct = () => {
                             <span className='text-xs font-medium text-slate-600 bg-slate-200 px-2 py-1 rounded'>
                               {sizeItem.size}
                             </span>
-                            <span className='text-sm font-medium text-slate-50 bg-black w-6 h-6 rounded-full flex items-center justify-center'>
+                            <span className='text-xs sm:text-sm font-medium text-slate-50 bg-black w-6 h-6 rounded-full flex items-center justify-center'>
                               {sizeItem.quantity}
                             </span>
                           </div>
@@ -565,7 +571,7 @@ const ListProduct = () => {
                     </td>
                     <td className='px-6 py-4'>
                       <span
-                        className={`px-3 py-1 rounded-sm text-sm font-medium ${
+                        className={`px-3 py-1 rounded-sm text-xs sm:text-sm font-medium ${
                           product.status === 'ativo'
                             ? 'bg-green-300 text-slate-950'
                             : 'bg-red-300 text-slate-950'
@@ -575,24 +581,24 @@ const ListProduct = () => {
                       </span>
                     </td>
                     <td className='px-6 py-4'>
-                      <div className='flex items-center gap-2'>
+                      <div className='flex items-center gap-1 sm:gap-2'>
                         <button
-                          className='p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
+                          className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
                           title='Visualizar'
                         >
-                          <Eye className='w-4 h-4' />
+                          <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
                         </button>
                         <button
-                          className='p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
+                          className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
                           title='Editar'
                         >
-                          <Edit className='w-4 h-4' />
+                          <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
                         </button>
                         <button
-                          className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
+                          className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
                           title='Excluir'
                         >
-                          <Trash2 className='w-4 h-4' />
+                          <Trash2 className='w-3 h-3 sm:w-4 sm:h-4' />
                         </button>
                       </div>
                     </td>
@@ -608,8 +614,10 @@ const ListProduct = () => {
               <div className='w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center'>
                 <Search className='w-8 h-8 text-slate-400' />
               </div>
-              <h3 className='text-lg font-medium text-slate-800 mb-2'>Nenhum produto encontrado</h3>
-              <p className='text-slate-600'>
+              <h3 className='text-base sm:text-lg font-medium text-slate-800 mb-2'>
+                Nenhum produto encontrado
+              </h3>
+              <p className='text-sm sm:text-base text-slate-600'>
                 Tente ajustar os filtros ou adicionar um novo produto.
               </p>
             </div>
@@ -619,15 +627,17 @@ const ListProduct = () => {
         {/* Pagination */}
         {filteredProducts.length > 0 && (
           <div className='mt-6 flex items-center justify-between bg-white rounded-xl shadow-lg p-4'>
-            <div className='text-sm text-slate-600'>
+            <div className='text-xs sm:text-sm text-slate-600'>
               Mostrando {filteredProducts.length} de {products.length} produtos
             </div>
             <div className='flex items-center gap-2'>
-              <button className='px-3 py-2 text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200'>
+              <button className='px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200'>
                 Anterior
               </button>
-              <span className='px-3 py-2 bg-purple-600 text-white rounded-lg'>1</span>
-              <button className='px-3 py-2 text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200'>
+              <span className='px-2 sm:px-3 py-2 bg-purple-600 text-white text-xs sm:text-sm rounded-lg'>
+                1
+              </span>
+              <button className='px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200'>
                 Próximo
               </button>
             </div>
