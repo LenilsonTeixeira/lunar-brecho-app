@@ -9,6 +9,7 @@ import {
   LogOut,
   ShoppingCart,
   FolderOpen,
+  Bell,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import { useState } from 'react';
@@ -34,6 +35,11 @@ const sidebarItems = [
     label: 'Pedidos',
     icon: <ShoppingCart />,
     path: '/admin/pedidos',
+  },
+  {
+    label: 'Notificações',
+    icon: <Bell />,
+    path: '/admin/notificacoes',
   },
   {
     label: 'Usuários',
