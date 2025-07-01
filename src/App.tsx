@@ -11,6 +11,7 @@ import Banner from './components/banner/Banner';
 import AddProduct from './pages/admin/AddProduct';
 import ListProduct from './pages/admin/ListProduct';
 import Order from './pages/admin/Order';
+import Category from './pages/admin/Category';
 
 const App = () => {
   const isAdminPath = useLocation().pathname.includes('admin');
@@ -41,6 +42,7 @@ const App = () => {
           <Route path='configuracoes' element={<div>Página de Configurações</div>} />
           <Route path='produtos' element={<ListProduct />} />
           <Route path='pedidos' element={<Order />} />
+          <Route path='categorias' element={<Category />} />
         </Route>
       </Routes>
       {!isAdminPath && <Footer />}

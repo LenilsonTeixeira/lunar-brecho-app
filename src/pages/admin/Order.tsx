@@ -7,7 +7,7 @@ const Order = () => {
   const [orders, setOrders] = useState([
     {
       id: 1,
-      orderNumber: '#ORD-2024-001',
+      orderNumber: '#1',
       customer: 'Maria Silva Santos',
       customerPhone: '(34) 99668-3137',
       products: [
@@ -22,7 +22,7 @@ const Order = () => {
     },
     {
       id: 2,
-      orderNumber: '#ORD-2024-002',
+      orderNumber: '#2',
       customer: 'Ana Paula Costa',
       customerPhone: '(34) 98845-1234',
       products: [{ name: 'Blazer Clássico', quantity: 1, price: 95.0 }],
@@ -34,7 +34,7 @@ const Order = () => {
     },
     {
       id: 3,
-      orderNumber: '#ORD-2024-003',
+      orderNumber: '#3',
       customer: 'Fernanda Oliveira',
       customerPhone: '(34) 99789-4321',
       products: [
@@ -50,7 +50,7 @@ const Order = () => {
     },
     {
       id: 4,
-      orderNumber: '#ORD-2024-004',
+      orderNumber: '#4',
       customer: 'Carolina Mendes',
       customerPhone: '(34) 99123-8765',
       products: [{ name: 'Sapatos de Salto', quantity: 1, price: 140.0 }],
@@ -62,7 +62,7 @@ const Order = () => {
     },
     {
       id: 5,
-      orderNumber: '#ORD-2024-005',
+      orderNumber: '#5',
       customer: 'Patrícia Lima',
       customerPhone: '(34) 99456-7890',
       products: [
@@ -77,7 +77,7 @@ const Order = () => {
     },
     {
       id: 6,
-      orderNumber: '#ORD-2024-006',
+      orderNumber: '#6',
       customer: 'Luciana Rodrigues',
       customerPhone: '(34) 99876-5432',
       products: [
@@ -92,7 +92,7 @@ const Order = () => {
     },
     {
       id: 7,
-      orderNumber: '#ORD-2024-007',
+      orderNumber: '#7',
       customer: 'Gabriela Almeida',
       customerPhone: '(34) 99654-3210',
       products: [
@@ -107,7 +107,7 @@ const Order = () => {
     },
     {
       id: 8,
-      orderNumber: '#ORD-2024-008',
+      orderNumber: '#8',
       customer: 'Isabela Martins',
       customerPhone: '(34) 99765-4321',
       products: [
@@ -123,7 +123,7 @@ const Order = () => {
     },
     {
       id: 9,
-      orderNumber: '#ORD-2024-009',
+      orderNumber: '#9',
       customer: 'Amanda Pereira',
       customerPhone: '(34) 99234-5678',
       products: [{ name: 'Vestido Midi Floral', quantity: 1, price: 65.0 }],
@@ -135,7 +135,7 @@ const Order = () => {
     },
     {
       id: 10,
-      orderNumber: '#ORD-2024-010',
+      orderNumber: '#10',
       customer: 'Bianca Santos',
       customerPhone: '(34) 99543-2109',
       products: [
@@ -150,7 +150,7 @@ const Order = () => {
     },
     {
       id: 11,
-      orderNumber: '#ORD-2024-011',
+      orderNumber: '#11',
       customer: 'Roberta Ferreira',
       customerPhone: '(34) 99432-1098',
       products: [
@@ -165,7 +165,7 @@ const Order = () => {
     },
     {
       id: 12,
-      orderNumber: '#ORD-2024-012',
+      orderNumber: '#12',
       customer: 'Tatiana Oliveira',
       customerPhone: '(34) 99789-0123',
       products: [
@@ -180,7 +180,7 @@ const Order = () => {
     },
     {
       id: 13,
-      orderNumber: '#ORD-2024-013',
+      orderNumber: '#13',
       customer: 'Camila Silva',
       customerPhone: '(34) 99111-2222',
       products: [
@@ -196,7 +196,7 @@ const Order = () => {
     },
     {
       id: 14,
-      orderNumber: '#ORD-2024-014',
+      orderNumber: '#14',
       customer: 'Juliana Costa',
       customerPhone: '(34) 99222-3333',
       products: [
@@ -211,7 +211,7 @@ const Order = () => {
     },
     {
       id: 15,
-      orderNumber: '#ORD-2024-015',
+      orderNumber: '#15',
       customer: 'Mariana Santos',
       customerPhone: '(34) 99333-4444',
       products: [
@@ -226,7 +226,7 @@ const Order = () => {
     },
     {
       id: 16,
-      orderNumber: '#ORD-2024-016',
+      orderNumber: '#16',
       customer: 'Fernanda Lima',
       customerPhone: '(34) 99444-5555',
       products: [
@@ -241,7 +241,7 @@ const Order = () => {
     },
     {
       id: 17,
-      orderNumber: '#ORD-2024-017',
+      orderNumber: '#17',
       customer: 'Carolina Almeida',
       customerPhone: '(34) 99555-6666',
       products: [
@@ -256,7 +256,7 @@ const Order = () => {
     },
     {
       id: 18,
-      orderNumber: '#ORD-2024-018',
+      orderNumber: '#18',
       customer: 'Patrícia Martins',
       customerPhone: '(34) 99666-7777',
       products: [
@@ -272,7 +272,7 @@ const Order = () => {
     },
     {
       id: 19,
-      orderNumber: '#ORD-2024-019',
+      orderNumber: '#19',
       customer: 'Luciana Oliveira',
       customerPhone: '(34) 99777-8888',
       products: [
@@ -287,7 +287,7 @@ const Order = () => {
     },
     {
       id: 20,
-      orderNumber: '#ORD-2024-020',
+      orderNumber: '#20',
       customer: 'Gabriela Rodrigues',
       customerPhone: '(34) 99888-9999',
       products: [
@@ -465,7 +465,6 @@ const Order = () => {
                         <p className='text-xs sm:text-sm font-medium text-slate-800'>
                           {order.orderNumber}
                         </p>
-                        <p className='text-xs text-slate-500'>ID: {order.id}</p>
                       </div>
                     </td>
                     <td className='px-6 py-4'>
