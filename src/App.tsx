@@ -13,6 +13,7 @@ import ListProduct from './pages/admin/ListProduct';
 import Order from './pages/admin/Order';
 import Category from './pages/admin/Category';
 import AddCategory from './pages/admin/AddCategory';
+import Configuration from './pages/admin/Configuration';
 
 const App = () => {
   const isAdminPath = useLocation().pathname.includes('admin');
@@ -41,7 +42,7 @@ const App = () => {
           <Route path='categorias/adicionar' element={<AddCategory />} />
           <Route path='usuarios' element={<div>Página de Usuários</div>} />
           <Route path='relatorios' element={<div>Página de Relatórios</div>} />
-          <Route path='configuracoes' element={<div>Página de Configurações</div>} />
+          <Route path='configuracoes' element={<Configuration />} />
           <Route path='produtos' element={<ListProduct />} />
           <Route path='pedidos' element={<Order />} />
           <Route path='categorias' element={<Category />} />
