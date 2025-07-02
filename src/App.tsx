@@ -15,6 +15,7 @@ import Category from './pages/admin/Category';
 import AddCategory from './pages/admin/AddCategory';
 import Configuration from './pages/admin/Configuration';
 import Notification from './pages/admin/Notification';
+import NotificationList from './pages/admin/NotificationList';
 
 const App = () => {
   const isAdminPath = useLocation().pathname.includes('admin');
@@ -45,6 +46,7 @@ const App = () => {
           <Route path='relatorios' element={<div>Página de Relatórios</div>} />
           <Route path='configuracoes' element={<Configuration />} />
           <Route path='notificacoes' element={<Notification />} />
+          <Route path='notificacoes/lista' element={<NotificationList />} />
           <Route path='produtos' element={<ListProduct />} />
           <Route path='pedidos' element={<Order />} />
           <Route path='categorias' element={<Category />} />

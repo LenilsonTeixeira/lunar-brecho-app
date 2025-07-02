@@ -1,8 +1,10 @@
 import { Bell, BellRing } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
 
 const UserHeader = () => {
-  const [hasNotifications, setHasNotifications] = useState(true);
+  const navigate = useNavigate();
+  const [hasNotifications] = useState(true);
 
   return (
     <div className='flex items-center justify-end bg-white h-20 px-6'>
@@ -10,7 +12,7 @@ const UserHeader = () => {
       <div className='flex items-center gap-4'>
         {/* Notifications */}
         <button
-          onClick={() => setHasNotifications(false)}
+          onClick={() => navigate('/admin/notificacoes/lista')}
           className='relative p-3 rounded-lg hover:bg-slate-100 transition-all duration-300 group'
           aria-label='Notificações'
         >
