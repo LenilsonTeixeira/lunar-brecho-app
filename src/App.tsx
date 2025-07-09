@@ -46,7 +46,6 @@ const App = () => {
           <Route path='usuarios/adicionar' element={<AddUser />} />
           <Route path='categorias/adicionar' element={<AddCategory />} />
           <Route path='usuarios' element={<ListUser />} />
-          <Route path='relatorios' element={<div>Página de Relatórios</div>} />
           <Route path='configuracoes' element={<Configuration />} />
           <Route path='notificacoes' element={<Notification />} />
           <Route path='notificacoes/lista' element={<NotificationList />} />

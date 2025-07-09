@@ -3,7 +3,6 @@ import {
   Package,
   Users,
   Settings,
-  BarChart3,
   Menu,
   X,
   LogOut,
@@ -45,11 +44,6 @@ const sidebarItems = [
     label: 'Usuários',
     icon: <Users />,
     path: '/admin/usuarios',
-  },
-  {
-    label: 'Relatórios',
-    icon: <BarChart3 />,
-    path: '/admin/relatorios',
   },
   {
     label: 'Configurações',
