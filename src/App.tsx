@@ -10,6 +10,8 @@ import Dashboard from './pages/admin/Dashboard';
 import Banner from './components/banner/Banner';
 import AddProduct from './pages/admin/AddProduct';
 import ListProduct from './pages/admin/ListProduct';
+import ListUser from './pages/admin/ListUser';
+import AddUser from './pages/admin/AddUser';
 import Order from './pages/admin/Order';
 import Category from './pages/admin/Category';
 import AddCategory from './pages/admin/AddCategory';
@@ -41,8 +43,9 @@ const App = () => {
         <Route path='/admin' element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path='produtos/adicionar' element={<AddProduct />} />
+          <Route path='usuarios/adicionar' element={<AddUser />} />
           <Route path='categorias/adicionar' element={<AddCategory />} />
-          <Route path='usuarios' element={<div>Página de Usuários</div>} />
+          <Route path='usuarios' element={<ListUser />} />
           <Route path='relatorios' element={<div>Página de Relatórios</div>} />
           <Route path='configuracoes' element={<Configuration />} />
           <Route path='notificacoes' element={<Notification />} />

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router';
 
 const ListProduct = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedType, setSelectedType] = useState('');
@@ -406,7 +408,10 @@ const ListProduct = () => {
                 Gerencie o catálogo de produtos do brechó
               </p>
             </div>
-            <button className='flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'>
+            <button
+              onClick={() => navigate('/admin/produtos/adicionar')}
+              className='flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+            >
               <Plus className='w-4 h-4' />
               Adicionar Produto
             </button>
