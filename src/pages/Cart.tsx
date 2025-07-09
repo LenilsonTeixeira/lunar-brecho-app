@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag, X } from 'lucide-react';
+import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag, X, Tag, Truck, Store } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { formatToBRL } from '../utils/priceUtils';
 
 const Cart = () => {
   const { items, totalItems, totalPrice, removeFromCart, updateQuantity, clearCart } = useCart();
   const [isClearing, setIsClearing] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [deliveryOption, setDeliveryOption] = useState<'pickup' | 'delivery'>('pickup');
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
 
   const handleClearCart = () => {
     setIsClearing(true);
@@ -15,6 +18,20 @@ const Cart = () => {
       setIsClearing(false);
     }, 300);
   };
+
+  const handleApplyCoupon = () => {
+    if (!couponCode.trim()) return;
+
+    setIsApplyingCoupon(true);
+    // Simular aplicação do cupom
+    setTimeout(() => {
+      setIsApplyingCoupon(false);
+      alert('Cupom aplicado com sucesso!');
+    }, 1000);
+  };
+
+  const deliveryFee = deliveryOption === 'delivery' ? 5 : 0;
+  const finalTotal = totalPrice + deliveryFee;
 
   if (items.length === 0) {
     return (
@@ -168,6 +185,75 @@ const Cart = () => {
                 Resumo do Pedido
               </h2>
 
+              {/* Cupom de Desconto */}
+              <div className='mb-6 sm:mb-8'>
+                <div className='bg-slate-50 rounded-lg p-4'>
+                  <h3 className='text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2'>
+                    <Tag className='w-4 h-4' />
+                    Cupom de Desconto
+                  </h3>
+                  <div className='flex gap-2'>
+                    <input
+                      type='text'
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      placeholder='Digite seu cupom'
+                      className='flex-1 px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent'
+                    />
+                    <button
+                      onClick={handleApplyCoupon}
+                      disabled={!couponCode.trim() || isApplyingCoupon}
+                      className='px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                    >
+                      {isApplyingCoupon ? 'Aplicando...' : 'Aplicar'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Opções de Entrega */}
+              <div className='mb-6 sm:mb-8'>
+                <h3 className='text-sm font-semibold text-slate-700 mb-3'>Forma de Entrega</h3>
+                <div className='space-y-3'>
+                  <label className='flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors'>
+                    <input
+                      type='radio'
+                      name='delivery'
+                      value='pickup'
+                      checked={deliveryOption === 'pickup'}
+                      onChange={(e) => setDeliveryOption(e.target.value as 'pickup' | 'delivery')}
+                      className='mr-3 text-sky-500 focus:ring-sky-500'
+                    />
+                    <div className='flex items-center gap-3'>
+                      <Store className='w-5 h-5 text-slate-600' />
+                      <div>
+                        <div className='font-medium text-slate-800'>Retirar na Loja</div>
+                        <div className='text-sm text-slate-500'>Grátis</div>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label className='flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors'>
+                    <input
+                      type='radio'
+                      name='delivery'
+                      value='delivery'
+                      checked={deliveryOption === 'delivery'}
+                      onChange={(e) => setDeliveryOption(e.target.value as 'pickup' | 'delivery')}
+                      className='mr-3 text-sky-500 focus:ring-sky-500'
+                    />
+                    <div className='flex items-center gap-3'>
+                      <Truck className='w-5 h-5 text-slate-600' />
+                      <div>
+                        <div className='font-medium text-slate-800'>Entrega em Casa</div>
+                        <div className='text-sm text-slate-500'>Taxa de R$ 5,00</div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Resumo Financeiro */}
               <div className='space-y-4 sm:space-y-6 mb-6 sm:mb-8'>
                 <div className='flex justify-between text-slate-600 text-base sm:text-lg'>
                   <span>
@@ -179,13 +265,19 @@ const Cart = () => {
                   <span>Desconto PIX (5%)</span>
                   <span>-{formatToBRL(totalPrice / 0.95 - totalPrice)}</span>
                 </div>
+                {deliveryOption === 'delivery' && (
+                  <div className='flex justify-between text-slate-600 text-base sm:text-lg'>
+                    <span>Taxa de Entrega</span>
+                    <span>{formatToBRL(deliveryFee)}</span>
+                  </div>
+                )}
                 <div className='border-t border-slate-200 pt-4 sm:pt-6'>
                   <div className='flex justify-between text-xl sm:text-2xl font-bold text-slate-800'>
                     <span>Total</span>
-                    <span>{formatToBRL(totalPrice)}</span>
+                    <span>{formatToBRL(finalTotal)}</span>
                   </div>
                   <p className='text-sm sm:text-base text-slate-500 mt-1 sm:mt-2'>
-                    ou 6x de {formatToBRL(totalPrice / 6)}
+                    ou 6x de {formatToBRL(finalTotal / 6)}
                   </p>
                 </div>
               </div>
