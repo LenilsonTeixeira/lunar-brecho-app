@@ -1,5 +1,7 @@
 import { Link } from 'react-router';
+import { ShoppingCart } from 'lucide-react';
 import { Product } from '../../types/product';
+import { useCart } from '../../contexts/CartContext';
 import {
   calculateDiscountedPrice,
   calculateInstallment,
@@ -11,11 +13,26 @@ export interface ProductItemProps {
 }
 
 const ProductItem = ({ product }: ProductItemProps) => {
+  const { addToCart } = useCart();
   const finalPrice = calculateDiscountedPrice(product.price, 5);
   const installment = calculateInstallment(product.price, 6);
 
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault(); // Previne a navegação do Link
+    e.stopPropagation();
+
+    if (product.sizes.length === 1) {
+      // Se só tem um tamanho, adiciona automaticamente
+      addToCart(product, 1, product.sizes[0]);
+      alert('Produto adicionado ao carrinho!');
+    } else {
+      // Se tem múltiplos tamanhos, redireciona para a página do produto
+      window.location.href = `/produtos/${product.id}`;
+    }
+  };
+
   return (
-    <Link to={`/produtos/${product.id}`} className='flex flex-col items-center mb-4 md:mb-12'>
+    <Link to={`/produtos/${product.id}`} className='flex flex-col items-center mb-4 md:mb-12 group'>
       <div className='rounded-lg p-1 shadow-sm shadow-slate-400 relative'>
         {/* Label tipo (Novo/Usado) */}
         <div className='absolute top-2 left-2 z-10'>
@@ -36,6 +53,15 @@ const ProductItem = ({ product }: ProductItemProps) => {
             </span>
           </div>
         )}
+
+        {/* Botão do Carrinho */}
+        <button
+          onClick={handleAddToCart}
+          className='absolute top-2 right-2 z-10 bg-white/90 hover:bg-white text-slate-700 hover:text-sky-600 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300'
+          title={product.sizes.length === 1 ? 'Adicionar ao carrinho' : 'Ver produto'}
+        >
+          <ShoppingCart className='w-4 h-4' />
+        </button>
 
         <div className='aspect-[3/4] overflow-hidden rounded-lg shadow-md'>
           <img

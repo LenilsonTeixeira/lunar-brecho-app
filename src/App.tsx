@@ -3,8 +3,10 @@ import { useState, useEffect } from 'react';
 import Header from './components/layout/Header';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
+import Cart from './pages/Cart';
 import Footer from './components/footer/Footer';
 import { ProductProvider } from './contexts/ProductContext';
+import { CartProvider } from './contexts/CartContext';
 import Layout from './pages/admin/Layout';
 import Dashboard from './pages/admin/Dashboard';
 import Banner from './components/banner/Banner';
@@ -35,26 +37,29 @@ const App = () => {
 
   return (
     <ProductProvider>
-      <Banner showBanner={showBanner} onClose={() => setShowBanner(false)} />
-      {!isAdminPath && <Header showBanner={showBanner} />}
-      <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/produtos/:productId' element={<ProductDetail />} />
-        <Route path='/admin' element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path='produtos/adicionar' element={<AddProduct />} />
-          <Route path='usuarios/adicionar' element={<AddUser />} />
-          <Route path='categorias/adicionar' element={<AddCategory />} />
-          <Route path='usuarios' element={<ListUser />} />
-          <Route path='configuracoes' element={<Configuration />} />
-          <Route path='notificacoes' element={<Notification />} />
-          <Route path='notificacoes/lista' element={<NotificationList />} />
-          <Route path='produtos' element={<ListProduct />} />
-          <Route path='pedidos' element={<Order />} />
-          <Route path='categorias' element={<Category />} />
-        </Route>
-      </Routes>
-      {!isAdminPath && <Footer />}
+      <CartProvider>
+        <Banner showBanner={showBanner} onClose={() => setShowBanner(false)} />
+        {!isAdminPath && <Header showBanner={showBanner} />}
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='/produtos/:productId' element={<ProductDetail />} />
+          <Route path='/carrinho' element={<Cart />} />
+          <Route path='/admin' element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path='produtos/adicionar' element={<AddProduct />} />
+            <Route path='usuarios/adicionar' element={<AddUser />} />
+            <Route path='categorias/adicionar' element={<AddCategory />} />
+            <Route path='usuarios' element={<ListUser />} />
+            <Route path='configuracoes' element={<Configuration />} />
+            <Route path='notificacoes' element={<Notification />} />
+            <Route path='notificacoes/lista' element={<NotificationList />} />
+            <Route path='produtos' element={<ListProduct />} />
+            <Route path='pedidos' element={<Order />} />
+            <Route path='categorias' element={<Category />} />
+          </Route>
+        </Routes>
+        {!isAdminPath && <Footer />}
+      </CartProvider>
     </ProductProvider>
   );
 };

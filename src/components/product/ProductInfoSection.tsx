@@ -1,10 +1,10 @@
-import { Product } from '../../types/product';
 import Breadcrumb from '../layout/Breadcrumb';
-import ProductActions from './ProductActions';
-import ProductObservations from './ProductObservations';
-import ProductSizeSelector from './ProductSizeSelector';
-import ProductStoreInfo from './ProductStoreInfo';
 import ProductTitleSection from './ProductTitleSection';
+import ProductSizeSelector from './ProductSizeSelector';
+import ProductObservations from './ProductObservations';
+import ProductActions from './ProductActions';
+import ProductStoreInfo from './ProductStoreInfo';
+import { Product } from '../../types/product';
 
 type Props = {
   product: Product;
@@ -29,7 +29,7 @@ const ProductInfoSection = ({ product, selectedSize, onSelectSize }: Props) => {
         onSelectSize={onSelectSize}
       />
       <ProductObservations product={product} />
-      <ProductActions product={product} />
+      <ProductActions product={product} selectedSize={selectedSize} />
       <ProductStoreInfo />
     </div>
   );
