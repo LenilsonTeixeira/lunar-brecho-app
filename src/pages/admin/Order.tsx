@@ -434,7 +434,7 @@ const Order = () => {
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[200px]'>
                     Cliente
                   </th>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[180px]'>
+                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[220px]'>
                     Produtos
                   </th>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[100px]'>
@@ -476,11 +476,18 @@ const Order = () => {
                       </div>
                     </td>
                     <td className='px-6 py-4'>
-                      <div className='space-y-1'>
+                      <div className='space-y-2'>
                         {order.products.map((product, index) => (
-                          <div key={index} className='text-xs sm:text-sm'>
-                            <span className='text-slate-800'>{product.name}</span>
-                            <span className='text-slate-500 ml-2'>x{product.quantity}</span>
+                          <div
+                            key={index}
+                            className='flex items-center justify-between min-w-[200px]'
+                          >
+                            <span className='text-xs sm:text-sm text-slate-800 flex-1 pr-2'>
+                              {product.name}
+                            </span>
+                            <span className='text-xs sm:text-sm font-medium text-slate-50 bg-black w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0'>
+                              {product.quantity}
+                            </span>
                           </div>
                         ))}
                       </div>
