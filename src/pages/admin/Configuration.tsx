@@ -72,9 +72,7 @@ const Configuration = () => {
       <div className='w-full max-w-7xl mx-auto'>
         <div className='mb-8'>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Configurações</h1>
-          <p className='text-sm sm:text-base text-slate-600'>
-            Gerencie as configurações do sistema
-          </p>
+          <p className='text-sm sm:text-base text-slate-600'>Gerencie as configurações da loja</p>
         </div>
 
         <div className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-8'>

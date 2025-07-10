@@ -405,7 +405,7 @@ const ListProduct = () => {
             <div>
               <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Produtos</h1>
               <p className='text-sm sm:text-base text-slate-600'>
-                Gerencie o catálogo de produtos do brechó
+                Gerencie o catálogo de produtos da sua loja
               </p>
             </div>
             <button

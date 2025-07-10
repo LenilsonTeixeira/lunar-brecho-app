@@ -208,7 +208,7 @@ const NotificationList = () => {
             <div>
               <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Notificações</h1>
               <p className='text-sm sm:text-base text-slate-600'>
-                Gerencie as notificações do sistema
+                Gerencie as notificações da loja
               </p>
             </div>
             <div className='flex items-center gap-3'>

@@ -88,7 +88,7 @@ const Category = () => {
             <div>
               <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Categorias</h1>
               <p className='text-sm sm:text-base text-slate-600'>
-                Gerencie as categorias de produtos do brechó
+                Gerencie as categorias de produtos da sua loja
               </p>
             </div>
             <button

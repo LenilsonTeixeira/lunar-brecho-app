@@ -104,7 +104,7 @@ const Notification = () => {
         <div className='mb-8'>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Notificações</h1>
           <p className='text-sm sm:text-base text-slate-600'>
-            Gerencie os contatos para receber notificações do sistema
+            Gerencie os contatos para receber notificações da loja
           </p>
         </div>
 
@@ -250,7 +250,7 @@ const Notification = () => {
                     Nenhum contato configurado
                   </h3>
                   <p className='text-sm text-slate-600'>
-                    Adicione contatos para receber notificações do sistema.
+                    Adicione contatos para receber notificações da loja.
                   </p>
                 </div>
               )}

@@ -369,7 +369,7 @@ const Order = () => {
             <div>
               <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Pedidos</h1>
               <p className='text-sm sm:text-base text-slate-600'>
-                Gerencie os pedidos e entregas do brechó
+                Gerencie os pedidos e entregas da sua loja
               </p>
             </div>
             <button className='flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'>

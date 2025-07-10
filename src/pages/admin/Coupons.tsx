@@ -156,7 +156,7 @@ const Coupons = () => {
                 Cupons de Desconto
               </h1>
               <p className='text-sm sm:text-base text-slate-600'>
-                Gerencie os cupons de desconto do seu e-commerce
+                Gerencie os cupons de desconto da sua loja
               </p>
             </div>
             <button
