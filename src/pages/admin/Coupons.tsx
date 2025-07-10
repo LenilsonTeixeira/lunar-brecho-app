@@ -12,7 +12,6 @@ import { useCoupons } from '../../hooks/useCoupons';
 import CouponForm from '../../components/admin/CouponForm';
 import CouponTableRow from '../../components/admin/CouponTableRow';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
-import { downloadFile } from '../../services/couponService';
 
 const Coupons = () => {
   const [showForm, setShowForm] = useState(false);
@@ -139,8 +138,8 @@ const Coupons = () => {
 
   const handleExport = async () => {
     try {
-      const blob = await fetch('/api/coupons/export?format=csv').then((res) => res.blob());
-      downloadFile(blob, `cupons-${new Date().toISOString().split('T')[0]}.csv`);
+      await fetch('/api/coupons/export?format=csv').then((res) => res.blob());
+      alert('Cupons exportados com sucesso');
     } catch (error) {
       console.error('Erro ao exportar cupons:', error);
     }
