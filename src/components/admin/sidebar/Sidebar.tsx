@@ -9,6 +9,7 @@ import {
   ShoppingCart,
   FolderOpen,
   Bell,
+  Tag,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import { useState } from 'react';
@@ -29,6 +30,11 @@ const sidebarItems = [
     label: 'Categorias',
     icon: <FolderOpen />,
     path: '/admin/categorias',
+  },
+  {
+    label: 'Cupons',
+    icon: <Tag />,
+    path: '/admin/cupons',
   },
   {
     label: 'Pedidos',

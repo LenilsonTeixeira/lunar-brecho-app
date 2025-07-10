@@ -20,6 +20,7 @@ import AddCategory from './pages/admin/AddCategory';
 import Configuration from './pages/admin/Configuration';
 import Notification from './pages/admin/Notification';
 import NotificationList from './pages/admin/NotificationList';
+import Coupons from './pages/admin/Coupons';
 
 const App = () => {
   const isAdminPath = useLocation().pathname.includes('admin');
@@ -56,6 +57,7 @@ const App = () => {
             <Route path='produtos' element={<ListProduct />} />
             <Route path='pedidos' element={<Order />} />
             <Route path='categorias' element={<Category />} />
+            <Route path='cupons' element={<Coupons />} />
           </Route>
         </Routes>
         {!isAdminPath && <Footer />}
