@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, Package, Settings } from 'lucide-react';
+import { Link } from 'react-router';
 
 const Order = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -372,10 +373,12 @@ const Order = () => {
                 Gerencie os pedidos e entregas da sua loja
               </p>
             </div>
-            <button className='flex items-center justify-center gap-2 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'>
-              <Plus className='w-4 h-4' />
-              Novo Pedido
-            </button>
+            <Link to='/admin/pedidos/adicionar'>
+              <button className='flex items-center justify-center gap-2 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'>
+                <Plus className='w-4 h-4' />
+                Novo Pedido
+              </button>
+            </Link>
           </div>
         </div>
 

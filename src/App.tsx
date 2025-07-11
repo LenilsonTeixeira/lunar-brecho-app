@@ -15,6 +15,7 @@ import ListProduct from './pages/admin/ListProduct';
 import ListUser from './pages/admin/ListUser';
 import AddUser from './pages/admin/AddUser';
 import Order from './pages/admin/Order';
+import AddOrder from './pages/admin/AddOrder';
 import Category from './pages/admin/Category';
 import AddCategory from './pages/admin/AddCategory';
 import Configuration from './pages/admin/Configuration';
@@ -49,6 +50,7 @@ const App = () => {
             <Route index element={<Dashboard />} />
             <Route path='produtos/adicionar' element={<AddProduct />} />
             <Route path='usuarios/adicionar' element={<AddUser />} />
+            <Route path='pedidos/adicionar' element={<AddOrder />} />
             <Route path='categorias/adicionar' element={<AddCategory />} />
             <Route path='usuarios' element={<ListUser />} />
             <Route path='configuracoes' element={<Configuration />} />
