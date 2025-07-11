@@ -70,6 +70,18 @@ const Sidebar = () => {
     console.log('Logout clicked');
   };
 
+  // Function to check if a menu item is active
+  const isMenuItemActive = (itemPath: string) => {
+    // For dashboard, check exact match
+    if (itemPath === '/admin') {
+      return location.pathname === '/admin';
+    }
+
+    // For other items, check if current path starts with the item path
+    // This allows sub-routes like /admin/produtos/adicionar to be considered active for /admin/produtos
+    return location.pathname.startsWith(itemPath);
+  };
+
   return (
     <>
       {/* Mobile Menu Button */}
@@ -114,7 +126,7 @@ const Sidebar = () => {
         {/* Navigation Items */}
         <div className='flex-1 pt-6'>
           {sidebarItems.map((item, index) => {
-            const isActive = location.pathname === item.path;
+            const isActive = isMenuItemActive(item.path);
             return (
               <Link
                 to={item.path}
