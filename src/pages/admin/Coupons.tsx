@@ -156,12 +156,12 @@ const Coupons = () => {
                 Cupons de Desconto
               </h1>
               <p className='text-sm sm:text-base text-slate-600'>
-                Gerencie os cupons de desconto da sua loja
+                Gerencie os cupons de desconto da sua loja virtual
               </p>
             </div>
             <button
               onClick={() => setShowForm(true)}
-              className='inline-flex items-center gap-2 py-2 px-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
+              className='flex items-center  justify-center gap-2 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
             >
               <Plus className='w-4 h-4' />
               Novo Cupom

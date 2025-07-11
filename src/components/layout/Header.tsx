@@ -12,22 +12,24 @@ const Header = ({ showBanner }: HeaderProps) => {
 
   return (
     <div
-      className='w-full flex items-center h-16 sm:h-20 font-medium shadow-xl fixed left-0 z-50 bg-slate-100 transition-all duration-300 ease-in-out'
+      className='w-full flex items-center h-16 sm:h-20 font-medium shadow-2xl fixed left-0 z-50 bg-slate-800 transition-all duration-300 ease-in-out'
       style={{ top: showBanner ? '2rem' : '0' }}
     >
       <div className='flex h-16 sm:h-20 items-center justify-between w-full px-4 sm:px-6 lg:px-10'>
         <Link
           to='/'
-          className='flex gap-1 items-center hover:text-sky-400 transition-colors text-slate-700 hover:scale-110 duration-500'
+          className='flex gap-1 items-center hover:text-purple-400 transition-colors text-slate-50 hover:scale-110 duration-500'
         >
           <MoonIcon className='w-5 h-5 sm:w-6 sm:h-6' />
-          <h1 className='text-lg sm:text-xl font-bold'>LUNAR</h1>
+          <h1 className='text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'>
+            LUNAR
+          </h1>
         </Link>
 
         {/* Carrinho de Compras */}
         <Link
           to='/carrinho'
-          className='relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full hover:bg-sky-100 transition-colors text-slate-700 hover:text-sky-600'
+          className='relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full hover:bg-white transition-colors text-slate-50 hover:text-slate-800'
         >
           <ShoppingCart className='w-5 h-5 sm:w-6 sm:h-6' />
           {totalItems > 0 && (
