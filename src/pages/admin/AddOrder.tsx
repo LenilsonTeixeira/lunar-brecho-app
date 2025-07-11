@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { Plus, X, Package, User, MapPin, CreditCard } from 'lucide-react';
+import { Plus, X, Package, User, MapPin, CreditCard, Store, Truck } from 'lucide-react';
 
 const AddOrder = () => {
+  const [deliveryType, setDeliveryType] = useState<'pickup' | 'delivery'>('delivery');
+
   const [products, setProducts] = useState([
     {
       id: 1,
@@ -246,162 +248,221 @@ const AddOrder = () => {
             </div>
           </div>
 
-          {/* Delivery Address */}
+          {/* Delivery Type Selection */}
           <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
             <div className='flex items-center gap-3 mb-4'>
-              <MapPin className='w-5 h-5 text-purple-600' />
-              <h3 className='text-lg font-semibold text-slate-800'>Endereço de Entrega</h3>
+              <Truck className='w-5 h-5 text-purple-600' />
+              <h3 className='text-lg font-semibold text-slate-800'>Tipo de Entrega</h3>
             </div>
 
-            <div className='space-y-4'>
-              {/* CEP and Street */}
-              <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
-                <div className='flex flex-col gap-2'>
-                  <label className='text-sm font-medium text-slate-600' htmlFor='cep'>
-                    CEP
-                  </label>
-                  <input
-                    id='cep'
-                    type='text'
-                    value={deliveryAddress.cep}
-                    onChange={(e) => updateAddress('cep', e.target.value)}
-                    placeholder='00000-000'
-                    className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                    required
-                  />
+            <div className='flex items-center gap-6'>
+              <label className='flex items-center gap-3 cursor-pointer'>
+                <input
+                  type='radio'
+                  name='deliveryType'
+                  value='delivery'
+                  checked={deliveryType === 'delivery'}
+                  onChange={(e) => setDeliveryType(e.target.value as 'delivery' | 'pickup')}
+                  className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
+                />
+                <div className='flex items-center gap-2'>
+                  <Truck className='w-4 h-4 text-purple-600' />
+                  <span className='text-sm font-medium text-slate-700'>Entrega em Domicílio</span>
                 </div>
+              </label>
 
-                <div className='flex flex-col gap-2'>
-                  <label className='text-sm font-medium text-slate-600' htmlFor='street'>
-                    Rua
-                  </label>
-                  <input
-                    id='street'
-                    type='text'
-                    value={deliveryAddress.street}
-                    onChange={(e) => updateAddress('street', e.target.value)}
-                    placeholder='Nome da rua'
-                    className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                    required
-                  />
+              <label className='flex items-center gap-3 cursor-pointer'>
+                <input
+                  type='radio'
+                  name='deliveryType'
+                  value='pickup'
+                  checked={deliveryType === 'pickup'}
+                  onChange={(e) => setDeliveryType(e.target.value as 'delivery' | 'pickup')}
+                  className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
+                />
+                <div className='flex items-center gap-2'>
+                  <Store className='w-4 h-4 text-purple-600' />
+                  <span className='text-sm font-medium text-slate-700'>Retirada na Loja</span>
                 </div>
-              </div>
-
-              {/* Number and Complement */}
-              <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
-                <div className='flex flex-col gap-2'>
-                  <label className='text-sm font-medium text-slate-600' htmlFor='number'>
-                    Número
-                  </label>
-                  <input
-                    id='number'
-                    type='text'
-                    value={deliveryAddress.number}
-                    onChange={(e) => updateAddress('number', e.target.value)}
-                    placeholder='123'
-                    className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                    required
-                  />
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                  <label className='text-sm font-medium text-slate-600' htmlFor='complement'>
-                    Complemento
-                  </label>
-                  <input
-                    id='complement'
-                    type='text'
-                    value={deliveryAddress.complement}
-                    onChange={(e) => updateAddress('complement', e.target.value)}
-                    placeholder='Apartamento, bloco, etc.'
-                    className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                  />
-                </div>
-              </div>
-
-              {/* Neighborhood and City */}
-              <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
-                <div className='flex flex-col gap-2'>
-                  <label className='text-sm font-medium text-slate-600' htmlFor='neighborhood'>
-                    Bairro
-                  </label>
-                  <input
-                    id='neighborhood'
-                    type='text'
-                    value={deliveryAddress.neighborhood}
-                    onChange={(e) => updateAddress('neighborhood', e.target.value)}
-                    placeholder='Nome do bairro'
-                    className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                    required
-                  />
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                  <label className='text-sm font-medium text-slate-600' htmlFor='city'>
-                    Cidade
-                  </label>
-                  <input
-                    id='city'
-                    type='text'
-                    value={deliveryAddress.city}
-                    onChange={(e) => updateAddress('city', e.target.value)}
-                    placeholder='Nome da cidade'
-                    className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* State */}
-              <div className='flex flex-col gap-2'>
-                <label className='text-sm font-medium text-slate-600' htmlFor='state'>
-                  Estado
-                </label>
-                <select
-                  id='state'
-                  value={deliveryAddress.state}
-                  onChange={(e) => updateAddress('state', e.target.value)}
-                  className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                  required
-                >
-                  <option value=''>Selecione o estado</option>
-                  <option value='SP'>São Paulo</option>
-                  <option value='RJ'>Rio de Janeiro</option>
-                  <option value='MG'>Minas Gerais</option>
-                  <option value='RS'>Rio Grande do Sul</option>
-                  <option value='PR'>Paraná</option>
-                  <option value='SC'>Santa Catarina</option>
-                  <option value='BA'>Bahia</option>
-                  <option value='GO'>Goiás</option>
-                  <option value='PE'>Pernambuco</option>
-                  <option value='CE'>Ceará</option>
-                  <option value='PA'>Pará</option>
-                  <option value='MA'>Maranhão</option>
-                  <option value='ES'>Espírito Santo</option>
-                  <option value='PB'>Paraíba</option>
-                  <option value='MT'>Mato Grosso</option>
-                  <option value='MS'>Mato Grosso do Sul</option>
-                  <option value='PI'>Piauí</option>
-                  <option value='RN'>Rio Grande do Norte</option>
-                  <option value='AL'>Alagoas</option>
-                  <option value='SE'>Sergipe</option>
-                  <option value='RO'>Rondônia</option>
-                  <option value='TO'>Tocantins</option>
-                  <option value='AC'>Acre</option>
-                  <option value='AP'>Amapá</option>
-                  <option value='AM'>Amazonas</option>
-                  <option value='RR'>Roraima</option>
-                  <option value='DF'>Distrito Federal</option>
-                </select>
-              </div>
+              </label>
             </div>
+
+            {deliveryType === 'pickup' && (
+              <div className='mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
+                <div className='flex items-start gap-3'>
+                  <Store className='w-5 h-5 text-blue-600 mt-0.5' />
+                  <div>
+                    <h4 className='text-sm font-semibold text-blue-800 mb-1'>Retirada na Loja</h4>
+                    <p className='text-sm text-blue-700'>
+                      O cliente retirará o pedido diretamente em nossa loja física. Não é necessário
+                      preencher endereço de entrega.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Delivery Address - Conditional */}
+          {deliveryType === 'delivery' && (
+            <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
+              <div className='flex items-center gap-3 mb-4'>
+                <MapPin className='w-5 h-5 text-purple-600' />
+                <h3 className='text-lg font-semibold text-slate-800'>Endereço de Entrega</h3>
+              </div>
+
+              <div className='space-y-4'>
+                {/* CEP and Street */}
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
+                  <div className='flex flex-col gap-2'>
+                    <label className='text-sm font-medium text-slate-600' htmlFor='cep'>
+                      CEP
+                    </label>
+                    <input
+                      id='cep'
+                      type='text'
+                      value={deliveryAddress.cep}
+                      onChange={(e) => updateAddress('cep', e.target.value)}
+                      placeholder='00000-000'
+                      className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                      required
+                    />
+                  </div>
+
+                  <div className='flex flex-col gap-2'>
+                    <label className='text-sm font-medium text-slate-600' htmlFor='street'>
+                      Rua
+                    </label>
+                    <input
+                      id='street'
+                      type='text'
+                      value={deliveryAddress.street}
+                      onChange={(e) => updateAddress('street', e.target.value)}
+                      placeholder='Nome da rua'
+                      className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Number and Complement */}
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
+                  <div className='flex flex-col gap-2'>
+                    <label className='text-sm font-medium text-slate-600' htmlFor='number'>
+                      Número
+                    </label>
+                    <input
+                      id='number'
+                      type='text'
+                      value={deliveryAddress.number}
+                      onChange={(e) => updateAddress('number', e.target.value)}
+                      placeholder='123'
+                      className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                      required
+                    />
+                  </div>
+
+                  <div className='flex flex-col gap-2'>
+                    <label className='text-sm font-medium text-slate-600' htmlFor='complement'>
+                      Complemento
+                    </label>
+                    <input
+                      id='complement'
+                      type='text'
+                      value={deliveryAddress.complement}
+                      onChange={(e) => updateAddress('complement', e.target.value)}
+                      placeholder='Apartamento, bloco, etc.'
+                      className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                    />
+                  </div>
+                </div>
+
+                {/* Neighborhood and City */}
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
+                  <div className='flex flex-col gap-2'>
+                    <label className='text-sm font-medium text-slate-600' htmlFor='neighborhood'>
+                      Bairro
+                    </label>
+                    <input
+                      id='neighborhood'
+                      type='text'
+                      value={deliveryAddress.neighborhood}
+                      onChange={(e) => updateAddress('neighborhood', e.target.value)}
+                      placeholder='Nome do bairro'
+                      className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                      required
+                    />
+                  </div>
+
+                  <div className='flex flex-col gap-2'>
+                    <label className='text-sm font-medium text-slate-600' htmlFor='city'>
+                      Cidade
+                    </label>
+                    <input
+                      id='city'
+                      type='text'
+                      value={deliveryAddress.city}
+                      onChange={(e) => updateAddress('city', e.target.value)}
+                      placeholder='Nome da cidade'
+                      className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* State */}
+                <div className='flex flex-col gap-2'>
+                  <label className='text-sm font-medium text-slate-600' htmlFor='state'>
+                    Estado
+                  </label>
+                  <select
+                    id='state'
+                    value={deliveryAddress.state}
+                    onChange={(e) => updateAddress('state', e.target.value)}
+                    className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                    required
+                  >
+                    <option value=''>Selecione o estado</option>
+                    <option value='SP'>São Paulo</option>
+                    <option value='RJ'>Rio de Janeiro</option>
+                    <option value='MG'>Minas Gerais</option>
+                    <option value='RS'>Rio Grande do Sul</option>
+                    <option value='PR'>Paraná</option>
+                    <option value='SC'>Santa Catarina</option>
+                    <option value='BA'>Bahia</option>
+                    <option value='GO'>Goiás</option>
+                    <option value='PE'>Pernambuco</option>
+                    <option value='CE'>Ceará</option>
+                    <option value='PA'>Pará</option>
+                    <option value='MA'>Maranhão</option>
+                    <option value='ES'>Espírito Santo</option>
+                    <option value='PB'>Paraíba</option>
+                    <option value='MT'>Mato Grosso</option>
+                    <option value='MS'>Mato Grosso do Sul</option>
+                    <option value='PI'>Piauí</option>
+                    <option value='RN'>Rio Grande do Norte</option>
+                    <option value='AL'>Alagoas</option>
+                    <option value='SE'>Sergipe</option>
+                    <option value='RO'>Rondônia</option>
+                    <option value='TO'>Tocantins</option>
+                    <option value='AC'>Acre</option>
+                    <option value='AP'>Amapá</option>
+                    <option value='AM'>Amazonas</option>
+                    <option value='RR'>Roraima</option>
+                    <option value='DF'>Distrito Federal</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Payment Method */}
           <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
             <div className='flex items-center gap-3 mb-4'>
               <CreditCard className='w-5 h-5 text-purple-600' />
-              <h3 className='text-lg font-semibold text-slate-800'>Método de Pagamento</h3>
+              <h3 className='text-lg font-semibold text-slate-800'>
+                {deliveryType === 'pickup' ? 'Pagamento e Retirada' : 'Método de Pagamento'}
+              </h3>
             </div>
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
@@ -440,6 +501,31 @@ const AddOrder = () => {
                 </select>
               </div>
             </div>
+
+            {deliveryType === 'pickup' && (
+              <div className='mt-4 p-4 bg-green-50 border border-green-200 rounded-lg'>
+                <div className='flex items-start gap-3'>
+                  <Store className='w-5 h-5 text-green-600 mt-0.5' />
+                  <div>
+                    <h4 className='text-sm font-semibold text-green-800 mb-1'>
+                      Informações de Retirada
+                    </h4>
+                    <p className='text-sm text-green-700 mb-2'>
+                      O cliente deve apresentar documento de identificação e comprovante de
+                      pagamento na retirada.
+                    </p>
+                    <div className='text-xs text-green-600'>
+                      <p>
+                        <strong>Horário de Funcionamento:</strong> Segunda a Sexta, 9h às 18h
+                      </p>
+                      <p>
+                        <strong>Prazo para Retirada:</strong> 7 dias após a confirmação do pedido
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Submit Button */}
