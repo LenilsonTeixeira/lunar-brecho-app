@@ -1,11 +1,27 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, FolderOpen } from 'lucide-react';
-import { useNavigate } from 'react-router';
+import CategoryForm from '../../components/admin/CategoryForm';
+import ConfirmDialog from '../../components/admin/ConfirmDialog';
+
+interface CategoryItem {
+  id: number;
+  name: string;
+  image: string;
+}
+
+interface CategoryFormData {
+  name: string;
+  image: File | null;
+  previewImage: string;
+}
 
 const Category = () => {
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [categories, setCategories] = useState([
+  const [showForm, setShowForm] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<CategoryItem | undefined>();
+  const [deletingCategory, setDeletingCategory] = useState<CategoryItem | undefined>();
+  const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<CategoryItem[]>([
     {
       id: 1,
       name: 'Body',
@@ -71,8 +87,77 @@ const Category = () => {
     },
   ]);
 
-  const handleDeleteCategory = (categoryId: number) => {
-    setCategories(categories.filter((category) => category.id !== categoryId));
+  const handleCreateCategory = async (data: CategoryFormData) => {
+    setLoading(true);
+    try {
+      // Simular chamada à API
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const newCategory: CategoryItem = {
+        id: Math.max(...categories.map((c) => c.id)) + 1,
+        name: data.name,
+        image: data.previewImage || 'https://via.placeholder.com/150',
+      };
+
+      setCategories((prev) => [...prev, newCategory]);
+      setShowForm(false);
+    } catch (error) {
+      console.error('Erro ao criar categoria:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateCategory = async (data: CategoryFormData) => {
+    if (!editingCategory) return;
+
+    setLoading(true);
+    try {
+      // Simular chamada à API
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const updatedCategory: CategoryItem = {
+        ...editingCategory,
+        name: data.name,
+        image: data.previewImage || editingCategory.image,
+      };
+
+      setCategories((prev) =>
+        prev.map((cat) => (cat.id === editingCategory.id ? updatedCategory : cat)),
+      );
+      setShowForm(false);
+      setEditingCategory(undefined);
+    } catch (error) {
+      console.error('Erro ao atualizar categoria:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteCategory = (category: CategoryItem) => {
+    setDeletingCategory(category);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingCategory) return;
+
+    setLoading(true);
+    try {
+      // Simular chamada à API
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setCategories((prev) => prev.filter((cat) => cat.id !== deletingCategory.id));
+      setDeletingCategory(undefined);
+    } catch (error) {
+      console.error('Erro ao excluir categoria:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (category: CategoryItem) => {
+    setEditingCategory(category);
+    setShowForm(true);
   };
 
   const filteredCategories = categories.filter((category) =>
@@ -92,7 +177,7 @@ const Category = () => {
               </p>
             </div>
             <button
-              onClick={() => navigate('/admin/categorias/adicionar')}
+              onClick={() => setShowForm(true)}
               className='flex items-center justify-center gap-2 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
             >
               <Plus className='w-4 h-4' />
@@ -127,7 +212,7 @@ const Category = () => {
         </div>
 
         {/* Categories Table */}
-        <div className='bg-slate-50 rounded-xl shadow-lg overflow-hidden'>
+        <div className='bg-white rounded-xl shadow-lg overflow-hidden'>
           <div className='overflow-x-auto md:overflow-x-visible'>
             <table className='w-full md:min-w-full min-w-[600px]'>
               <thead className='bg-slate-50 border-b border-slate-200'>
@@ -147,96 +232,125 @@ const Category = () => {
                 </tr>
               </thead>
               <tbody className='divide-y divide-slate-200'>
-                {filteredCategories.map((category) => (
-                  <tr
-                    key={category.id}
-                    className='hover:bg-slate-50 transition-colors duration-200 shadow-sm'
-                  >
-                    <td className='px-6 py-4'>
-                      <span className='text-xs sm:text-sm font-medium text-slate-800'>
-                        #{category.id}
-                      </span>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <div className='w-12 h-12 rounded-lg overflow-hidden border border-slate-200'>
-                        <img
-                          src={category.image}
-                          alt={category.name}
-                          className='w-full h-full object-cover'
-                          loading='lazy'
-                        />
-                      </div>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <span className='text-xs sm:text-sm font-medium text-slate-800'>
-                        {category.name}
-                      </span>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <div className='flex items-center gap-1 sm:gap-2'>
-                        <button
-                          className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
-                          title='Visualizar'
-                        >
-                          <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
-                        </button>
-                        <button
-                          className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
-                          title='Editar'
-                        >
-                          <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
-                        </button>
-                        <button
-                          className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
-                          title='Excluir'
-                          onClick={() => handleDeleteCategory(category.id)}
-                        >
-                          <Trash2 className='w-3 h-3 sm:w-4 sm:h-4' />
-                        </button>
+                {loading ? (
+                  <tr>
+                    <td colSpan={4} className='py-12 text-center text-slate-500'>
+                      <div className='flex flex-col items-center gap-2'>
+                        <div className='w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin'></div>
+                        <p className='font-medium'>Carregando categorias...</p>
                       </div>
                     </td>
                   </tr>
-                ))}
+                ) : filteredCategories.length > 0 ? (
+                  filteredCategories.map((category) => (
+                    <tr
+                      key={category.id}
+                      className='hover:bg-slate-50 transition-colors duration-200 shadow-sm'
+                    >
+                      <td className='px-6 py-4'>
+                        <span className='text-xs sm:text-sm font-medium text-slate-800'>
+                          #{category.id}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='w-12 h-12 rounded-lg overflow-hidden border border-slate-200'>
+                          <img
+                            src={category.image}
+                            alt={category.name}
+                            className='w-full h-full object-cover'
+                            loading='lazy'
+                          />
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <span className='text-xs sm:text-sm font-medium text-slate-800'>
+                          {category.name}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='flex items-center gap-1 sm:gap-2'>
+                          <button
+                            className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
+                            title='Visualizar'
+                          >
+                            <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(category)}
+                            className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
+                            title='Editar'
+                          >
+                            <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCategory(category)}
+                            className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
+                            title='Excluir'
+                          >
+                            <Trash2 className='w-3 h-3 sm:w-4 sm:h-4' />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className='py-12 text-center text-slate-500'>
+                      <div className='flex flex-col items-center gap-2'>
+                        <div className='w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center'>
+                          <FolderOpen className='w-8 h-8 text-slate-400' />
+                        </div>
+                        <h3 className='text-base sm:text-lg font-medium text-slate-800 mb-2'>
+                          Nenhuma categoria encontrada
+                        </h3>
+                        <p className='text-sm sm:text-base text-slate-600'>
+                          Tente ajustar os filtros ou criar uma nova categoria.
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
 
-          {/* Empty State */}
-          {filteredCategories.length === 0 && (
-            <div className='text-center py-12'>
-              <div className='w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center'>
-                <FolderOpen className='w-8 h-8 text-slate-400' />
+          {/* Table Footer */}
+          {filteredCategories.length > 0 && (
+            <div className='px-6 py-4 border-t border-slate-200 bg-slate-50'>
+              <div className='flex items-center justify-between text-sm text-slate-600'>
+                <span>
+                  Mostrando {filteredCategories.length} de {categories.length} categorias
+                </span>
               </div>
-              <h3 className='text-base sm:text-lg font-medium text-slate-800 mb-2'>
-                Nenhuma categoria encontrada
-              </h3>
-              <p className='text-sm sm:text-base text-slate-600'>
-                Tente ajustar os filtros ou criar uma nova categoria.
-              </p>
             </div>
           )}
         </div>
-
-        {/* Pagination */}
-        {filteredCategories.length > 0 && (
-          <div className='mt-6 flex items-center justify-between bg-white rounded-xl shadow-lg p-4'>
-            <div className='text-xs sm:text-sm text-slate-600'>
-              Mostrando {filteredCategories.length} de {categories.length} categorias
-            </div>
-            <div className='flex items-center gap-2'>
-              <button className='px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200'>
-                Anterior
-              </button>
-              <span className='px-2 sm:px-3 py-2 bg-purple-600 text-white text-xs sm:text-sm rounded-lg'>
-                1
-              </span>
-              <button className='px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200'>
-                Próximo
-              </button>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Form Modal */}
+      {showForm && (
+        <CategoryForm
+          category={editingCategory}
+          onSubmit={editingCategory ? handleUpdateCategory : handleCreateCategory}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingCategory(undefined);
+          }}
+          isLoading={loading}
+        />
+      )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={!!deletingCategory}
+        title='Excluir Categoria'
+        message={`Tem certeza que deseja excluir a categoria "${deletingCategory?.name}"? Esta ação não pode ser desfeita.`}
+        confirmText='Excluir'
+        cancelText='Cancelar'
+        onConfirm={confirmDelete}
+        onCancel={() => setDeletingCategory(undefined)}
+        type='danger'
+      />
     </div>
   );
 };
