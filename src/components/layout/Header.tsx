@@ -12,7 +12,7 @@ const Header = ({ showBanner }: HeaderProps) => {
 
   return (
     <div
-      className='w-full flex items-center h-16 sm:h-20 font-medium shadow-2xl fixed left-0 z-50 bg-slate-800 transition-all duration-300 ease-in-out'
+      className='w-full flex items-center h-16 sm:h-20 font-medium shadow-2xl fixed left-0 z-50 bg-slate-900 transition-all duration-300 ease-in-out'
       style={{ top: showBanner ? '2rem' : '0' }}
     >
       <div className='flex h-16 sm:h-20 items-center justify-between w-full px-4 sm:px-6 lg:px-10'>
