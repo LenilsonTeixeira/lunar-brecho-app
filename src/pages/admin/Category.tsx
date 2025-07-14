@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, FolderOpen } from 'lucide-react';
 import CategoryForm from '../../components/admin/CategoryForm';
+import CategoryView from '../../components/admin/CategoryView';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 
 interface CategoryItem {
   id: number;
   name: string;
   image: string;
+  createdAt?: string;
+  updatedAt?: string;
+  productCount?: number;
+  description?: string;
 }
 
 interface CategoryFormData {
@@ -18,7 +23,9 @@ interface CategoryFormData {
 const Category = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [showView, setShowView] = useState(false);
   const [editingCategory, setEditingCategory] = useState<CategoryItem | undefined>();
+  const [viewingCategory, setViewingCategory] = useState<CategoryItem | undefined>();
   const [deletingCategory, setDeletingCategory] = useState<CategoryItem | undefined>();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<CategoryItem[]>([
@@ -27,63 +34,107 @@ const Category = () => {
       name: 'Body',
       image:
         'https://acdn-us.mitiendanube.com/stores/004/414/596/products/86c1af187bed52a509db2649e0144039-424f199920b186aca517177081243046-1024-1024.webp',
+      createdAt: '2024-01-15T10:30:00Z',
+      updatedAt: '2024-01-20T14:45:00Z',
+      productCount: 25,
+      description: 'Roupas íntimas femininas confortáveis e elegantes',
     },
     {
       id: 2,
       name: 'Calças',
       image:
         'https://acdn-us.mitiendanube.com/stores/004/414/596/products/imagem-whatsapp-2025-01-27-as-17-05-21_981ec453-811c39988cd9bd47c317380867063164-1024-1024.webp',
+      createdAt: '2024-01-10T09:15:00Z',
+      updatedAt: '2024-01-18T16:20:00Z',
+      productCount: 42,
+      description: 'Calças femininas para todos os estilos e ocasiões',
     },
     {
       id: 3,
       name: 'Blusas',
       image: 'https://cdn.awsli.com.br/1538/1538522/produto/340598723/img_2977-24c9s0rovs.jpeg',
+      createdAt: '2024-01-12T11:00:00Z',
+      updatedAt: '2024-01-19T13:30:00Z',
+      productCount: 38,
+      description: 'Blusas femininas elegantes e versáteis',
     },
     {
       id: 4,
       name: 'Macaquinhos',
       image: 'https://cdn.awsli.com.br/1538/1538522/produto/338746166/img_1715-zdjy3qfnl6.jpeg',
+      createdAt: '2024-01-08T08:45:00Z',
+      updatedAt: '2024-01-17T15:10:00Z',
+      productCount: 15,
+      description: 'Macaquinhos femininos para um visual único',
     },
     {
       id: 5,
       name: 'Vestidos',
       image:
         'https://cdn.awsli.com.br/1538/1538522/produto/335928056/3d0ae793-6d64-4785-9eea-7638f716b531-rc61dwiw7t.jpeg',
+      createdAt: '2024-01-05T12:20:00Z',
+      updatedAt: '2024-01-16T10:55:00Z',
+      productCount: 31,
+      description: 'Vestidos femininos para ocasiões especiais',
     },
     {
       id: 6,
       name: 'Jeans',
       image:
         'https://acdn-us.mitiendanube.com/stores/004/414/596/products/img_6792-ref-24637-5afcdc908780ab980017283342510339-1024-1024.webp',
+      createdAt: '2024-01-03T14:30:00Z',
+      updatedAt: '2024-01-15T11:25:00Z',
+      productCount: 28,
+      description: 'Jeans femininos com diferentes lavagens e cortes',
     },
     {
       id: 7,
       name: 'Chinelos',
       image:
         'https://cdn.awsli.com.br/1538/1538522/produto/246582579/f7c2f065-cd4d-4eb4-bb35-284c857de334-oxj4tjwkcp.jpeg',
+      createdAt: '2024-01-01T16:00:00Z',
+      updatedAt: '2024-01-14T09:40:00Z',
+      productCount: 12,
+      description: 'Chinelos confortáveis para o dia a dia',
     },
     {
       id: 8,
       name: 'Croppeds',
       image:
         'https://cdn.awsli.com.br/1538/1538522/produto/210614200/whatsapp-image-2023-03-30-at-15-23-39-rhjycw.jpg',
+      createdAt: '2024-01-07T13:45:00Z',
+      updatedAt: '2024-01-13T17:15:00Z',
+      productCount: 19,
+      description: 'Croppeds femininos para um visual moderno',
     },
     {
       id: 9,
       name: 'Conjuntos',
       image: 'https://cdn.awsli.com.br/1538/1538522/produto/338700026/img_1646-vnkljmtjrp.jpeg',
+      createdAt: '2024-01-09T10:10:00Z',
+      updatedAt: '2024-01-12T14:50:00Z',
+      productCount: 22,
+      description: 'Conjuntos femininos coordenados e elegantes',
     },
     {
       id: 10,
       name: 'Macacão',
       image:
         'https://cdn.awsli.com.br/1538/1538522/produto/299448951/71601444-a299-4587-ad99-bf170e7f9760-9ikj2wsrqb.jpeg',
+      createdAt: '2024-01-06T11:35:00Z',
+      updatedAt: '2024-01-11T16:05:00Z',
+      productCount: 8,
+      description: 'Macacões femininos para um visual único',
     },
     {
       id: 11,
       name: 'Shorts',
       image:
         'https://cdn.awsli.com.br/1538/1538522/produto/217419654/whatsapp-image-2023-05-17-at-13-40-07-65w1r2wpb9.jpeg',
+      createdAt: '2024-01-04T15:20:00Z',
+      updatedAt: '2024-01-10T12:30:00Z',
+      productCount: 16,
+      description: 'Shorts femininos para o verão',
     },
   ]);
 
@@ -97,6 +148,10 @@ const Category = () => {
         id: Math.max(...categories.map((c) => c.id)) + 1,
         name: data.name,
         image: data.previewImage || 'https://via.placeholder.com/150',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        productCount: 0,
+        description: '',
       };
 
       setCategories((prev) => [...prev, newCategory]);
@@ -120,6 +175,7 @@ const Category = () => {
         ...editingCategory,
         name: data.name,
         image: data.previewImage || editingCategory.image,
+        updatedAt: new Date().toISOString(),
       };
 
       setCategories((prev) =>
@@ -158,6 +214,24 @@ const Category = () => {
   const handleEdit = (category: CategoryItem) => {
     setEditingCategory(category);
     setShowForm(true);
+  };
+
+  const handleView = (category: CategoryItem) => {
+    setViewingCategory(category);
+    setShowView(true);
+  };
+
+  const handleCloseView = () => {
+    setShowView(false);
+    setViewingCategory(undefined);
+  };
+
+  const handleEditFromView = () => {
+    if (viewingCategory) {
+      setEditingCategory(viewingCategory);
+      setShowView(false);
+      setShowForm(true);
+    }
   };
 
   const filteredCategories = categories.filter((category) =>
@@ -226,7 +300,10 @@ const Category = () => {
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[200px]'>
                     Nome
                   </th>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[120px]'>
+                  <th className='px-6 py-4 text-center text-xs sm:text-sm font-semibold text-slate-700 min-w-[120px]'>
+                    Quantidade de Produtos
+                  </th>
+                  <th className='px-6 py-4 text-center text-xs sm:text-sm font-semibold text-slate-700 min-w-[120px]'>
                     Ações
                   </th>
                 </tr>
@@ -234,7 +311,7 @@ const Category = () => {
               <tbody className='divide-y divide-slate-200'>
                 {loading ? (
                   <tr>
-                    <td colSpan={4} className='py-12 text-center text-slate-500'>
+                    <td colSpan={5} className='py-12 text-center text-slate-500'>
                       <div className='flex flex-col items-center gap-2'>
                         <div className='w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin'></div>
                         <p className='font-medium'>Carregando categorias...</p>
@@ -267,9 +344,17 @@ const Category = () => {
                           {category.name}
                         </span>
                       </td>
+                      <td className='px-6 py-4 text-center'>
+                        <div className='flex items-center justify-center'>
+                          <span className='text-xs sm:text-sm font-medium text-slate-50 bg-black w-8 h-8 rounded-full flex items-center justify-center'>
+                            {category.productCount || 0}
+                          </span>
+                        </div>
+                      </td>
                       <td className='px-6 py-4'>
-                        <div className='flex items-center gap-1 sm:gap-2'>
+                        <div className='flex items-center gap-1 sm:gap-2 justify-center'>
                           <button
+                            onClick={() => handleView(category)}
                             className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
                             title='Visualizar'
                           >
@@ -295,7 +380,7 @@ const Category = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className='py-12 text-center text-slate-500'>
+                    <td colSpan={5} className='py-12 text-center text-slate-500'>
                       <div className='flex flex-col items-center gap-2'>
                         <div className='w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center'>
                           <FolderOpen className='w-8 h-8 text-slate-400' />
@@ -337,6 +422,15 @@ const Category = () => {
             setEditingCategory(undefined);
           }}
           isLoading={loading}
+        />
+      )}
+
+      {/* View Modal */}
+      {showView && viewingCategory && (
+        <CategoryView
+          category={viewingCategory}
+          onClose={handleCloseView}
+          onEdit={handleEditFromView}
         />
       )}
 
