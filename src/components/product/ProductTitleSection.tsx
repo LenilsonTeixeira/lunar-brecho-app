@@ -1,7 +1,6 @@
 import { Banknote, CreditCard } from 'lucide-react';
 import { Product } from '../../types/product';
 import ProductDetailItem from './ProductDetailItem';
-import ProductTypeBadge from './ProductTypeBadge';
 import {
   calculateDiscountedPrice,
   calculateInstallment,
@@ -42,10 +41,7 @@ const ProductTitleSection = ({ product }: Props) => {
       <ProductDetailItem value={product.description} className='mt-5 md:w-4/5' />
       <ProductDetailItem label='Marca' value={product.brand} className='mt-4 mb-4' />
       <ProductDetailItem label='Categoria' value={product.category} className='mt-4 mb-4' />
-      <div className='mt-4 flex items-center gap-3'>
-        <span className='text-sm font-medium text-slate-600'>Tipo:</span>
-        <ProductTypeBadge type={product.type} variant='detailed' />
-      </div>
+      <ProductDetailItem label='Tipo' value={product.type} className='mt-4' />
     </>
   );
 };
