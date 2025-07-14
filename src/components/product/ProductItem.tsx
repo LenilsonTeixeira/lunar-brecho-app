@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { ShoppingCart } from 'lucide-react';
 import { Product } from '../../types/product';
 import { useCart } from '../../contexts/CartContext';
+import ProductTypeBadge from './ProductTypeBadge';
 import {
   calculateDiscountedPrice,
   calculateInstallment,
@@ -34,15 +35,9 @@ const ProductItem = ({ product }: ProductItemProps) => {
   return (
     <Link to={`/produtos/${product.id}`} className='flex flex-col items-center mb-4 md:mb-12 group'>
       <div className='rounded-lg p-1 shadow-sm shadow-slate-400 relative'>
-        {/* Label tipo (Novo/Usado) */}
+        {/* Label tipo (Novo/Bazar) */}
         <div className='absolute top-2 left-2 z-10'>
-          <span
-            className={`px-2 py-1 text-xs font-medium rounded-sm ${
-              product.type === 'Novo' ? 'bg-green-500 text-white' : 'bg-purple-500 text-white'
-            }`}
-          >
-            {product.type}
-          </span>
+          <ProductTypeBadge type={product.type} variant='compact' />
         </div>
 
         {/* Label Reservado */}

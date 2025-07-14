@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import ProductTypeBadge from '../../components/product/ProductTypeBadge';
 
 const ListProduct = () => {
   const navigate = useNavigate();
@@ -537,15 +538,10 @@ const ListProduct = () => {
                     </td>
                     <td className='px-6 py-4 text-xs sm:text-sm text-slate-700'>{product.brand}</td>
                     <td className='px-6 py-4'>
-                      <span
-                        className={`px-3 py-1 rounded-sm text-xs sm:text-sm font-medium ${
-                          product.type === 'novo'
-                            ? 'bg-sky-300 text-slate-950'
-                            : 'bg-yellow-300 text-slate-950'
-                        }`}
-                      >
-                        {product.type === 'novo' ? 'Novo' : 'Bazar'}
-                      </span>
+                      <ProductTypeBadge
+                        type={product.type === 'novo' ? 'Novo' : 'Bazar'}
+                        variant='compact'
+                      />
                     </td>
                     <td className='px-6 py-4'>
                       <div className='space-y-1'>
