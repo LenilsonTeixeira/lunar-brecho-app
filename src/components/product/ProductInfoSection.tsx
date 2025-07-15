@@ -26,7 +26,7 @@ const ProductInfoSection = ({ product, selectedSize, onSelectSize }: Props) => {
         <div className='mt-4 sm:mt-6'>
           <ProductTitleSection product={product} />
         </div>
-        <div className='mt-6 sm:mt-8'>
+        <div className='mt-1'>
           <ProductSizeSelector
             sizes={product.sizes}
             selectedSize={selectedSize}
