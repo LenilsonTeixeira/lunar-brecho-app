@@ -1,23 +1,25 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag, X, Tag, Truck, Store } from 'lucide-react';
+import {
+  Plus,
+  Minus,
+  ArrowLeft,
+  ShoppingBag,
+  X,
+  Tag,
+  Truck,
+  Store,
+  CreditCard,
+  Wallet,
+} from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { formatToBRL } from '../utils/priceUtils';
 
 const Cart = () => {
-  const { items, totalItems, totalPrice, removeFromCart, updateQuantity, clearCart } = useCart();
-  const [isClearing, setIsClearing] = useState(false);
+  const { items, totalItems, totalPrice, removeFromCart, updateQuantity } = useCart();
   const [couponCode, setCouponCode] = useState('');
   const [deliveryOption, setDeliveryOption] = useState<'pickup' | 'delivery'>('pickup');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
-
-  const handleClearCart = () => {
-    setIsClearing(true);
-    setTimeout(() => {
-      clearCart();
-      setIsClearing(false);
-    }, 300);
-  };
 
   const handleApplyCoupon = () => {
     if (!couponCode.trim()) return;
@@ -76,14 +78,6 @@ const Cart = () => {
               {totalItems} {totalItems === 1 ? 'item' : 'itens'}
             </span>
           </div>
-          <button
-            onClick={handleClearCart}
-            disabled={isClearing}
-            className='flex items-center gap-2 sm:gap-3 text-red-600 hover:text-red-700 transition-colors disabled:opacity-50 text-base sm:text-lg self-start sm:self-auto'
-          >
-            <Trash2 className='w-5 h-5 sm:w-6 sm:h-6' />
-            <span className='hidden sm:inline'>Limpar Carrinho</span>
-          </button>
         </div>
 
         <div className='grid lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-12'>
@@ -176,18 +170,19 @@ const Cart = () => {
             </div>
           </div>
 
-          {/* Resumo do Pedido - Responsivo */}
+          {/* Resumo do Pedido - Design Moderno e Elegante */}
           <div className='lg:col-span-1'>
-            <div className='bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 lg:sticky lg:top-32'>
-              <h2 className='text-xl sm:text-2xl font-medium text-slate-800 mb-6 sm:mb-8'>
-                Resumo do Pedido
-              </h2>
+            <div className='bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden lg:sticky lg:top-32'>
+              {/* Header do Resumo */}
+              <div className='bg-gradient-to-r from-sky-500 to-sky-600 p-4 sm:p-6 text-white'>
+                <h2 className='text-lg sm:text-xl font-semibold'>Resumo do Pedido</h2>
+              </div>
 
-              {/* Cupom de Desconto */}
-              <div className='mb-6 sm:mb-8'>
-                <div className='bg-slate-50 rounded-lg p-4'>
-                  <h3 className='text-sm font-medium text-slate-700 mb-3 flex items-center gap-2'>
-                    <Tag className='w-4 h-4' />
+              <div className='p-4 sm:p-6 space-y-4 sm:space-y-6'>
+                {/* Cupom de Desconto */}
+                <div className='bg-gradient-to-r from-emerald-50 to-sky-50 rounded-xl p-3 sm:p-4 border border-emerald-100'>
+                  <h3 className='text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2'>
+                    <Tag className='w-4 h-4 text-emerald-600' />
                     Cupom de Desconto
                   </h3>
                   <div className='flex gap-2'>
@@ -196,100 +191,122 @@ const Cart = () => {
                       value={couponCode}
                       onChange={(e) => setCouponCode(e.target.value)}
                       placeholder='Digite seu cupom'
-                      className='flex-1 px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent'
+                      className='flex-1 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent bg-white'
                     />
                     <button
                       onClick={handleApplyCoupon}
                       disabled={!couponCode.trim() || isApplyingCoupon}
-                      className='px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                      className='px-3 sm:px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                     >
                       {isApplyingCoupon ? 'Aplicando...' : 'Aplicar'}
                     </button>
                   </div>
                 </div>
-              </div>
 
-              {/* Opções de Entrega */}
-              <div className='mb-6 sm:mb-8'>
-                <h3 className='text-sm font-medium text-slate-700 mb-3'>Forma de Entrega</h3>
+                {/* Opções de Entrega */}
+                <div>
+                  <h3 className='text-sm font-semibold text-slate-700 mb-3 sm:mb-4'>
+                    Forma de Entrega
+                  </h3>
+                  <div className='space-y-2 sm:space-y-3'>
+                    <label className='flex items-center p-3 sm:p-4 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-sky-300 hover:bg-sky-50 transition-all duration-200'>
+                      <input
+                        type='radio'
+                        name='delivery'
+                        value='pickup'
+                        checked={deliveryOption === 'pickup'}
+                        onChange={(e) => setDeliveryOption(e.target.value as 'pickup' | 'delivery')}
+                        className='mr-3 text-sky-500 focus:ring-sky-500'
+                      />
+                      <div className='flex items-center gap-2 sm:gap-3'>
+                        <div className='p-1.5 sm:p-2 bg-sky-100 rounded-lg'>
+                          <Store className='w-4 h-4 sm:w-5 sm:h-5 text-sky-600' />
+                        </div>
+                        <div>
+                          <div className='font-medium text-slate-800 text-sm sm:text-base'>
+                            Retirar na Loja
+                          </div>
+                          <div className='text-xs sm:text-sm text-slate-500'>Grátis</div>
+                        </div>
+                      </div>
+                    </label>
+
+                    <label className='flex items-center p-3 sm:p-4 border-2 border-slate-200 rounded-xl cursor-pointer hover:border-sky-300 hover:bg-sky-50 transition-all duration-200'>
+                      <input
+                        type='radio'
+                        name='delivery'
+                        value='delivery'
+                        checked={deliveryOption === 'delivery'}
+                        onChange={(e) => setDeliveryOption(e.target.value as 'pickup' | 'delivery')}
+                        className='mr-3 text-sky-500 focus:ring-sky-500'
+                      />
+                      <div className='flex items-center gap-2 sm:gap-3'>
+                        <div className='p-1.5 sm:p-2 bg-sky-100 rounded-lg'>
+                          <Truck className='w-4 h-4 sm:w-5 sm:h-5 text-sky-600' />
+                        </div>
+                        <div>
+                          <div className='font-medium text-slate-800 text-sm sm:text-base'>
+                            Entrega em Casa
+                          </div>
+                          <div className='text-xs sm:text-sm text-slate-500'>Taxa de R$ 5,00</div>
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Resumo Financeiro */}
+                <div className='bg-slate-50 rounded-xl p-3 sm:p-4 space-y-3'>
+                  <h3 className='text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2'>
+                    <Wallet className='w-4 h-4 text-slate-600' />
+                    Detalhes do Pagamento
+                  </h3>
+
+                  <div className='space-y-2'>
+                    <div className='flex justify-between text-slate-600 text-xs sm:text-sm'>
+                      <span>
+                        Subtotal ({totalItems} {totalItems === 1 ? 'item' : 'itens'})
+                      </span>
+                      <span>{formatToBRL(totalPrice / 0.95)}</span>
+                    </div>
+                    <div className='flex justify-between text-emerald-600 font-medium text-xs sm:text-sm'>
+                      <span>Desconto PIX (5%)</span>
+                      <span>-{formatToBRL(totalPrice / 0.95 - totalPrice)}</span>
+                    </div>
+                    {deliveryOption === 'delivery' && (
+                      <div className='flex justify-between text-slate-600 text-xs sm:text-sm'>
+                        <span>Taxa de Entrega</span>
+                        <span>{formatToBRL(deliveryFee)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className='border-t border-slate-200 pt-3'>
+                    <div className='flex justify-between text-base sm:text-lg font-bold text-slate-800'>
+                      <span>Total</span>
+                      <span>{formatToBRL(finalTotal)}</span>
+                    </div>
+                    <div className='flex items-center gap-2 mt-2 text-xs text-slate-500'>
+                      <CreditCard className='w-3 h-3' />
+                      <span>ou 6x de {formatToBRL(finalTotal / 6)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Botões de Ação */}
                 <div className='space-y-3'>
-                  <label className='flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors'>
-                    <input
-                      type='radio'
-                      name='delivery'
-                      value='pickup'
-                      checked={deliveryOption === 'pickup'}
-                      onChange={(e) => setDeliveryOption(e.target.value as 'pickup' | 'delivery')}
-                      className='mr-3 text-sky-500 focus:ring-sky-500'
-                    />
-                    <div className='flex items-center gap-3'>
-                      <Store className='w-5 h-5 text-slate-600' />
-                      <div>
-                        <div className='font-medium text-slate-800'>Retirar na Loja</div>
-                        <div className='text-sm font-light text-slate-500'>Grátis</div>
-                      </div>
-                    </div>
-                  </label>
+                  <button className='w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-3 sm:py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm sm:text-base'>
+                    Finalizar Compra
+                  </button>
 
-                  <label className='flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer hover:bg-slate-50 transition-colors'>
-                    <input
-                      type='radio'
-                      name='delivery'
-                      value='delivery'
-                      checked={deliveryOption === 'delivery'}
-                      onChange={(e) => setDeliveryOption(e.target.value as 'pickup' | 'delivery')}
-                      className='mr-3 text-sky-500 focus:ring-sky-500'
-                    />
-                    <div className='flex items-center gap-3'>
-                      <Truck className='w-5 h-5 text-slate-600' />
-                      <div>
-                        <div className='font-medium text-slate-800'>Entrega em Casa</div>
-                        <div className='text-sm font-light text-slate-500'>Taxa de R$ 5,00</div>
-                      </div>
-                    </div>
-                  </label>
+                  <Link
+                    to='/'
+                    className='w-full border-2 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50 py-3 sm:py-4 rounded-xl font-semibold transition-all duration-200 inline-block text-center text-sm sm:text-base'
+                  >
+                    Continuar Comprando
+                  </Link>
                 </div>
               </div>
-
-              {/* Resumo Financeiro */}
-              <div className='space-y-4 sm:space-y-6 mb-6 sm:mb-8'>
-                <div className='flex justify-between text-slate-600 text-md font-light'>
-                  <span>
-                    Subtotal ({totalItems} {totalItems === 1 ? 'item' : 'itens'})
-                  </span>
-                  <span>{formatToBRL(totalPrice / 0.95)}</span>
-                </div>
-                <div className='flex justify-between text-green-600 font-medium text-md'>
-                  <span>Desconto PIX (5%)</span>
-                  <span>-{formatToBRL(totalPrice / 0.95 - totalPrice)}</span>
-                </div>
-                {deliveryOption === 'delivery' && (
-                  <div className='flex justify-between text-slate-600 text-md font-light'>
-                    <span>Taxa de Entrega</span>
-                    <span>{formatToBRL(deliveryFee)}</span>
-                  </div>
-                )}
-                <div className='border-t border-slate-200 pt-4 sm:pt-6'>
-                  <div className='flex justify-between text-xl sm:text-2xl font-medium text-slate-800'>
-                    <span>Total</span>
-                    <span>{formatToBRL(finalTotal)}</span>
-                  </div>
-                  <p className='text-sm font-light text-slate-500 mt-1 sm:mt-2'>
-                    ou 6x de {formatToBRL(finalTotal / 6)}
-                  </p>
-                </div>
-              </div>
-
-              <button className='w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-lg font-medium transition-colors mb-2 text-md'>
-                Finalizar Compra
-              </button>
-
-              <Link
-                to='/'
-                className='w-full border bg-slate-800 border-slate-300 text-slate-50 hover:bg-slate-900 py-3 rounded-lg font-medium transition-colors inline-block text-center text-md'
-              >
-                Continuar Comprando
-              </Link>
             </div>
           </div>
         </div>
