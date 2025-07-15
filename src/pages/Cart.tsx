@@ -90,7 +90,7 @@ const Cart = () => {
                   className='bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow duration-300'
                 >
                   {/* Card Header */}
-                  <div className='p-4 sm:p-6 border-b border-slate-800 bg-slate-900 text-slate-50'>
+                  <div className='p-4 sm:p-4 border-b border-slate-800 bg-slate-900 text-slate-50'>
                     <div className='flex items-start justify-between'>
                       <div className='flex items-center gap-3 sm:gap-4'>
                         <div className='w-14 h-14 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl overflow-hidden ring-2 ring-slate-100 flex-shrink-0'>
@@ -122,7 +122,7 @@ const Cart = () => {
                   </div>
 
                   {/* Card Body */}
-                  <div className='p-4 sm:p-6'>
+                  <div className='p-4 sm:p-4'>
                     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-center'>
                       {/* Preços */}
                       <div className='space-y-2'>
