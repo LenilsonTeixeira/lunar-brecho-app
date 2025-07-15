@@ -34,7 +34,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
 
   return (
     <Link to={`/produtos/${product.id}`} className='flex flex-col items-center mb-4 md:mb-12 group'>
-      <div className='rounded-lg p-1 shadow-sm shadow-slate-400 relative'>
+      <div className='border-2 border-slate-200 p-1 rounded-lg shadow-sm relative'>
         {/* Label tipo (Novo/Bazar) */}
         <div className='absolute top-2 left-2 z-10'>
           <ProductTypeBadge type={product.type} variant='compact' />
@@ -58,7 +58,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
           <ShoppingCart className='w-4 h-4' />
         </button>
 
-        <div className='aspect-[3/4] overflow-hidden rounded-lg shadow-md'>
+        <div className='aspect-[3/4] overflow-hidden rounded-md'>
           <img
             src={product.images[0]}
             className='w-full h-full object-cover hover:scale-110 transition duration-500 ease-in-out'
@@ -74,7 +74,10 @@ const ProductItem = ({ product }: ProductItemProps) => {
 
       <div className='flex gap-2 flex-wrap justify-center mt-1'>
         {product.sizes.map((size, index) => (
-          <div key={index} className='p-1 rounded-full border border-slate-600 text-xs'>
+          <div
+            key={index}
+            className='p-1 rounded-full border-2 border-slate-200 text-xs hover:border-slate-400 transition-colors'
+          >
             {size}
           </div>
         ))}
