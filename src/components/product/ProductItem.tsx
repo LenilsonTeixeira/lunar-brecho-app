@@ -32,6 +32,14 @@ const ProductItem = ({ product }: ProductItemProps) => {
     }
   };
 
+  const handleSizeClick = (e: React.MouseEvent, size: string) => {
+    e.preventDefault(); // Previne a navegação do Link pai
+    e.stopPropagation();
+
+    // Redireciona para a página do produto com o tamanho pré-selecionado
+    window.location.href = `/produtos/${product.id}?size=${encodeURIComponent(size)}`;
+  };
+
   return (
     <Link to={`/produtos/${product.id}`} className='flex flex-col items-center mb-4 md:mb-12 group'>
       <div className='border-2 border-slate-200 p-1 rounded-lg shadow-sm relative'>
@@ -74,12 +82,14 @@ const ProductItem = ({ product }: ProductItemProps) => {
 
       <div className='flex gap-2 flex-wrap justify-center mt-1'>
         {product.sizes.map((size, index) => (
-          <div
+          <button
             key={index}
-            className='p-1 rounded-full border-2 border-slate-200 text-xs hover:border-slate-400 transition-colors'
+            onClick={(e) => handleSizeClick(e, size)}
+            className='p-1 rounded-full border-2 border-slate-200 text-xs hover:border-sky-400 hover:bg-sky-50 transition-all duration-200 cursor-pointer'
+            title={`Selecionar tamanho ${size}`}
           >
             {size}
-          </div>
+          </button>
         ))}
       </div>
 

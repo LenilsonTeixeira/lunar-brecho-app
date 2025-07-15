@@ -26,6 +26,13 @@ const ProductDetail = () => {
     const fetchProducts = async () => {
       const data = await getProductById();
       setProduct(data);
+
+      // Verifica se há um tamanho na URL e se ele é válido para o produto
+      const urlParams = new URLSearchParams(window.location.search);
+      const sizeFromUrl = urlParams.get('size');
+      if (sizeFromUrl && data.sizes.includes(sizeFromUrl)) {
+        setSize(sizeFromUrl);
+      }
     };
 
     fetchProducts();
