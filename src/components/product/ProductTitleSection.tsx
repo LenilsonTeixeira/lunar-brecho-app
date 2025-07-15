@@ -1,4 +1,4 @@
-import { Banknote, CreditCard } from 'lucide-react';
+import { Banknote, CreditCard, Share2 } from 'lucide-react';
 import { Product } from '../../types/product';
 import ProductDetailItem from './ProductDetailItem';
 import {
@@ -17,9 +17,32 @@ const ProductTitleSection = ({ product }: Props) => {
   const finalPrice = calculateDiscountedPrice(product.price, discount);
   const installment = calculateInstallment(product.price, 6);
 
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator
+        .share({
+          title: product.name,
+          text: product.description,
+          url: window.location.href,
+        })
+        .catch(console.error);
+    } else {
+      alert('Compartilhamento não suportado neste navegador.');
+    }
+  };
+
   return (
     <>
-      <h1 className='font-medium text-2xl mt-2'>{product.name}</h1>
+      <div className='flex items-start justify-between mt-2'>
+        <h1 className='font-medium text-2xl flex-1'>{product.name}</h1>
+        <button
+          onClick={handleShare}
+          className='ml-4 p-2 text-sky-600 hover:text-sky-800 hover:bg-sky-50 rounded-full transition-colors'
+          title='Compartilhar produto'
+        >
+          <Share2 className='w-5 h-5' />
+        </button>
+      </div>
       <ProductDetailItem value={formatToBRL(product.price)} className='mt-5 text-3xl font-medium' />
       <div className='flex items-center gap-1'>
         <span className='text-sm font-medium text-slate-600'>

@@ -1,4 +1,4 @@
-import { Share2, ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import WhatsappIcon from '../icon/WhatsappIcon';
 import { Product } from '../../types/product';
 import { useCart } from '../../contexts/CartContext';
@@ -10,20 +10,6 @@ type Props = {
 
 const ProductActions = ({ product, selectedSize }: Props) => {
   const { addToCart, getItemQuantity } = useCart();
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator
-        .share({
-          title: product.name,
-          text: product.description,
-          url: window.location.href,
-        })
-        .catch(console.error);
-    } else {
-      alert('Compartilhamento não suportado neste navegador.');
-    }
-  };
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -75,14 +61,6 @@ const ProductActions = ({ product, selectedSize }: Props) => {
       >
         <ShoppingCart className='w-5 h-5' />
         {isOutOfStock ? 'Indisponível' : 'Adicionar ao Carrinho'}
-      </button>
-
-      <button
-        onClick={handleShare}
-        className='mt-2 border border-sky-600 text-sky-600 hover:text-sky-800 px-8 py-3 text-sm w-full sm:w-72 cursor-pointer flex items-center justify-center gap-2 transition-colors'
-      >
-        <Share2 />
-        Compartilhar
       </button>
     </div>
   );
