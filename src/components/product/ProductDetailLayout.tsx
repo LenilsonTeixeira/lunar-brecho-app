@@ -7,9 +7,9 @@ type LayoutProps = {
 const ProductDetailLayout = ({ children }: LayoutProps) => {
   return (
     <Container>
-      <div className='flex justify-between items-center'>
+      <div className='py-6 sm:py-8 lg:py-12'>
         <div className='transition-opacity ease-in duration-500 opacity-100'>
-          <div className='flex gap-12 flex-col sm:gap-12 sm:flex-row'>{children}</div>
+          <div className='flex gap-8 lg:gap-12 flex-col lg:flex-row'>{children}</div>
         </div>
       </div>
     </Container>

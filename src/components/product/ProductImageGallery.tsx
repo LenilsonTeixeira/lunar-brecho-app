@@ -11,7 +11,7 @@ const ProductImageGallery = ({ images, alt, isReserved }: ProductImageGalleryPro
   const [selectedImage, setSelectedImage] = useState(images[0]);
 
   return (
-    <div className='flex-1 flex flex-col-reverse gap-3 sm:flex-row items-start'>
+    <div className='flex-1 flex flex-col-reverse gap-4 lg:flex-row lg:gap-6 items-start'>
       <Thumbnails
         images={images}
         alt={alt}
@@ -19,11 +19,11 @@ const ProductImageGallery = ({ images, alt, isReserved }: ProductImageGalleryPro
         selectedImage={selectedImage}
       />
 
-      <div className='w-full sm:w-[80%] border-slate-100 p-1 border shadow-md relative'>
-        <img className='w-full h-auto' src={selectedImage} alt={alt} />
+      <div className='w-full lg:w-[80%] border-slate-200 p-2 border rounded-lg shadow-sm relative'>
+        <img className='w-full h-auto rounded-md' src={selectedImage} alt={alt} />
 
         {isReserved && (
-          <div className='absolute bottom-0 left-0 w-full bg-yellow-500/90 text-white text-center text-sm font-semibold p-4'>
+          <div className='absolute bottom-0 left-0 w-full bg-yellow-500/90 text-white text-center text-sm font-semibold p-4 rounded-b-lg'>
             Produto reservado
           </div>
         )}

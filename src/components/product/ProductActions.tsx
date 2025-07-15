@@ -39,21 +39,21 @@ const ProductActions = ({ product, selectedSize }: Props) => {
   const isOutOfStock = selectedSize ? currentQuantity >= product.amount : false;
 
   return (
-    <div className='flex flex-col'>
+    <div className='flex flex-col space-y-3 sm:space-y-4'>
       <a
         href={whatsappLink}
         target='_blank'
         rel='noopener noreferrer'
-        className='mt-2 bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-3.5 text-sm w-full sm:w-72 cursor-pointer flex items-center justify-center gap-2 transition-colors'
+        className='bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-4 text-sm w-full sm:w-80 cursor-pointer flex items-center justify-center gap-3 transition-colors rounded-lg font-medium'
       >
-        <WhatsappIcon width={25} height={25} />
+        <WhatsappIcon width={24} height={24} />
         Compre pelo WhatsApp
       </a>
 
       <button
         onClick={handleAddToCart}
         disabled={isOutOfStock}
-        className={`mt-2 px-8 py-3.5 text-sm w-full sm:w-72 cursor-pointer flex items-center justify-center gap-2 transition-colors ${
+        className={`px-6 py-4 text-sm w-full sm:w-80 cursor-pointer flex items-center justify-center gap-3 transition-colors rounded-lg font-medium ${
           isOutOfStock
             ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
             : 'bg-sky-500 hover:bg-sky-600 text-white'

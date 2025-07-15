@@ -36,7 +36,7 @@ const Thumbnails = ({ images, alt, onSelect, selectedImage }: ThumbnailsProps) =
   };
 
   return (
-    <div className='relative sm:w-[18%] w-full max-h-[80vh]'>
+    <div className='relative lg:w-[18%] w-full max-h-[80vh]'>
       {showArrows && (
         <button
           onClick={() => scroll('up')}
@@ -49,7 +49,7 @@ const Thumbnails = ({ images, alt, onSelect, selectedImage }: ThumbnailsProps) =
 
       <div
         ref={containerRef}
-        className='flex sm:flex-col overflow-x-auto sm:overflow-y-auto h-auto max-h-[70vh] justify-between sm:justify-start w-full gap-2 sm:gap-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 p-1'
+        className='flex lg:flex-col overflow-x-auto lg:overflow-y-auto h-auto max-h-[70vh] justify-between lg:justify-start w-full gap-3 lg:gap-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 p-1'
       >
         {images.map((img, idx) => (
           <img
@@ -57,10 +57,10 @@ const Thumbnails = ({ images, alt, onSelect, selectedImage }: ThumbnailsProps) =
             onClick={() => onSelect(img)}
             src={img}
             alt={`${alt} - imagem ${idx + 1}`}
-            className={`shadow-md w-[24%] sm:w-full sm:h-auto aspect-[2/3] object-cover flex-shrink-0 cursor-pointer border p-1 transition-all duration-200 ${
+            className={`shadow-md w-[24%] lg:w-full lg:h-auto aspect-[2/3] object-cover flex-shrink-0 cursor-pointer border-2 p-1 rounded-md transition-all duration-200 ${
               selectedImage === img
                 ? 'border-sky-400 shadow-lg shadow-sky-400/90'
-                : 'border-slate-100 hover:border-slate-300'
+                : 'border-slate-200 hover:border-slate-400'
             }`}
           />
         ))}
