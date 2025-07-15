@@ -10,6 +10,7 @@ const Configuration = () => {
     siteDescription: 'Seu brechó online de confiança',
     contactEmail: 'contato@lunarbrecho.com',
     contactPhone: '(34) 99999-9999',
+    deliveryFee: 10.0,
     notifications: {
       newOrders: true,
       lowStock: true,
@@ -196,6 +197,29 @@ const Configuration = () => {
                   placeholder='(00) 00000-0000'
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                 />
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label className='text-sm font-semibold text-slate-700'>Taxa de Entrega (R$)</label>
+                <div className='relative'>
+                  <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-sm'>
+                    R$
+                  </span>
+                  <input
+                    type='number'
+                    step='0.01'
+                    min='0'
+                    value={configurations.deliveryFee}
+                    onChange={(e) =>
+                      handleInputChange('deliveryFee', parseFloat(e.target.value) || 0)
+                    }
+                    placeholder='0.00'
+                    className='outline-none py-2 sm:py-3 pl-10 pr-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full'
+                  />
+                </div>
+                <p className='text-xs text-slate-500'>
+                  Valor padrão da taxa de entrega para pedidos
+                </p>
               </div>
             </div>
           </div>
