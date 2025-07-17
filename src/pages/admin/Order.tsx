@@ -1,37 +1,75 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, Package, Settings } from 'lucide-react';
 import { Link } from 'react-router';
+import OrderView from '../../components/admin/OrderView';
+import OrderEdit from '../../components/admin/OrderEdit';
+import ConfirmDialog from '../../components/admin/ConfirmDialog';
+import { Order } from '../../types/order';
 
-const Order = () => {
+const OrderPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
-  const [orders, setOrders] = useState([
+  const [viewingOrder, setViewingOrder] = useState<Order | undefined>();
+  const [editingOrder, setEditingOrder] = useState<Order | undefined>();
+  const [deletingOrder, setDeletingOrder] = useState<Order | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [orders, setOrders] = useState<Order[]>([
     {
       id: 1,
       orderNumber: '#1',
       customer: 'Maria Silva Santos',
       customerPhone: '(34) 99668-3137',
       products: [
-        { name: 'Vestido Floral Vintage', quantity: 1, price: 59.9 },
-        { name: 'Blusa Básica Algodão', quantity: 2, price: 35.0 },
+        {
+          id: 1,
+          name: 'Vestido Floral Vintage',
+          code: 'VD001',
+          size: 'M',
+          quantity: 1,
+          price: 59.9,
+        },
+        { id: 2, name: 'Blusa Básica Algodão', code: 'BL002', size: 'P', quantity: 2, price: 35.0 },
       ],
       total: 129.9,
       status: 'pendente',
       orderDate: '2024-01-22',
       paymentMethod: 'PIX',
       deliveryAddress: 'Rua das Flores, 123 - Centro, Uberlândia/MG',
+      deliveryType: 'delivery',
+      address: {
+        cep: '38400-000',
+        street: 'Rua das Flores',
+        number: '123',
+        complement: 'Apto 101',
+        neighborhood: 'Centro',
+        city: 'Uberlândia',
+        state: 'MG',
+      },
     },
     {
       id: 2,
       orderNumber: '#2',
       customer: 'Ana Paula Costa',
       customerPhone: '(34) 98845-1234',
-      products: [{ name: 'Blazer Clássico', quantity: 1, price: 95.0 }],
+      products: [
+        { id: 3, name: 'Blazer Clássico', code: 'BL003', size: 'G', quantity: 1, price: 95.0 },
+      ],
       total: 95.0,
       status: 'aprovado',
       orderDate: '2024-01-21',
       paymentMethod: 'Cartão de Crédito',
       deliveryAddress: 'Av. Rondon Pacheco, 456 - Tibery, Uberlândia/MG',
+      deliveryType: 'delivery',
+      address: {
+        cep: '38405-142',
+        street: 'Av. Rondon Pacheco',
+        number: '456',
+        complement: '',
+        neighborhood: 'Tibery',
+        city: 'Uberlândia',
+        state: 'MG',
+      },
     },
     {
       id: 3,
@@ -39,27 +77,56 @@ const Order = () => {
       customer: 'Fernanda Oliveira',
       customerPhone: '(34) 99789-4321',
       products: [
-        { name: 'Calça Jeans Skinny', quantity: 1, price: 85.0 },
-        { name: 'Cropped Top Estampado', quantity: 1, price: 40.0 },
-        { name: 'Body Rendado', quantity: 1, price: 45.0 },
+        { id: 4, name: 'Calça Jeans Skinny', code: 'CJ004', size: '38', quantity: 1, price: 85.0 },
+        {
+          id: 5,
+          name: 'Cropped Top Estampado',
+          code: 'CT005',
+          size: 'M',
+          quantity: 1,
+          price: 40.0,
+        },
+        { id: 6, name: 'Body Rendado', code: 'BR006', size: 'P', quantity: 1, price: 45.0 },
       ],
       total: 170.0,
       status: 'enviado',
       orderDate: '2024-01-20',
       paymentMethod: 'PIX',
       deliveryAddress: 'Rua Duque de Caxias, 321 - Fundinho, Uberlândia/MG',
+      deliveryType: 'delivery',
+      address: {
+        cep: '38400-000',
+        street: 'Rua Duque de Caxias',
+        number: '321',
+        complement: '',
+        neighborhood: 'Fundinho',
+        city: 'Uberlândia',
+        state: 'MG',
+      },
     },
     {
       id: 4,
       orderNumber: '#4',
       customer: 'Carolina Mendes',
       customerPhone: '(34) 99123-8765',
-      products: [{ name: 'Sapatos de Salto', quantity: 1, price: 140.0 }],
+      products: [
+        { id: 7, name: 'Sapatos de Salto', code: 'SS007', size: '36', quantity: 1, price: 140.0 },
+      ],
       total: 140.0,
       status: 'entregue',
       orderDate: '2024-01-19',
       paymentMethod: 'Cartão de Débito',
       deliveryAddress: 'Av. Cesário Alvim, 654 - Santa Mônica, Uberlândia/MG',
+      deliveryType: 'delivery',
+      address: {
+        cep: '38408-100',
+        street: 'Av. Cesário Alvim',
+        number: '654',
+        complement: 'Casa',
+        neighborhood: 'Santa Mônica',
+        city: 'Uberlândia',
+        state: 'MG',
+      },
     },
     {
       id: 5,
@@ -67,14 +134,31 @@ const Order = () => {
       customer: 'Patrícia Lima',
       customerPhone: '(34) 99456-7890',
       products: [
-        { name: 'Conjunto Shorts + Top', quantity: 1, price: 85.0 },
-        { name: 'Bolsa de Couro', quantity: 1, price: 89.9 },
+        {
+          id: 8,
+          name: 'Conjunto Shorts + Top',
+          code: 'CS008',
+          size: 'M',
+          quantity: 1,
+          price: 85.0,
+        },
+        { id: 9, name: 'Bolsa de Couro', code: 'BC009', size: 'Único', quantity: 1, price: 89.9 },
       ],
       total: 174.9,
       status: 'cancelado',
       orderDate: '2024-01-18',
       paymentMethod: 'PIX',
       deliveryAddress: 'Rua Segismundo Pereira, 987 - Osvaldo Rezende, Uberlândia/MG',
+      deliveryType: 'delivery',
+      address: {
+        cep: '38400-000',
+        street: 'Rua Segismundo Pereira',
+        number: '987',
+        complement: '',
+        neighborhood: 'Osvaldo Rezende',
+        city: 'Uberlândia',
+        state: 'MG',
+      },
     },
     {
       id: 6,
@@ -82,14 +166,22 @@ const Order = () => {
       customer: 'Luciana Rodrigues',
       customerPhone: '(34) 99876-5432',
       products: [
-        { name: 'Vestido Longo Elegante', quantity: 1, price: 75.0 },
-        { name: 'Blusa Transparente', quantity: 1, price: 55.0 },
+        {
+          id: 10,
+          name: 'Vestido Longo Elegante',
+          code: 'VL010',
+          size: 'G',
+          quantity: 1,
+          price: 75.0,
+        },
+        { id: 11, name: 'Blusa Transparente', code: 'BT011', size: 'M', quantity: 1, price: 55.0 },
       ],
       total: 130.0,
       status: 'pendente',
       orderDate: '2024-01-17',
       paymentMethod: 'Cartão de Crédito',
       deliveryAddress: 'Av. Anselmo Alves dos Santos, 147 - Shopping Park, Uberlândia/MG',
+      deliveryType: 'pickup',
     },
     {
       id: 7,
@@ -97,14 +189,24 @@ const Order = () => {
       customer: 'Gabriela Almeida',
       customerPhone: '(34) 99654-3210',
       products: [
-        { name: 'Jeans Mom Fit', quantity: 1, price: 120.0 },
-        { name: 'Blusa de Seda', quantity: 1, price: 85.0 },
+        { id: 12, name: 'Jeans Mom Fit', code: 'JM012', size: '40', quantity: 1, price: 120.0 },
+        { id: 13, name: 'Blusa de Seda', code: 'BS013', size: 'P', quantity: 1, price: 85.0 },
       ],
       total: 205.0,
       status: 'aprovado',
       orderDate: '2024-01-16',
       paymentMethod: 'PIX',
       deliveryAddress: 'Av. João Naves de Ávila, 369 - Santa Rosa, Uberlândia/MG',
+      deliveryType: 'delivery',
+      address: {
+        cep: '38400-000',
+        street: 'Av. João Naves de Ávila',
+        number: '369',
+        complement: 'Apto 205',
+        neighborhood: 'Santa Rosa',
+        city: 'Uberlândia',
+        state: 'MG',
+      },
     },
     {
       id: 8,
@@ -112,27 +214,40 @@ const Order = () => {
       customer: 'Isabela Martins',
       customerPhone: '(34) 99765-4321',
       products: [
-        { name: 'Body Esportivo', quantity: 1, price: 65.0 },
-        { name: 'Calça Palazzo', quantity: 1, price: 95.0 },
-        { name: 'Cropped Cardigan', quantity: 1, price: 75.0 },
+        { id: 14, name: 'Body Esportivo', code: 'BE014', size: 'M', quantity: 1, price: 65.0 },
+        { id: 15, name: 'Calça Palazzo', code: 'CP015', size: 'G', quantity: 1, price: 95.0 },
+        { id: 16, name: 'Cropped Cardigan', code: 'CC016', size: 'P', quantity: 1, price: 75.0 },
       ],
       total: 235.0,
       status: 'enviado',
       orderDate: '2024-01-15',
       paymentMethod: 'Cartão de Crédito',
       deliveryAddress: 'Rua Coronel Antônio Alves, 741 - Lídice, Uberlândia/MG',
+      deliveryType: 'delivery',
+      address: {
+        cep: '38400-000',
+        street: 'Rua Coronel Antônio Alves',
+        number: '741',
+        complement: '',
+        neighborhood: 'Lídice',
+        city: 'Uberlândia',
+        state: 'MG',
+      },
     },
     {
       id: 9,
       orderNumber: '#9',
       customer: 'Amanda Pereira',
       customerPhone: '(34) 99234-5678',
-      products: [{ name: 'Vestido Midi Floral', quantity: 1, price: 65.0 }],
+      products: [
+        { id: 17, name: 'Vestido Midi Floral', code: 'VM017', size: 'M', quantity: 1, price: 65.0 },
+      ],
       total: 65.0,
       status: 'entregue',
       orderDate: '2024-01-14',
       paymentMethod: 'PIX',
       deliveryAddress: 'Av. Rondon Pacheco, 852 - Planalto, Uberlândia/MG',
+      deliveryType: 'pickup',
     },
     {
       id: 10,
@@ -140,166 +255,31 @@ const Order = () => {
       customer: 'Bianca Santos',
       customerPhone: '(34) 99543-2109',
       products: [
-        { name: 'Jeans Boyfriend', quantity: 1, price: 110.0 },
-        { name: 'Blusa Básica Algodão', quantity: 2, price: 35.0 },
+        { id: 18, name: 'Jeans Boyfriend', code: 'JB018', size: '42', quantity: 1, price: 110.0 },
+        {
+          id: 19,
+          name: 'Blusa Básica Algodão',
+          code: 'BL019',
+          size: 'M',
+          quantity: 2,
+          price: 35.0,
+        },
       ],
       total: 180.0,
       status: 'pendente',
       orderDate: '2024-01-13',
       paymentMethod: 'Cartão de Débito',
       deliveryAddress: 'Rua Professor José Ignácio de Souza, 963 - Jardim Europa, Uberlândia/MG',
-    },
-    {
-      id: 11,
-      orderNumber: '#11',
-      customer: 'Roberta Ferreira',
-      customerPhone: '(34) 99432-1098',
-      products: [
-        { name: 'Conjunto Pijama', quantity: 1, price: 85.0 },
-        { name: 'Body Lace', quantity: 1, price: 65.0 },
-      ],
-      total: 150.0,
-      status: 'aprovado',
-      orderDate: '2024-01-12',
-      paymentMethod: 'PIX',
-      deliveryAddress: 'Rua João Pinheiro, 753 - Martins, Uberlândia/MG',
-    },
-    {
-      id: 12,
-      orderNumber: '#12',
-      customer: 'Tatiana Oliveira',
-      customerPhone: '(34) 99789-0123',
-      products: [
-        { name: 'Blazer Clássico', quantity: 1, price: 95.0 },
-        { name: 'Calça Jeans Skinny', quantity: 1, price: 85.0 },
-      ],
-      total: 180.0,
-      status: 'enviado',
-      orderDate: '2024-01-11',
-      paymentMethod: 'Cartão de Crédito',
-      deliveryAddress: 'Av. Rondon Pacheco, 456 - Tibery, Uberlândia/MG',
-    },
-    {
-      id: 13,
-      orderNumber: '#13',
-      customer: 'Camila Silva',
-      customerPhone: '(34) 99111-2222',
-      products: [
-        { name: 'Vestido Floral Vintage', quantity: 1, price: 59.9 },
-        { name: 'Blusa Básica Algodão', quantity: 1, price: 35.0 },
-        { name: 'Body Rendado', quantity: 1, price: 45.0 },
-      ],
-      total: 139.9,
-      status: 'pendente',
-      orderDate: '2024-01-10',
-      paymentMethod: 'PIX',
-      deliveryAddress: 'Rua das Palmeiras, 789 - Centro, Uberlândia/MG',
-    },
-    {
-      id: 14,
-      orderNumber: '#14',
-      customer: 'Juliana Costa',
-      customerPhone: '(34) 99222-3333',
-      products: [
-        { name: 'Blazer Clássico', quantity: 1, price: 95.0 },
-        { name: 'Calça Palazzo', quantity: 1, price: 95.0 },
-      ],
-      total: 190.0,
-      status: 'aprovado',
-      orderDate: '2024-01-09',
-      paymentMethod: 'Cartão de Crédito',
-      deliveryAddress: 'Av. Cesário Alvim, 321 - Santa Mônica, Uberlândia/MG',
-    },
-    {
-      id: 15,
-      orderNumber: '#15',
-      customer: 'Mariana Santos',
-      customerPhone: '(34) 99333-4444',
-      products: [
-        { name: 'Sapatos de Salto', quantity: 1, price: 140.0 },
-        { name: 'Bolsa de Couro', quantity: 1, price: 89.9 },
-      ],
-      total: 229.9,
-      status: 'enviado',
-      orderDate: '2024-01-08',
-      paymentMethod: 'PIX',
-      deliveryAddress: 'Rua Duque de Caxias, 654 - Fundinho, Uberlândia/MG',
-    },
-    {
-      id: 16,
-      orderNumber: '#16',
-      customer: 'Fernanda Lima',
-      customerPhone: '(34) 99444-5555',
-      products: [
-        { name: 'Jeans Mom Fit', quantity: 1, price: 120.0 },
-        { name: 'Cropped Top Estampado', quantity: 1, price: 40.0 },
-      ],
-      total: 160.0,
-      status: 'entregue',
-      orderDate: '2024-01-07',
-      paymentMethod: 'Cartão de Débito',
-      deliveryAddress: 'Av. Rondon Pacheco, 147 - Tibery, Uberlândia/MG',
-    },
-    {
-      id: 17,
-      orderNumber: '#17',
-      customer: 'Carolina Almeida',
-      customerPhone: '(34) 99555-6666',
-      products: [
-        { name: 'Conjunto Shorts + Top', quantity: 1, price: 85.0 },
-        { name: 'Body Esportivo', quantity: 1, price: 65.0 },
-      ],
-      total: 150.0,
-      status: 'pendente',
-      orderDate: '2024-01-06',
-      paymentMethod: 'PIX',
-      deliveryAddress: 'Rua João Pinheiro, 456 - Martins, Uberlândia/MG',
-    },
-    {
-      id: 18,
-      orderNumber: '#18',
-      customer: 'Patrícia Martins',
-      customerPhone: '(34) 99666-7777',
-      products: [
-        { name: 'Vestido Longo Elegante', quantity: 1, price: 75.0 },
-        { name: 'Blusa Transparente', quantity: 1, price: 55.0 },
-        { name: 'Body Lace', quantity: 1, price: 65.0 },
-      ],
-      total: 195.0,
-      status: 'aprovado',
-      orderDate: '2024-01-05',
-      paymentMethod: 'Cartão de Crédito',
-      deliveryAddress: 'Av. João Naves de Ávila, 852 - Santa Rosa, Uberlândia/MG',
-    },
-    {
-      id: 19,
-      orderNumber: '#19',
-      customer: 'Luciana Oliveira',
-      customerPhone: '(34) 99777-8888',
-      products: [
-        { name: 'Jeans Boyfriend', quantity: 1, price: 110.0 },
-        { name: 'Blusa de Seda', quantity: 1, price: 85.0 },
-      ],
-      total: 195.0,
-      status: 'enviado',
-      orderDate: '2024-01-04',
-      paymentMethod: 'PIX',
-      deliveryAddress: 'Rua Coronel Antônio Alves, 963 - Lídice, Uberlândia/MG',
-    },
-    {
-      id: 20,
-      orderNumber: '#20',
-      customer: 'Gabriela Rodrigues',
-      customerPhone: '(34) 99888-9999',
-      products: [
-        { name: 'Vestido Midi Floral', quantity: 1, price: 65.0 },
-        { name: 'Cropped Cardigan', quantity: 1, price: 75.0 },
-      ],
-      total: 140.0,
-      status: 'entregue',
-      orderDate: '2024-01-03',
-      paymentMethod: 'Cartão de Débito',
-      deliveryAddress: 'Av. Cesário Alvim, 741 - Santa Mônica, Uberlândia/MG',
+      deliveryType: 'delivery',
+      address: {
+        cep: '38400-000',
+        street: 'Rua Professor José Ignácio de Souza',
+        number: '963',
+        complement: '',
+        neighborhood: 'Jardim Europa',
+        city: 'Uberlândia',
+        state: 'MG',
+      },
     },
   ]);
 
@@ -335,6 +315,50 @@ const Order = () => {
         order.id === orderId ? { ...order, status: newStatus.toLowerCase() } : order,
       ),
     );
+  };
+
+  const handleViewOrder = (order: Order) => {
+    setViewingOrder(order);
+  };
+
+  const handleEditOrder = (order: Order) => {
+    setEditingOrder(order);
+  };
+
+  const handleDeleteOrder = (order: Order) => {
+    setDeletingOrder(order);
+  };
+
+  const handleUpdateOrder = async (updatedOrder: Order) => {
+    setIsLoading(true);
+    try {
+      // Simular uma chamada de API
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setOrders(orders.map((order) => (order.id === updatedOrder.id ? updatedOrder : order)));
+      setEditingOrder(undefined);
+    } catch (error) {
+      console.error('Erro ao atualizar pedido:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingOrder) return;
+
+    setIsLoading(true);
+    try {
+      // Simular uma chamada de API
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setOrders(orders.filter((order) => order.id !== deletingOrder.id));
+      setDeletingOrder(undefined);
+    } catch (error) {
+      console.error('Erro ao deletar pedido:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const filteredOrders = orders.filter((order) => {
@@ -468,6 +492,9 @@ const Order = () => {
                         <p className='text-xs sm:text-sm font-medium text-slate-800'>
                           {order.orderNumber}
                         </p>
+                        <p className='text-xs text-slate-500'>
+                          {order.deliveryType === 'delivery' ? 'Entrega' : 'Retirada'}
+                        </p>
                       </div>
                     </td>
                     <td className='px-6 py-4'>
@@ -516,12 +543,14 @@ const Order = () => {
                     <td className='px-6 py-4'>
                       <div className='flex items-center gap-1 sm:gap-2'>
                         <button
+                          onClick={() => handleViewOrder(order)}
                           className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
                           title='Visualizar'
                         >
                           <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
                         </button>
                         <button
+                          onClick={() => handleEditOrder(order)}
                           className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
                           title='Editar'
                         >
@@ -547,6 +576,7 @@ const Order = () => {
                           </div>
                         </div>
                         <button
+                          onClick={() => handleDeleteOrder(order)}
                           className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
                           title='Cancelar'
                         >
@@ -596,8 +626,42 @@ const Order = () => {
           </div>
         )}
       </div>
+
+      {/* View Modal */}
+      {viewingOrder && (
+        <OrderView
+          order={viewingOrder}
+          onClose={() => setViewingOrder(undefined)}
+          onEdit={() => {
+            setEditingOrder(viewingOrder);
+            setViewingOrder(undefined);
+          }}
+        />
+      )}
+
+      {/* Edit Modal */}
+      {editingOrder && (
+        <OrderEdit
+          order={editingOrder}
+          onSubmit={handleUpdateOrder}
+          onCancel={() => setEditingOrder(undefined)}
+          isLoading={isLoading}
+        />
+      )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={!!deletingOrder}
+        title='Cancelar Pedido'
+        message={`Tem certeza que deseja cancelar o pedido "${deletingOrder?.orderNumber}"? Esta ação não pode ser desfeita.`}
+        confirmText='Cancelar Pedido'
+        cancelText='Manter Pedido'
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeletingOrder(undefined)}
+        type='danger'
+      />
     </div>
   );
 };
 
-export default Order;
+export default OrderPage;

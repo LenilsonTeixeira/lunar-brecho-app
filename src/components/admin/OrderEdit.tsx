@@ -1,52 +1,44 @@
-import { useState } from 'react';
-import { Plus, X, Package, User, MapPin, CreditCard, Store, Truck } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Plus, User, Package, MapPin, CreditCard, Store, Truck } from 'lucide-react';
+import { Order, OrderProduct, OrderAddress } from '../../types/order';
 
-interface OrderProduct {
-  id: number;
-  name: string;
-  code: string;
-  size: string;
-  quantity: number;
-  price: number;
+interface OrderEditProps {
+  order: Order;
+  onSubmit: (order: Order) => void;
+  onCancel: () => void;
+  isLoading?: boolean;
 }
 
-interface OrderAddress {
-  cep: string;
-  street: string;
-  number: string;
-  complement: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-}
-
-const AddOrder = () => {
-  const [deliveryType, setDeliveryType] = useState<'pickup' | 'delivery'>('delivery');
-  const [customerName, setCustomerName] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [orderStatus, setOrderStatus] = useState('pendente');
-
-  const [products, setProducts] = useState<OrderProduct[]>([
-    {
-      id: 1,
-      name: '',
-      code: '',
-      size: '',
-      quantity: 1,
-      price: 0,
+const OrderEdit = ({ order, onSubmit, onCancel, isLoading = false }: OrderEditProps) => {
+  const [formData, setFormData] = useState<Order>(order);
+  const [products, setProducts] = useState<OrderProduct[]>(order.products);
+  const [deliveryAddress, setDeliveryAddress] = useState<OrderAddress>(
+    order.address || {
+      cep: '',
+      street: '',
+      number: '',
+      complement: '',
+      neighborhood: '',
+      city: '',
+      state: '',
     },
-  ]);
+  );
 
-  const [deliveryAddress, setDeliveryAddress] = useState<OrderAddress>({
-    cep: '',
-    street: '',
-    number: '',
-    complement: '',
-    neighborhood: '',
-    city: '',
-    state: '',
-  });
+  useEffect(() => {
+    setFormData(order);
+    setProducts(order.products);
+    setDeliveryAddress(
+      order.address || {
+        cep: '',
+        street: '',
+        number: '',
+        complement: '',
+        neighborhood: '',
+        city: '',
+        state: '',
+      },
+    );
+  }, [order]);
 
   const addProduct = () => {
     const newId = Math.max(...products.map((p) => p.id), 0) + 1;
@@ -92,97 +84,41 @@ const AddOrder = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validar se todos os campos obrigatórios estão preenchidos
-    if (!customerName.trim() || !customerPhone.trim() || !paymentMethod) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
-      return;
-    }
-
-    if (deliveryType === 'delivery') {
-      const requiredFields = ['cep', 'street', 'number', 'neighborhood', 'city', 'state'];
-      const missingFields = requiredFields.filter(
-        (field) => !deliveryAddress[field as keyof OrderAddress],
-      );
-
-      if (missingFields.length > 0) {
-        alert('Por favor, preencha todos os campos obrigatórios do endereço de entrega.');
-        return;
-      }
-    }
-
-    // Validar produtos
-    const invalidProducts = products.filter(
-      (p) => !p.name.trim() || !p.code.trim() || p.price <= 0,
-    );
-    if (invalidProducts.length > 0) {
-      alert('Por favor, preencha corretamente todos os produtos.');
-      return;
-    }
-
-    // Simular criação do pedido
-    const newOrder = {
-      id: Date.now(),
-      orderNumber: `#${Date.now()}`,
-      customer: customerName,
-      customerPhone,
+    const updatedOrder = {
+      ...formData,
       products,
       total: calculateTotal(),
-      status: orderStatus,
-      orderDate: new Date().toISOString(),
-      paymentMethod,
-      deliveryAddress:
-        deliveryType === 'delivery'
-          ? `${deliveryAddress.street}, ${deliveryAddress.number} - ${deliveryAddress.neighborhood}, ${deliveryAddress.city}/${deliveryAddress.state}`
-          : 'Retirada na Loja',
-      deliveryType,
-      address: deliveryType === 'delivery' ? deliveryAddress : undefined,
+      address: formData.deliveryType === 'delivery' ? deliveryAddress : undefined,
     };
-
-    console.log('Novo pedido criado:', newOrder);
-    alert('Pedido criado com sucesso!');
-
-    // Limpar formulário
-    setCustomerName('');
-    setCustomerPhone('');
-    setPaymentMethod('');
-    setOrderStatus('pendente');
-    setDeliveryType('delivery');
-    setProducts([
-      {
-        id: 1,
-        name: '',
-        code: '',
-        size: '',
-        quantity: 1,
-        price: 0,
-      },
-    ]);
-    setDeliveryAddress({
-      cep: '',
-      street: '',
-      number: '',
-      complement: '',
-      neighborhood: '',
-      city: '',
-      state: '',
-    });
+    onSubmit(updatedOrder);
   };
 
   return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
-        <div className='mb-8'>
-          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Novo Pedido</h1>
-          <p className='text-sm sm:text-base text-slate-600'>
-            Preencha as informações do pedido abaixo
-          </p>
+    <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'>
+      <div className='bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto'>
+        <div className='p-6 border-b border-slate-200'>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center gap-3'>
+              <div className='w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-500 rounded-lg flex items-center justify-center'>
+                <Package className='w-5 h-5 text-white' />
+              </div>
+              <div>
+                <h2 className='text-xl font-bold text-slate-800'>
+                  Editar Pedido {order.orderNumber}
+                </h2>
+                <p className='text-sm text-slate-600'>Modifique as informações do pedido</p>
+              </div>
+            </div>
+            <button
+              onClick={onCancel}
+              className='p-2 hover:bg-slate-100 rounded-lg transition-colors'
+            >
+              <X className='w-5 h-5 text-slate-600' />
+            </button>
+          </div>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'
-        >
+        <form onSubmit={handleSubmit} className='p-6 space-y-6'>
           {/* Customer Information */}
           <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
             <div className='flex items-center gap-3 mb-4'>
@@ -193,13 +129,13 @@ const AddOrder = () => {
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm font-semibold text-slate-700' htmlFor='customer-name'>
-                  Nome Completo *
+                  Nome Completo
                 </label>
                 <input
                   id='customer-name'
                   type='text'
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
+                  value={formData.customer}
+                  onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
                   placeholder='Digite o nome completo'
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
@@ -208,13 +144,13 @@ const AddOrder = () => {
 
               <div className='flex flex-col gap-2'>
                 <label className='text-sm font-semibold text-slate-700' htmlFor='customer-phone'>
-                  Telefone *
+                  Telefone
                 </label>
                 <input
                   id='customer-phone'
                   type='tel'
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  value={formData.customerPhone}
+                  onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
                   placeholder='(11) 99999-9999'
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
@@ -253,7 +189,7 @@ const AddOrder = () => {
                   <div className='grid grid-cols-1 md:grid-cols-12 gap-4'>
                     <div className='md:col-span-2 flex flex-col gap-2'>
                       <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        Código do Produto *
+                        Código do Produto
                       </label>
                       <input
                         type='text'
@@ -266,7 +202,7 @@ const AddOrder = () => {
 
                     <div className='md:col-span-5 flex flex-col gap-2'>
                       <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        Nome do Produto *
+                        Nome do Produto
                       </label>
                       <input
                         type='text'
@@ -290,7 +226,7 @@ const AddOrder = () => {
                     </div>
 
                     <div className='md:col-span-1 flex flex-col gap-2'>
-                      <label className='text-xs sm:text-sm font-medium text-slate-600'>Qtd *</label>
+                      <label className='text-xs sm:text-sm font-medium text-slate-600'>Qtd</label>
                       <input
                         type='number'
                         min='1'
@@ -305,7 +241,7 @@ const AddOrder = () => {
 
                     <div className='md:col-span-2 flex flex-col gap-2'>
                       <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        Preço (R$) *
+                        Preço (R$)
                       </label>
                       <input
                         type='number'
@@ -370,8 +306,13 @@ const AddOrder = () => {
                   type='radio'
                   name='deliveryType'
                   value='delivery'
-                  checked={deliveryType === 'delivery'}
-                  onChange={(e) => setDeliveryType(e.target.value as 'delivery' | 'pickup')}
+                  checked={formData.deliveryType === 'delivery'}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      deliveryType: e.target.value as 'delivery' | 'pickup',
+                    })
+                  }
                   className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
                 />
                 <div className='flex items-center gap-2'>
@@ -385,8 +326,13 @@ const AddOrder = () => {
                   type='radio'
                   name='deliveryType'
                   value='pickup'
-                  checked={deliveryType === 'pickup'}
-                  onChange={(e) => setDeliveryType(e.target.value as 'delivery' | 'pickup')}
+                  checked={formData.deliveryType === 'pickup'}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      deliveryType: e.target.value as 'delivery' | 'pickup',
+                    })
+                  }
                   className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
                 />
                 <div className='flex items-center gap-2'>
@@ -396,7 +342,7 @@ const AddOrder = () => {
               </label>
             </div>
 
-            {deliveryType === 'pickup' && (
+            {formData.deliveryType === 'pickup' && (
               <div className='mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
                 <div className='flex items-start gap-3'>
                   <Store className='w-5 h-5 text-blue-600 mt-0.5' />
@@ -413,7 +359,7 @@ const AddOrder = () => {
           </div>
 
           {/* Delivery Address - Conditional */}
-          {deliveryType === 'delivery' && (
+          {formData.deliveryType === 'delivery' && (
             <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
               <div className='flex items-center gap-3 mb-4'>
                 <MapPin className='w-5 h-5 text-purple-600' />
@@ -425,7 +371,7 @@ const AddOrder = () => {
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
                   <div className='flex flex-col gap-2'>
                     <label className='text-sm font-medium text-slate-600' htmlFor='cep'>
-                      CEP *
+                      CEP
                     </label>
                     <input
                       id='cep'
@@ -440,7 +386,7 @@ const AddOrder = () => {
 
                   <div className='flex flex-col gap-2'>
                     <label className='text-sm font-medium text-slate-600' htmlFor='street'>
-                      Rua *
+                      Rua
                     </label>
                     <input
                       id='street'
@@ -458,7 +404,7 @@ const AddOrder = () => {
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
                   <div className='flex flex-col gap-2'>
                     <label className='text-sm font-medium text-slate-600' htmlFor='number'>
-                      Número *
+                      Número
                     </label>
                     <input
                       id='number'
@@ -490,7 +436,7 @@ const AddOrder = () => {
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
                   <div className='flex flex-col gap-2'>
                     <label className='text-sm font-medium text-slate-600' htmlFor='neighborhood'>
-                      Bairro *
+                      Bairro
                     </label>
                     <input
                       id='neighborhood'
@@ -505,7 +451,7 @@ const AddOrder = () => {
 
                   <div className='flex flex-col gap-2'>
                     <label className='text-sm font-medium text-slate-600' htmlFor='city'>
-                      Cidade *
+                      Cidade
                     </label>
                     <input
                       id='city'
@@ -522,7 +468,7 @@ const AddOrder = () => {
                 {/* State */}
                 <div className='flex flex-col gap-2'>
                   <label className='text-sm font-medium text-slate-600' htmlFor='state'>
-                    Estado *
+                    Estado
                   </label>
                   <select
                     id='state'
@@ -565,24 +511,26 @@ const AddOrder = () => {
             </div>
           )}
 
-          {/* Payment Method */}
+          {/* Payment Method and Status */}
           <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
             <div className='flex items-center gap-3 mb-4'>
               <CreditCard className='w-5 h-5 text-purple-600' />
               <h3 className='text-lg font-semibold text-slate-800'>
-                {deliveryType === 'pickup' ? 'Pagamento e Retirada' : 'Método de Pagamento'}
+                {formData.deliveryType === 'pickup'
+                  ? 'Pagamento e Retirada'
+                  : 'Método de Pagamento'}
               </h3>
             </div>
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm font-semibold text-slate-700' htmlFor='payment-method'>
-                  Forma de Pagamento *
+                  Forma de Pagamento
                 </label>
                 <select
                   id='payment-method'
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  value={formData.paymentMethod}
+                  onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 >
@@ -601,8 +549,8 @@ const AddOrder = () => {
                 </label>
                 <select
                   id='order-status'
-                  value={orderStatus}
-                  onChange={(e) => setOrderStatus(e.target.value)}
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 >
@@ -615,7 +563,7 @@ const AddOrder = () => {
               </div>
             </div>
 
-            {deliveryType === 'pickup' && (
+            {formData.deliveryType === 'pickup' && (
               <div className='mt-4 p-4 bg-green-50 border border-green-200 rounded-lg'>
                 <div className='flex items-start gap-3'>
                   <Store className='w-5 h-5 text-green-600 mt-0.5' />
@@ -641,13 +589,21 @@ const AddOrder = () => {
             )}
           </div>
 
-          {/* Submit Button */}
-          <div className='pt-4'>
+          {/* Submit Buttons */}
+          <div className='flex gap-4 pt-4'>
+            <button
+              type='button'
+              onClick={onCancel}
+              className='flex-1 py-3 px-4 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300'
+            >
+              Cancelar
+            </button>
             <button
               type='submit'
-              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              disabled={isLoading}
+              className='flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed'
             >
-              Criar Pedido
+              {isLoading ? 'Salvando...' : 'Salvar Alterações'}
             </button>
           </div>
         </form>
@@ -656,4 +612,4 @@ const AddOrder = () => {
   );
 };
 
-export default AddOrder;
+export default OrderEdit;

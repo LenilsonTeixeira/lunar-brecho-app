@@ -14,7 +14,7 @@ import AddProduct from './pages/admin/AddProduct';
 import ListProduct from './pages/admin/ListProduct';
 import ListUser from './pages/admin/ListUser';
 import AddUser from './pages/admin/AddUser';
-import Order from './pages/admin/Order';
+import OrderPage from './pages/admin/Order';
 import AddOrder from './pages/admin/AddOrder';
 import Category from './pages/admin/Category';
 import AddCategory from './pages/admin/AddCategory';
@@ -57,7 +57,7 @@ const App = () => {
             <Route path='notificacoes' element={<Notification />} />
             <Route path='notificacoes/lista' element={<NotificationList />} />
             <Route path='produtos' element={<ListProduct />} />
-            <Route path='pedidos' element={<Order />} />
+            <Route path='pedidos' element={<OrderPage />} />
             <Route path='categorias' element={<Category />} />
             <Route path='cupons' element={<Coupons />} />
           </Route>
