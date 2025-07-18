@@ -22,6 +22,13 @@ import Configuration from './pages/admin/Configuration';
 import Notification from './pages/admin/Notification';
 import NotificationList from './pages/admin/NotificationList';
 import Coupons from './pages/admin/Coupons';
+import AccountsReceivable from './pages/admin/AccountsReceivable';
+import AddAccountsReceivable from './pages/admin/AddAccountsReceivable';
+import AccountsPayable from './pages/admin/AccountsPayable';
+import AddAccountsPayable from './pages/admin/AddAccountsPayable';
+import CashFlow from './pages/admin/CashFlow';
+import OpenCashBox from './pages/admin/OpenCashBox';
+import AddCashMovement from './pages/admin/AddCashMovement';
 
 const App = () => {
   const isAdminPath = useLocation().pathname.includes('admin');
@@ -52,6 +59,10 @@ const App = () => {
             <Route path='usuarios/adicionar' element={<AddUser />} />
             <Route path='pedidos/adicionar' element={<AddOrder />} />
             <Route path='categorias/adicionar' element={<AddCategory />} />
+            <Route path='contas-receber/adicionar' element={<AddAccountsReceivable />} />
+            <Route path='contas-pagar/adicionar' element={<AddAccountsPayable />} />
+            <Route path='fluxo-caixa/abrir' element={<OpenCashBox />} />
+            <Route path='fluxo-caixa/movimentacao/adicionar' element={<AddCashMovement />} />
             <Route path='usuarios' element={<ListUser />} />
             <Route path='configuracoes' element={<Configuration />} />
             <Route path='notificacoes' element={<Notification />} />
@@ -59,6 +70,9 @@ const App = () => {
             <Route path='produtos' element={<ListProduct />} />
             <Route path='pedidos' element={<OrderPage />} />
             <Route path='categorias' element={<Category />} />
+            <Route path='contas-receber' element={<AccountsReceivable />} />
+            <Route path='contas-pagar' element={<AccountsPayable />} />
+            <Route path='fluxo-caixa' element={<CashFlow />} />
             <Route path='cupons' element={<Coupons />} />
           </Route>
         </Routes>

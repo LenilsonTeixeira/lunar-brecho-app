@@ -10,6 +10,9 @@ import {
   FolderOpen,
   Bell,
   Tag,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import { useState } from 'react';
@@ -40,6 +43,21 @@ const sidebarItems = [
     label: 'Pedidos',
     icon: <ShoppingCart />,
     path: '/admin/pedidos',
+  },
+  {
+    label: 'Contas a Receber',
+    icon: <TrendingUp />,
+    path: '/admin/contas-receber',
+  },
+  {
+    label: 'Contas a Pagar',
+    icon: <TrendingDown />,
+    path: '/admin/contas-pagar',
+  },
+  {
+    label: 'Fluxo de Caixa',
+    icon: <DollarSign />,
+    path: '/admin/fluxo-caixa',
   },
   {
     label: 'Notificações',
