@@ -13,6 +13,7 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
+  Building2,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import { useState } from 'react';
@@ -33,6 +34,11 @@ const sidebarItems = [
     label: 'Categorias',
     icon: <FolderOpen />,
     path: '/admin/categorias',
+  },
+  {
+    label: 'Fornecedores',
+    icon: <Building2 />,
+    path: '/admin/fornecedores',
   },
   {
     label: 'Cupons',

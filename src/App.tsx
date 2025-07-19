@@ -18,6 +18,8 @@ import OrderPage from './pages/admin/Order';
 import AddOrder from './pages/admin/AddOrder';
 import Category from './pages/admin/Category';
 import AddCategory from './pages/admin/AddCategory';
+import Supplier from './pages/admin/Supplier';
+import AddSupplier from './pages/admin/AddSupplier';
 import Configuration from './pages/admin/Configuration';
 import Notification from './pages/admin/Notification';
 import NotificationList from './pages/admin/NotificationList';
@@ -59,6 +61,7 @@ const App = () => {
             <Route path='usuarios/adicionar' element={<AddUser />} />
             <Route path='pedidos/adicionar' element={<AddOrder />} />
             <Route path='categorias/adicionar' element={<AddCategory />} />
+            <Route path='fornecedores/adicionar' element={<AddSupplier />} />
             <Route path='contas-receber/adicionar' element={<AddAccountsReceivable />} />
             <Route path='contas-pagar/adicionar' element={<AddAccountsPayable />} />
             <Route path='fluxo-caixa/abrir' element={<OpenCashBox />} />
@@ -70,6 +73,7 @@ const App = () => {
             <Route path='produtos' element={<ListProduct />} />
             <Route path='pedidos' element={<OrderPage />} />
             <Route path='categorias' element={<Category />} />
+            <Route path='fornecedores' element={<Supplier />} />
             <Route path='contas-receber' element={<AccountsReceivable />} />
             <Route path='contas-pagar' element={<AccountsPayable />} />
             <Route path='fluxo-caixa' element={<CashFlow />} />
