@@ -14,6 +14,7 @@ import {
   TrendingDown,
   DollarSign,
   Building2,
+  UserCheck,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import { useState } from 'react';
@@ -34,6 +35,11 @@ const sidebarItems = [
     label: 'Categorias',
     icon: <FolderOpen />,
     path: '/admin/categorias',
+  },
+  {
+    label: 'Consignantes',
+    icon: <UserCheck />,
+    path: '/admin/consignantes',
   },
   {
     label: 'Fornecedores',
