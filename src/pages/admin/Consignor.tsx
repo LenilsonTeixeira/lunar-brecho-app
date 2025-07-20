@@ -3,6 +3,7 @@ import { Search, Edit, Trash2, Eye, Plus, User, History } from 'lucide-react';
 import { Link } from 'react-router';
 import ConsignorForm from '../../components/admin/ConsignorForm';
 import ConsignorView from '../../components/admin/ConsignorView';
+import ConsignorHistory from '../../components/admin/ConsignorHistory';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 
 interface ConsignorItem {
@@ -48,8 +49,10 @@ const Consignor = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [showView, setShowView] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [editingConsignor, setEditingConsignor] = useState<ConsignorItem | undefined>();
   const [viewingConsignor, setViewingConsignor] = useState<ConsignorItem | undefined>();
+  const [historyConsignor, setHistoryConsignor] = useState<ConsignorItem | undefined>();
   const [deletingConsignor, setDeletingConsignor] = useState<ConsignorItem | undefined>();
   const [loading, setLoading] = useState(false);
   const [consignors, setConsignors] = useState<ConsignorItem[]>([
@@ -342,8 +345,13 @@ const Consignor = () => {
   };
 
   const handleViewHistory = (consignor: ConsignorItem) => {
-    // Implementar navegação para histórico de produtos
-    console.log('Visualizar histórico do consignante:', consignor.id);
+    setHistoryConsignor(consignor);
+    setShowHistory(true);
+  };
+
+  const handleCloseHistory = () => {
+    setShowHistory(false);
+    setHistoryConsignor(undefined);
   };
 
   const filteredConsignors = consignors.filter(
@@ -594,6 +602,11 @@ const Consignor = () => {
           onClose={handleCloseView}
           onEdit={handleEditFromView}
         />
+      )}
+
+      {/* History Modal */}
+      {showHistory && historyConsignor && (
+        <ConsignorHistory consignor={historyConsignor} onClose={handleCloseHistory} />
       )}
 
       {/* Confirm Delete Dialog */}
