@@ -361,13 +361,6 @@ const Consignor = () => {
       consignor.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  };
-
   return (
     <div className='py-6 flex flex-col bg-slate-50'>
       <div className='w-full max-w-7xl mx-auto'>
@@ -445,9 +438,6 @@ const Consignor = () => {
                   <th className='px-6 py-4 text-center text-xs sm:text-sm font-semibold text-slate-700 min-w-[120px]'>
                     Produtos
                   </th>
-                  <th className='px-6 py-4 text-center text-xs sm:text-sm font-semibold text-slate-700 min-w-[140px]'>
-                    Comissão Total
-                  </th>
                   <th className='px-6 py-4 text-center text-xs sm:text-sm font-semibold text-slate-700 min-w-[160px]'>
                     Ações
                   </th>
@@ -456,7 +446,7 @@ const Consignor = () => {
               <tbody className='divide-y divide-slate-200'>
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className='py-12 text-center text-slate-500'>
+                    <td colSpan={6} className='py-12 text-center text-slate-500'>
                       <div className='flex flex-col items-center gap-2'>
                         <div className='w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin'></div>
                         <p className='font-medium'>Carregando consignantes...</p>
@@ -501,11 +491,6 @@ const Consignor = () => {
                           </div>
                         </div>
                       </td>
-                      <td className='px-6 py-4 text-center'>
-                        <span className='text-xs sm:text-sm text-green-600'>
-                          {formatCurrency(consignor.totalCommission || 0)}
-                        </span>
-                      </td>
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-1 sm:gap-2 justify-center'>
                           <button
@@ -542,7 +527,7 @@ const Consignor = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={7} className='py-12 text-center text-slate-500'>
+                    <td colSpan={6} className='py-12 text-center text-slate-500'>
                       <div className='flex flex-col items-center gap-2'>
                         <div className='w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center'>
                           <User className='w-8 h-8 text-slate-400' />
@@ -568,14 +553,6 @@ const Consignor = () => {
                 <span>
                   Mostrando {filteredConsignors.length} de {consignors.length} consignantes
                 </span>
-                <div className='flex items-center gap-4'>
-                  <span>
-                    Total de comissões:{' '}
-                    {formatCurrency(
-                      consignors.reduce((sum, c) => sum + (c.totalCommission || 0), 0),
-                    )}
-                  </span>
-                </div>
               </div>
             </div>
           )}
