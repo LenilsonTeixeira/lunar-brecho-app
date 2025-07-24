@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Edit, Trash2, Eye, Plus, DollarSign, Calendar, CreditCard } from 'lucide-react';
+import { Search, Edit, Trash2, Plus, DollarSign, Calendar, CreditCard } from 'lucide-react';
 import { Link } from 'react-router';
 
 interface AccountsReceivableItem {
@@ -277,13 +277,7 @@ const AccountsReceivable = () => {
                     <td className='px-6 py-4'>
                       <div className='flex items-center gap-1 sm:gap-2 justify-center'>
                         <button
-                          className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
-                          title='Visualizar'
-                        >
-                          <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
-                        </button>
-                        <button
-                          className='p-1.5 sm:p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors duration-200'
+                          className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
                           title='Editar'
                         >
                           <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
