@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { Search, Edit, Trash2, Plus, DollarSign, Calendar, CreditCard } from 'lucide-react';
-import { Link } from 'react-router';
+import { Search, Edit, Trash2, Plus, DollarSign, Calendar, CreditCard, Eye } from 'lucide-react';
+import AccountsPayableForm from '../../components/admin/AccountsPayableForm';
+import AccountsPayableView from '../../components/admin/AccountsPayableView';
+import ConfirmDialog from '../../components/admin/ConfirmDialog';
 
 interface AccountsPayableItem {
   id: number;
@@ -26,10 +28,35 @@ interface AccountsPayableItem {
   updatedAt: string;
 }
 
+interface AccountsPayableFormData {
+  description: string;
+  amount: string;
+  dueDate: string;
+  paymentMethod: 'money' | 'card' | 'pix' | 'boleto' | 'transfer';
+  category:
+    | 'supplier'
+    | 'logistics'
+    | 'marketing'
+    | 'system'
+    | 'taxes'
+    | 'rent'
+    | 'utilities'
+    | 'other';
+  supplierName: string;
+  recurrence: 'monthly' | 'yearly' | 'once';
+  notes: string;
+}
+
 const AccountsPayable = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [accounts] = useState<AccountsPayableItem[]>([
+  const [showForm, setShowForm] = useState(false);
+  const [showView, setShowView] = useState(false);
+  const [editingAccount, setEditingAccount] = useState<AccountsPayableItem | undefined>();
+  const [viewingAccount, setViewingAccount] = useState<AccountsPayableItem | undefined>();
+  const [deletingAccount, setDeletingAccount] = useState<AccountsPayableItem | undefined>();
+  const [loading, setLoading] = useState(false);
+  const [accounts, setAccounts] = useState<AccountsPayableItem[]>([
     {
       id: 1,
       description: 'Compra de Estoque - Fornecedor ABC',
@@ -100,6 +127,113 @@ const AccountsPayable = () => {
       updatedAt: '2024-02-01T10:00:00Z',
     },
   ]);
+
+  const handleCreateAccount = async (data: AccountsPayableFormData) => {
+    setLoading(true);
+    try {
+      // Simular chamada à API
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const newAccount: AccountsPayableItem = {
+        id: Math.max(...accounts.map((a) => a.id)) + 1,
+        description: data.description,
+        amount: parseFloat(data.amount),
+        dueDate: data.dueDate,
+        status: 'pending',
+        paymentMethod: data.paymentMethod,
+        category: data.category,
+        supplierName: data.supplierName || undefined,
+        recurrence: data.recurrence,
+        notes: data.notes || undefined,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      setAccounts((prev) => [...prev, newAccount]);
+      setShowForm(false);
+    } catch (error) {
+      console.error('Erro ao criar conta:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateAccount = async (data: AccountsPayableFormData) => {
+    if (!editingAccount) return;
+
+    setLoading(true);
+    try {
+      // Simular chamada à API
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      const updatedAccount: AccountsPayableItem = {
+        ...editingAccount,
+        description: data.description,
+        amount: parseFloat(data.amount),
+        dueDate: data.dueDate,
+        paymentMethod: data.paymentMethod,
+        category: data.category,
+        supplierName: data.supplierName || undefined,
+        recurrence: data.recurrence,
+        notes: data.notes || undefined,
+        updatedAt: new Date().toISOString(),
+      };
+
+      setAccounts((prev) =>
+        prev.map((acc) => (acc.id === editingAccount.id ? updatedAccount : acc)),
+      );
+      setShowForm(false);
+      setEditingAccount(undefined);
+    } catch (error) {
+      console.error('Erro ao atualizar conta:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = (account: AccountsPayableItem) => {
+    setDeletingAccount(account);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingAccount) return;
+
+    setLoading(true);
+    try {
+      // Simular chamada à API
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setAccounts((prev) => prev.filter((acc) => acc.id !== deletingAccount.id));
+      setDeletingAccount(undefined);
+    } catch (error) {
+      console.error('Erro ao excluir conta:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = (account: AccountsPayableItem) => {
+    setEditingAccount(account);
+    setShowForm(true);
+  };
+
+  const handleView = (account: AccountsPayableItem) => {
+    setViewingAccount(account);
+    setShowView(true);
+  };
+
+  const handleCloseView = () => {
+    setShowView(false);
+    setViewingAccount(undefined);
+  };
+
+  const handleEditFromView = () => {
+    if (viewingAccount) {
+      setEditingAccount(viewingAccount);
+      setShowView(false);
+      setShowForm(true);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -182,13 +316,13 @@ const AccountsPayable = () => {
                 Gerencie as obrigações financeiras da loja
               </p>
             </div>
-            <Link
-              to='/admin/contas-pagar/adicionar'
+            <button
+              onClick={() => setShowForm(true)}
               className='flex items-center justify-center gap-2 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-red-600 to-orange-500 text-white font-semibold rounded-lg hover:from-red-700 hover:to-orange-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
             >
               <Plus className='w-4 h-4' />
               Nova Conta
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -298,79 +432,163 @@ const AccountsPayable = () => {
                 </tr>
               </thead>
               <tbody className='divide-y divide-slate-200'>
-                {filteredAccounts.map((account) => (
-                  <tr key={account.id} className='hover:bg-slate-50 transition-colors duration-200'>
-                    <td className='px-6 py-4'>
-                      <span className='text-xs sm:text-sm font-medium text-slate-800'>
-                        #{account.id}
-                      </span>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <div>
-                        <span className='text-xs sm:text-sm font-medium text-slate-800 block'>
-                          {account.description}
-                        </span>
-                        {account.recurrence && (
-                          <span className='text-xs text-slate-500'>
-                            {account.recurrence === 'monthly'
-                              ? 'Mensal'
-                              : account.recurrence === 'yearly'
-                                ? 'Anual'
-                                : 'Único'}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <span className='text-xs sm:text-sm font-medium text-slate-800'>
-                        {account.supplierName || '-'}
-                      </span>
-                    </td>
-                    <td className='px-6 py-4 text-center'>
-                      <span className='text-xs sm:text-sm font-bold text-slate-800'>
-                        R$ {account.amount.toFixed(2)}
-                      </span>
-                    </td>
-                    <td className='px-6 py-4 text-center'>
-                      <span className='text-xs sm:text-sm font-medium text-slate-800'>
-                        {new Date(account.dueDate).toLocaleDateString('pt-BR')}
-                      </span>
-                    </td>
-                    <td className='px-6 py-4 text-center'>
-                      <span
-                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(account.status)}`}
-                      >
-                        {getStatusText(account.status)}
-                      </span>
-                    </td>
-                    <td className='px-6 py-4 text-center'>
-                      <span className='text-xs sm:text-sm font-medium text-slate-800'>
-                        {getCategoryText(account.category)}
-                      </span>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <div className='flex items-center gap-1 sm:gap-2 justify-center'>
-                        <button
-                          className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
-                          title='Editar'
-                        >
-                          <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
-                        </button>
-                        <button
-                          className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
-                          title='Excluir'
-                        >
-                          <Trash2 className='w-3 h-3 sm:w-4 sm:h-4' />
-                        </button>
+                {loading ? (
+                  <tr>
+                    <td colSpan={8} className='py-12 text-center text-slate-500'>
+                      <div className='flex flex-col items-center gap-2'>
+                        <div className='w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin'></div>
+                        <p className='font-medium'>Carregando contas...</p>
                       </div>
                     </td>
                   </tr>
-                ))}
+                ) : filteredAccounts.length > 0 ? (
+                  filteredAccounts.map((account) => (
+                    <tr
+                      key={account.id}
+                      className='hover:bg-slate-50 transition-colors duration-200'
+                    >
+                      <td className='px-6 py-4'>
+                        <span className='text-xs sm:text-sm font-medium text-slate-800'>
+                          #{account.id}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div>
+                          <span className='text-xs sm:text-sm font-medium text-slate-800 block'>
+                            {account.description}
+                          </span>
+                          {account.recurrence && (
+                            <span className='text-xs text-slate-500'>
+                              {account.recurrence === 'monthly'
+                                ? 'Mensal'
+                                : account.recurrence === 'yearly'
+                                  ? 'Anual'
+                                  : 'Único'}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <span className='text-xs sm:text-sm font-medium text-slate-800'>
+                          {account.supplierName || '-'}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4 text-center'>
+                        <span className='text-xs sm:text-sm font-bold text-slate-800'>
+                          R$ {account.amount.toFixed(2)}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4 text-center'>
+                        <span className='text-xs sm:text-sm font-medium text-slate-800'>
+                          {new Date(account.dueDate).toLocaleDateString('pt-BR')}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4 text-center'>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(account.status)}`}
+                        >
+                          {getStatusText(account.status)}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4 text-center'>
+                        <span className='text-xs sm:text-sm font-medium text-slate-800'>
+                          {getCategoryText(account.category)}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='flex items-center gap-1 sm:gap-2 justify-center'>
+                          <button
+                            onClick={() => handleView(account)}
+                            className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
+                            title='Visualizar'
+                          >
+                            <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(account)}
+                            className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
+                            title='Editar'
+                          >
+                            <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteAccount(account)}
+                            className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
+                            title='Excluir'
+                          >
+                            <Trash2 className='w-3 h-3 sm:w-4 sm:h-4' />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8} className='py-12 text-center text-slate-500'>
+                      <div className='flex flex-col items-center gap-2'>
+                        <div className='w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center'>
+                          <DollarSign className='w-8 h-8 text-slate-400' />
+                        </div>
+                        <h3 className='text-base sm:text-lg font-medium text-slate-800 mb-2'>
+                          Nenhuma conta encontrada
+                        </h3>
+                        <p className='text-sm sm:text-base text-slate-600'>
+                          Tente ajustar os filtros ou criar uma nova conta.
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
+
+          {/* Table Footer */}
+          {filteredAccounts.length > 0 && (
+            <div className='px-6 py-4 border-t border-slate-200 bg-slate-50'>
+              <div className='flex items-center justify-between text-sm text-slate-600'>
+                <span>
+                  Mostrando {filteredAccounts.length} de {accounts.length} contas
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Form Modal */}
+      {showForm && (
+        <AccountsPayableForm
+          account={editingAccount}
+          onSubmit={editingAccount ? handleUpdateAccount : handleCreateAccount}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingAccount(undefined);
+          }}
+          isLoading={loading}
+        />
+      )}
+
+      {/* View Modal */}
+      {showView && viewingAccount && (
+        <AccountsPayableView
+          account={viewingAccount}
+          onClose={handleCloseView}
+          onEdit={handleEditFromView}
+        />
+      )}
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={!!deletingAccount}
+        title='Excluir Conta a Pagar'
+        message={`Tem certeza que deseja excluir a conta "${deletingAccount?.description}"? Esta ação não pode ser desfeita.`}
+        confirmText='Excluir'
+        cancelText='Cancelar'
+        onConfirm={confirmDelete}
+        onCancel={() => setDeletingAccount(undefined)}
+        type='danger'
+      />
     </div>
   );
 };
