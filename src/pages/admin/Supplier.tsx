@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Edit, Trash2, Eye, Plus, Building2, User } from 'lucide-react';
+import { Search, Edit, Trash2, Eye, Plus, Building2 } from 'lucide-react';
 import SupplierForm from '../../components/admin/SupplierForm';
 import SupplierView from '../../components/admin/SupplierView';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
@@ -303,14 +303,6 @@ const Supplier = () => {
       supplier.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const getTypeIcon = (type: string) => {
-    return type === 'company' ? (
-      <Building2 className='w-4 h-4 text-blue-600' />
-    ) : (
-      <User className='w-4 h-4 text-purple-600' />
-    );
-  };
-
   return (
     <div className='py-6 flex flex-col bg-slate-50'>
       <div className='w-full max-w-7xl mx-auto'>
@@ -403,12 +395,9 @@ const Supplier = () => {
                         </span>
                       </td>
                       <td className='px-6 py-4'>
-                        <div className='flex items-center gap-2'>
-                          {getTypeIcon(supplier.type)}
-                          <span className='text-xs sm:text-sm font-medium text-slate-800'>
-                            {supplier.name}
-                          </span>
-                        </div>
+                        <span className='text-xs sm:text-sm font-medium text-slate-800'>
+                          {supplier.name}
+                        </span>
                       </td>
                       <td className='px-6 py-4'>
                         <span className='text-xs sm:text-sm text-slate-600'>

@@ -39,18 +39,6 @@ interface SupplierViewProps {
 }
 
 const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
-  const getStatusBadge = (status: string) => {
-    return status === 'active' ? (
-      <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
-        Ativo
-      </span>
-    ) : (
-      <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800'>
-        Inativo
-      </span>
-    );
-  };
-
   const getTypeIcon = (type: string) => {
     return type === 'company' ? (
       <Building2 className='w-5 h-5 text-blue-600' />
@@ -102,11 +90,10 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
 
         {/* Content */}
         <div className='p-6 space-y-6'>
-          {/* Status and Basic Info */}
+          {/* Basic Info */}
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-4'>
               <span className='text-sm font-medium text-slate-600'>ID: #{supplier.id}</span>
-              {getStatusBadge(supplier.status)}
             </div>
             <div className='flex items-center gap-2 text-sm text-slate-500'>
               <Package className='w-4 h-4' />

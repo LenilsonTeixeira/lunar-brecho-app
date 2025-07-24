@@ -34,7 +34,6 @@ interface SupplierFormData {
   contactPerson: string;
   website: string;
   notes: string;
-  status: 'active' | 'inactive';
 }
 
 interface SupplierFormProps {
@@ -48,7 +47,6 @@ const SupplierForm = ({ supplier, onSubmit, onCancel, isLoading = false }: Suppl
   const [supplierType, setSupplierType] = useState<'individual' | 'company'>(
     supplier?.type || 'individual',
   );
-  const [status, setStatus] = useState<'active' | 'inactive'>(supplier?.status || 'active');
 
   const [formData, setFormData] = useState<SupplierFormData>({
     name: supplier?.name || '',
@@ -63,7 +61,6 @@ const SupplierForm = ({ supplier, onSubmit, onCancel, isLoading = false }: Suppl
     contactPerson: supplier?.contactPerson || '',
     website: supplier?.website || '',
     notes: supplier?.notes || '',
-    status: supplier?.status || 'active',
   });
 
   useEffect(() => {
@@ -81,10 +78,8 @@ const SupplierForm = ({ supplier, onSubmit, onCancel, isLoading = false }: Suppl
         contactPerson: supplier.contactPerson || '',
         website: supplier.website || '',
         notes: supplier.notes || '',
-        status: supplier.status,
       });
       setSupplierType(supplier.type);
-      setStatus(supplier.status);
     }
   }, [supplier]);
 
@@ -461,41 +456,6 @@ const SupplierForm = ({ supplier, onSubmit, onCancel, isLoading = false }: Suppl
                 placeholder='Informações adicionais sobre o fornecedor...'
                 className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white resize-none'
               />
-            </div>
-
-            {/* Status */}
-            <div className='flex flex-col gap-2'>
-              <label className='text-sm sm:text-base font-semibold text-slate-700'>Status</label>
-              <div className='flex gap-4'>
-                <label className='flex items-center gap-2 cursor-pointer'>
-                  <input
-                    type='radio'
-                    name='status'
-                    value='active'
-                    checked={status === 'active'}
-                    onChange={(e) => {
-                      setStatus(e.target.value as 'active' | 'inactive');
-                      handleInputChange('status', e.target.value);
-                    }}
-                    className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
-                  />
-                  <span className='text-sm text-slate-700'>Ativo</span>
-                </label>
-                <label className='flex items-center gap-2 cursor-pointer'>
-                  <input
-                    type='radio'
-                    name='status'
-                    value='inactive'
-                    checked={status === 'inactive'}
-                    onChange={(e) => {
-                      setStatus(e.target.value as 'active' | 'inactive');
-                      handleInputChange('status', e.target.value);
-                    }}
-                    className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
-                  />
-                  <span className='text-sm text-slate-700'>Inativo</span>
-                </label>
-              </div>
             </div>
           </div>
 
