@@ -1,4 +1,4 @@
-import { Edit, Trash2, Eye } from 'lucide-react';
+import { Edit, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
 import { Coupon, CouponStatus } from '../../types/coupon';
 import CouponStatusBadge from './CouponStatusBadge';
 
@@ -147,14 +147,14 @@ const CouponTableRow = ({ coupon, onEdit, onDelete, onToggleStatus }: CouponTabl
 
           <button
             onClick={() => onToggleStatus(coupon)}
-            className={`p-2 rounded-lg transition-colors duration-200 ${
-              coupon.isActive
-                ? 'text-orange-600 hover:bg-orange-50'
-                : 'text-green-600 hover:bg-green-50'
-            }`}
+            className='p-2 text-slate-800 hover:bg-orange-50 rounded-lg transition-colors duration-200'
             title={coupon.isActive ? 'Desativar cupom' : 'Ativar cupom'}
           >
-            <Eye className='w-4 h-4' />
+            {coupon.isActive ? (
+              <ToggleRight className='w-4 h-4' />
+            ) : (
+              <ToggleLeft className='w-4 h-4' />
+            )}
           </button>
 
           <button
