@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Edit, Trash2, Eye, Plus, Package, Settings } from 'lucide-react';
+import { Search, Edit, Trash2, Eye, Plus, Package, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router';
 import OrderView from '../../components/admin/OrderView';
 import OrderEdit from '../../components/admin/OrderEdit';
@@ -398,7 +398,7 @@ const OrderPage = () => {
               </p>
             </div>
             <Link to='/admin/pedidos/adicionar'>
-              <button className='flex items-center justify-center gap-2 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'>
+              <button className='w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'>
                 <Plus className='w-4 h-4' />
                 Novo Pedido
               </button>
@@ -474,9 +474,6 @@ const OrderPage = () => {
                     Data
                   </th>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[120px]'>
-                    Pagamento
-                  </th>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[120px]'>
                     Ações
                   </th>
                 </tr>
@@ -491,9 +488,6 @@ const OrderPage = () => {
                       <div>
                         <p className='text-xs sm:text-sm font-medium text-slate-800'>
                           {order.orderNumber}
-                        </p>
-                        <p className='text-xs text-slate-500'>
-                          {order.deliveryType === 'delivery' ? 'Entrega' : 'Retirada'}
                         </p>
                       </div>
                     </td>
@@ -538,9 +532,6 @@ const OrderPage = () => {
                       <span className='text-xs text-slate-600'>{formatDate(order.orderDate)}</span>
                     </td>
                     <td className='px-6 py-4'>
-                      <span className='text-xs text-slate-600'>{order.paymentMethod}</span>
-                    </td>
-                    <td className='px-6 py-4'>
                       <div className='flex items-center gap-1 sm:gap-2'>
                         <button
                           onClick={() => handleViewOrder(order)}
@@ -558,10 +549,10 @@ const OrderPage = () => {
                         </button>
                         <div className='relative group'>
                           <button
-                            className='p-1.5 sm:p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors duration-200'
+                            className='p-1.5 sm:p-2 text-slate-800 hover:bg-orange-50 rounded-lg transition-colors duration-200'
                             title='Alterar Status'
                           >
-                            <Settings className='w-3 h-3 sm:w-4 sm:h-4' />
+                            <RefreshCw className='w-3 h-3 sm:w-4 sm:h-4' />
                           </button>
                           <div className='absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-[120px]'>
                             {statusOptions.slice(1).map((status) => (
