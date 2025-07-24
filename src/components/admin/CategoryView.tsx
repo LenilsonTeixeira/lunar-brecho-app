@@ -31,27 +31,39 @@ const CategoryView = ({ category, onClose, onEdit }: CategoryViewProps) => {
   return (
     <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'>
       <div className='bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
-        <div className='p-6 border-b border-slate-200'>
-          <div className='flex items-center justify-between'>
-            <h2 className='text-xl font-bold text-slate-800'>Detalhes da Categoria</h2>
+        {/* Header */}
+        <div className='relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-4 text-white'>
+          <div className='absolute inset-0 bg-black/20'></div>
+          <div className='relative flex items-center justify-between'>
+            <div>
+              <div className='flex items-center gap-3 mb-1'>
+                <div className='w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm'>
+                  <Tag className='w-4 h-4 text-white' />
+                </div>
+                <div>
+                  <h2 className='text-xl font-bold'>Categoria #{category.id}</h2>
+                  <p className='text-slate-300 text-sm'>{category.name}</p>
+                </div>
+              </div>
+            </div>
             <button
               onClick={onClose}
-              className='p-2 hover:bg-slate-100 rounded-lg transition-colors'
+              className='p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 backdrop-blur-sm'
             >
-              <X className='w-5 h-5 text-slate-600' />
+              <X className='w-5 h-5' />
             </button>
           </div>
         </div>
 
-        <div className='p-6 space-y-6'>
+        <div className='p-4 space-y-4'>
           {/* Imagem da Categoria */}
           <div>
-            <div className='flex items-center gap-2 mb-3'>
-              <ImageIcon className='w-5 h-5 text-slate-600' />
+            <div className='flex items-center gap-2 mb-2'>
+              <ImageIcon className='w-4 h-4 text-slate-600' />
               <h3 className='text-sm font-semibold text-slate-700'>Imagem da Categoria</h3>
             </div>
             <div className='flex justify-center'>
-              <div className='w-64 h-64 rounded-xl overflow-hidden border-2 border-slate-200 shadow-lg bg-white'>
+              <div className='w-48 h-48 rounded-lg overflow-hidden border-2 border-slate-200 shadow-lg bg-white'>
                 <img
                   src={category.image}
                   alt={category.name}
@@ -95,7 +107,7 @@ const CategoryView = ({ category, onClose, onEdit }: CategoryViewProps) => {
           </div>
 
           {/* Datas */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             {/* Data de Criação */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
