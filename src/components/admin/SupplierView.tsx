@@ -9,7 +9,6 @@ import {
   Globe,
   FileText,
   Calendar,
-  Package,
 } from 'lucide-react';
 
 interface SupplierItem {
@@ -94,10 +93,6 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-4'>
               <span className='text-sm font-medium text-slate-600'>ID: #{supplier.id}</span>
-            </div>
-            <div className='flex items-center gap-2 text-sm text-slate-500'>
-              <Package className='w-4 h-4' />
-              <span>{supplier.productCount || 0} produtos</span>
             </div>
           </div>
 
