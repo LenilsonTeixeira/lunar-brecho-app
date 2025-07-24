@@ -1,15 +1,5 @@
 import { useState } from 'react';
-import {
-  Search,
-  Edit,
-  Eye,
-  Plus,
-  DollarSign,
-  TrendingUp,
-  TrendingDown,
-  Lock,
-  Unlock,
-} from 'lucide-react';
+import { Edit, Eye, Plus, DollarSign, TrendingUp, TrendingDown, Lock, Unlock } from 'lucide-react';
 import { Link } from 'react-router';
 import CashFlowSessionView from '../../components/admin/CashFlowSessionView';
 
@@ -43,9 +33,6 @@ interface CashFlowMovement {
 }
 
 const CashFlow = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [dateFilter, setDateFilter] = useState<string>('');
   const [viewingSession, setViewingSession] = useState<CashFlowSession | null>(null);
   const [sessions] = useState<CashFlowSession[]>([
     {
@@ -246,18 +233,7 @@ const CashFlow = () => {
     }
   };
 
-  const filteredSessions = sessions.filter((session) => {
-    const matchesSearch =
-      session.date.includes(searchTerm) ||
-      session.openedBy.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      session.closedBy?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || session.status === statusFilter;
-    const matchesDate = !dateFilter || session.date === dateFilter;
-    return matchesSearch && matchesStatus && matchesDate;
-  });
-
   const openSessions = sessions.filter((session) => session.status === 'open');
-  const closedSessions = sessions.filter((session) => session.status === 'closed');
   const totalEntries = sessions.reduce((sum, session) => sum + session.totalEntries, 0);
   const totalExits = sessions.reduce((sum, session) => sum + session.totalExits, 0);
   const currentBalance = openSessions.length > 0 ? openSessions[0].finalBalance : 0;
@@ -299,7 +275,7 @@ const CashFlow = () => {
               )}
               <Link
                 to='/admin/fluxo-caixa/movimentacao/adicionar'
-                className='flex items-center justify-center gap-2 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
+                className='flex items-center justify-center gap-2 w-full sm:w-auto sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
               >
                 <Plus className='w-4 h-4' />
                 Nova Movimentação
@@ -309,7 +285,7 @@ const CashFlow = () => {
         </div>
 
         {/* Summary Cards */}
-        <div className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-6'>
+        <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-6'>
           <div className='bg-white rounded-xl shadow-lg p-6'>
             <div className='flex items-center justify-between'>
               <div>
@@ -342,58 +318,6 @@ const CashFlow = () => {
                 <TrendingDown className='w-6 h-6 text-white' />
               </div>
             </div>
-          </div>
-          <div className='bg-white rounded-xl shadow-lg p-6'>
-            <div className='flex items-center justify-between'>
-              <div>
-                <p className='text-sm font-medium text-slate-600'>Sessões Fechadas</p>
-                <p className='text-2xl font-bold text-purple-600'>{closedSessions.length}</p>
-              </div>
-              <div className='w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center'>
-                <Lock className='w-6 h-6 text-white' />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Filters and Search */}
-        <div className='bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6'>
-          <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
-            <div className='relative'>
-              <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400' />
-              <input
-                type='text'
-                placeholder='Buscar sessões...'
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className='w-full pl-10 pr-4 py-2 sm:py-3 text-sm border border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300'
-              />
-            </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className='px-4 py-2 sm:py-3 text-sm border border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300'
-            >
-              <option value='all'>Todos os Status</option>
-              <option value='open'>Aberto</option>
-              <option value='closed'>Fechado</option>
-            </select>
-            <input
-              type='date'
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className='px-4 py-2 sm:py-3 text-sm border border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300'
-            />
-            <button
-              onClick={() => {
-                setSearchTerm('');
-                setStatusFilter('all');
-                setDateFilter('');
-              }}
-              className='px-4 py-2 sm:py-3 text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all duration-300'
-            >
-              Limpar Filtros
-            </button>
           </div>
         </div>
 
@@ -430,7 +354,7 @@ const CashFlow = () => {
                 </tr>
               </thead>
               <tbody className='divide-y divide-slate-200'>
-                {filteredSessions.map((session) => (
+                {sessions.map((session) => (
                   <tr key={session.id} className='hover:bg-slate-50 transition-colors duration-200'>
                     <td className='px-6 py-4'>
                       <span className='text-xs sm:text-sm font-medium text-slate-800'>

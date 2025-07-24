@@ -245,7 +245,7 @@ const CashFlowSessionView = ({ session, movements, onClose, onEdit }: CashFlowSe
               </div>
             </div>
 
-            <div className='grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6'>
+            <div className='grid grid-cols-1 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6'>
               {/* Session Details */}
               <div className='lg:col-span-1'>
                 <div className='bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-lg sm:rounded-xl p-3 sm:p-4'>
@@ -329,7 +329,7 @@ const CashFlowSessionView = ({ session, movements, onClose, onEdit }: CashFlowSe
               </div>
 
               {/* Movements Section */}
-              <div className='lg:col-span-2'>
+              <div className='lg:col-span-3'>
                 <div className='bg-white border border-slate-200 rounded-lg sm:rounded-xl shadow-sm'>
                   <div className='p-3 sm:p-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100 rounded-t-lg sm:rounded-t-xl'>
                     <div className='flex items-center justify-between'>
