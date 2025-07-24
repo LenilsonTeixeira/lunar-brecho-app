@@ -1,13 +1,37 @@
 import { useState } from 'react';
-import { ArrowLeft, Unlock, DollarSign } from 'lucide-react';
+import { ArrowLeft, Unlock, DollarSign, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
+import ConfirmDialog from '../../components/admin/ConfirmDialog';
+
+interface CashBoxSession {
+  id: number;
+  date: string;
+  status: 'open' | 'closed';
+  openingAmount: number;
+  totalEntries: number;
+  totalExits: number;
+  finalBalance: number;
+  openedBy: string;
+  closedBy?: string;
+  openedAt: string;
+  closedAt?: string;
+  notes?: string;
+}
+
+interface OpenCashBoxFormData {
+  openingAmount: string;
+  notes: string;
+}
 
 const OpenCashBox = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<OpenCashBoxFormData>({
     openingAmount: '',
     notes: '',
   });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -15,12 +39,86 @@ const OpenCashBox = () => {
       ...prev,
       [name]: value,
     }));
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: '',
+      }));
+    }
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.openingAmount.trim()) {
+      newErrors.openingAmount = 'O valor de abertura é obrigatório';
+    } else {
+      const amount = parseFloat(formData.openingAmount);
+      if (isNaN(amount) || amount < 0) {
+        newErrors.openingAmount = 'O valor deve ser um número positivo';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    console.log('Abertura de caixa:', formData);
-    // Navigate back to cash flow after opening
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setShowConfirmDialog(true);
+  };
+
+  const confirmOpenCashBox = async () => {
+    setLoading(true);
+    setShowConfirmDialog(false);
+
+    try {
+      // Simular chamada à API
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      const newSession: CashBoxSession = {
+        id: Date.now(),
+        date: new Date().toISOString().split('T')[0],
+        status: 'open',
+        openingAmount: parseFloat(formData.openingAmount),
+        totalEntries: 0,
+        totalExits: 0,
+        finalBalance: parseFloat(formData.openingAmount),
+        openedBy: 'Usuário Atual', // Em produção, pegar do contexto de autenticação
+        openedAt: new Date().toISOString(),
+        notes: formData.notes.trim() || undefined,
+      };
+
+      // Em produção, salvar na API
+      console.log('Caixa aberto com sucesso:', newSession);
+
+      // Navegar de volta para o fluxo de caixa
+      navigate('/admin/fluxo-caixa');
+    } catch (error) {
+      console.error('Erro ao abrir caixa:', error);
+      setErrors({ general: 'Erro ao abrir caixa. Tente novamente.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (formData.openingAmount || formData.notes) {
+      setShowConfirmDialog(true);
+    } else {
+      navigate('/admin/fluxo-caixa');
+    }
+  };
+
+  const confirmCancel = () => {
+    setShowConfirmDialog(false);
     navigate('/admin/fluxo-caixa');
   };
 
@@ -43,6 +141,19 @@ const OpenCashBox = () => {
             Registre a abertura do caixa para o dia de hoje
           </p>
         </div>
+
+        {/* Error Message */}
+        {errors.general && (
+          <div className='mb-6 bg-red-50 border border-red-200 rounded-lg p-4'>
+            <div className='flex items-start gap-3'>
+              <AlertCircle className='w-5 h-5 text-red-600 flex-shrink-0 mt-0.5' />
+              <div>
+                <h3 className='text-sm font-semibold text-red-800 mb-1'>Erro</h3>
+                <p className='text-sm text-red-700'>{errors.general}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <form
           onSubmit={handleSubmit}
@@ -67,10 +178,16 @@ const OpenCashBox = () => {
                 placeholder='0,00'
                 value={formData.openingAmount}
                 onChange={handleInputChange}
-                className='w-full pl-10 pr-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white'
+                className={`w-full pl-10 pr-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border transition-all duration-300 bg-white ${
+                  errors.openingAmount
+                    ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                    : 'border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20'
+                }`}
                 required
+                disabled={loading}
               />
             </div>
+            {errors.openingAmount && <p className='text-xs text-red-600'>{errors.openingAmount}</p>}
             <p className='text-xs text-slate-500'>
               Informe o valor em dinheiro disponível para abertura do caixa
             </p>
@@ -109,6 +226,7 @@ const OpenCashBox = () => {
               value={formData.notes}
               onChange={handleInputChange}
               className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white resize-none'
+              disabled={loading}
             />
           </div>
 
@@ -132,20 +250,51 @@ const OpenCashBox = () => {
             </div>
           </div>
 
-          {/* Submit Button */}
-          <div className='pt-4'>
+          {/* Action Buttons */}
+          <div className='pt-4 flex gap-4'>
+            <button
+              type='button'
+              onClick={handleCancel}
+              disabled={loading}
+              className='flex-1 py-2 sm:py-3 px-4 sm:px-6 border border-slate-300 text-slate-700 text-sm sm:text-base font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
+            >
+              Cancelar
+            </button>
             <button
               type='submit'
-              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-blue-600 to-indigo-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              disabled={loading}
+              className='flex-1 py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-blue-600 to-indigo-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-blue-700 hover:to-indigo-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
             >
               <div className='flex items-center justify-center gap-2'>
-                <Unlock className='w-4 h-4' />
-                Abrir Caixa
+                {loading ? (
+                  <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+                ) : (
+                  <Unlock className='w-4 h-4' />
+                )}
+                {loading ? 'Abrindo Caixa...' : 'Abrir Caixa'}
               </div>
             </button>
           </div>
         </form>
       </div>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        title={
+          formData.openingAmount || formData.notes ? 'Cancelar Abertura' : 'Confirmar Abertura'
+        }
+        message={
+          formData.openingAmount || formData.notes
+            ? 'Tem certeza que deseja cancelar a abertura do caixa? Os dados preenchidos serão perdidos.'
+            : `Tem certeza que deseja abrir o caixa com o valor de R$ ${parseFloat(formData.openingAmount || '0').toFixed(2)}?`
+        }
+        confirmText={formData.openingAmount || formData.notes ? 'Cancelar' : 'Abrir Caixa'}
+        cancelText='Voltar'
+        onConfirm={formData.openingAmount || formData.notes ? confirmCancel : confirmOpenCashBox}
+        onCancel={() => setShowConfirmDialog(false)}
+        type={formData.openingAmount || formData.notes ? 'warning' : 'info'}
+      />
     </div>
   );
 };

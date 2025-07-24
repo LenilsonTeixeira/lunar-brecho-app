@@ -11,6 +11,7 @@ import {
   Unlock,
 } from 'lucide-react';
 import { Link } from 'react-router';
+import CashFlowSessionView from '../../components/admin/CashFlowSessionView';
 
 interface CashFlowSession {
   id: number;
@@ -45,6 +46,7 @@ const CashFlow = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [dateFilter, setDateFilter] = useState<string>('');
+  const [viewingSession, setViewingSession] = useState<CashFlowSession | null>(null);
   const [sessions] = useState<CashFlowSession[]>([
     {
       id: 1,
@@ -260,6 +262,19 @@ const CashFlow = () => {
   const totalExits = sessions.reduce((sum, session) => sum + session.totalExits, 0);
   const currentBalance = openSessions.length > 0 ? openSessions[0].finalBalance : 0;
 
+  const handleViewSession = (session: CashFlowSession) => {
+    setViewingSession(session);
+  };
+
+  const handleCloseView = () => {
+    setViewingSession(null);
+  };
+
+  const handleEditSession = () => {
+    // Implementar edição de sessão se necessário
+    console.log('Editar sessão:', viewingSession);
+  };
+
   return (
     <div className='py-6 flex flex-col bg-slate-50'>
       <div className='w-full max-w-7xl mx-auto'>
@@ -465,6 +480,7 @@ const CashFlow = () => {
                     <td className='px-6 py-4'>
                       <div className='flex items-center gap-1 sm:gap-2 justify-center'>
                         <button
+                          onClick={() => handleViewSession(session)}
                           className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
                           title='Visualizar'
                         >
@@ -478,12 +494,13 @@ const CashFlow = () => {
                             >
                               <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
                             </button>
-                            <button
+                            <Link
+                              to={`/admin/fluxo-caixa/fechar/${session.id}`}
                               className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
                               title='Fechar Caixa'
                             >
                               <Lock className='w-3 h-3 sm:w-4 sm:h-4' />
-                            </button>
+                            </Link>
                           </>
                         )}
                       </div>
@@ -589,6 +606,16 @@ const CashFlow = () => {
           </div>
         )}
       </div>
+
+      {/* Session View Modal */}
+      {viewingSession && (
+        <CashFlowSessionView
+          session={viewingSession}
+          movements={movements.filter((m) => m.sessionId === viewingSession.id)}
+          onClose={handleCloseView}
+          onEdit={handleEditSession}
+        />
+      )}
     </div>
   );
 };

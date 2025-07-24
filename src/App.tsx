@@ -32,6 +32,7 @@ import AccountsPayable from './pages/admin/AccountsPayable';
 import AddAccountsPayable from './pages/admin/AddAccountsPayable';
 import CashFlow from './pages/admin/CashFlow';
 import OpenCashBox from './pages/admin/OpenCashBox';
+import CloseCashBox from './pages/admin/CloseCashBox';
 import AddCashMovement from './pages/admin/AddCashMovement';
 
 const App = () => {
@@ -68,6 +69,7 @@ const App = () => {
             <Route path='contas-receber/adicionar' element={<AddAccountsReceivable />} />
             <Route path='contas-pagar/adicionar' element={<AddAccountsPayable />} />
             <Route path='fluxo-caixa/abrir' element={<OpenCashBox />} />
+            <Route path='fluxo-caixa/fechar/:sessionId' element={<CloseCashBox />} />
             <Route path='fluxo-caixa/movimentacao/adicionar' element={<AddCashMovement />} />
             <Route path='usuarios' element={<ListUser />} />
             <Route path='configuracoes' element={<Configuration />} />
