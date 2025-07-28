@@ -6,10 +6,9 @@ import {
   CreditCard,
   QrCode,
   Building2,
-  Edit,
-  TrendingUp,
   Package,
   DollarSign,
+  Calendar,
 } from 'lucide-react';
 
 interface ConsignorItem {
@@ -49,7 +48,8 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
     }).format(value);
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Não informado';
     return new Date(dateString).toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
@@ -65,236 +65,264 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
 
   return (
     <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto'>
+      <div className='bg-white rounded-xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-y-auto'>
         {/* Header */}
-        <div className='flex items-center justify-between p-6 border-b border-slate-200'>
-          <div className='flex items-center gap-4'>
-            <div className='w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center'>
-              <User className='w-6 h-6 text-purple-600' />
-            </div>
+        <div className='relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-4 text-white'>
+          <div className='absolute inset-0 bg-black/20'></div>
+          <div className='relative flex items-center justify-between'>
             <div>
-              <h2 className='text-xl sm:text-2xl font-bold text-slate-800'>{consignor.name}</h2>
-              <p className='text-sm text-slate-600'>Consignante #{consignor.id}</p>
+              <div className='flex items-center gap-3 mb-1'>
+                <div className='w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm'>
+                  <User className='w-4 h-4 text-white' />
+                </div>
+                <div>
+                  <h2 className='text-xl font-bold'>Consignante #{consignor.id}</h2>
+                  <p className='text-slate-300 text-sm'>{consignor.name}</p>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className='flex items-center gap-2'>
-            <button
-              onClick={onEdit}
-              className='p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors'
-              title='Editar'
-            >
-              <Edit className='w-5 h-5' />
-            </button>
             <button
               onClick={onClose}
-              className='p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors'
+              className='p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 backdrop-blur-sm'
             >
               <X className='w-5 h-5' />
             </button>
           </div>
         </div>
 
-        {/* Content */}
-        <div className='p-6 space-y-6'>
-          {/* Informações Pessoais */}
-          <div className='bg-slate-50 rounded-xl p-6'>
-            <h3 className='text-lg font-semibold text-slate-800 flex items-center gap-2 mb-4'>
-              <User className='w-5 h-5 text-purple-600' />
-              Informações Pessoais
-            </h3>
-
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div>
-                <label className='block text-sm font-medium text-slate-600 mb-1'>
-                  Nome Completo
-                </label>
-                <p className='text-sm font-medium text-slate-800'>{consignor.name}</p>
+        <div className='p-4 space-y-4'>
+          {/* Primeira linha - Nome e CPF */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {/* Nome Completo */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <User className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>Nome Completo</label>
               </div>
-
-              <div>
-                <label className='block text-sm font-medium text-slate-600 mb-1'>CPF</label>
-                <p className='text-sm font-medium text-slate-800'>{consignor.cpf}</p>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800 font-medium'>{consignor.name}</span>
               </div>
+            </div>
 
-              <div>
-                <label className='block text-sm font-medium text-slate-600 mb-1 flex items-center gap-2'>
-                  <Mail className='w-4 h-4 text-purple-600' />
-                  E-mail
-                </label>
-                <p className='text-sm font-medium text-slate-800'>{consignor.email}</p>
+            {/* CPF */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <CreditCard className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>CPF</label>
               </div>
-
-              <div>
-                <label className='block text-sm font-medium text-slate-600 mb-1 flex items-center gap-2'>
-                  <Phone className='w-4 h-4 text-purple-600' />
-                  Telefone
-                </label>
-                <p className='text-sm font-medium text-slate-800'>{consignor.phone}</p>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800 font-mono'>{consignor.cpf}</span>
               </div>
             </div>
           </div>
 
-          {/* Informações de Pagamento */}
-          <div className='bg-slate-50 rounded-xl p-6'>
-            <h3 className='text-lg font-semibold text-slate-800 flex items-center gap-2 mb-4'>
-              <CreditCard className='w-5 h-5 text-purple-600' />
-              Informações de Pagamento
-            </h3>
+          {/* Segunda linha - E-mail e Telefone */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {/* E-mail */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <Mail className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>E-mail</label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800'>{consignor.email}</span>
+              </div>
+            </div>
 
-            <div className='space-y-4'>
-              {/* Método de Pagamento */}
+            {/* Telefone */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <Phone className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>Telefone</label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800'>{consignor.phone}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Método de Pagamento */}
+          <div>
+            <div className='flex items-center gap-2 mb-2'>
+              <CreditCard className='w-4 h-4 text-slate-600' />
+              <label className='text-sm font-semibold text-slate-700'>Método de Pagamento</label>
+            </div>
+            <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+              <span className='inline-flex px-3 py-1 text-sm font-medium rounded-full bg-purple-100 text-purple-800'>
+                {consignor.paymentMethod === 'pix' && 'PIX'}
+                {consignor.paymentMethod === 'money' && 'Dinheiro'}
+                {consignor.paymentMethod === 'bank_transfer' && 'Transferência Bancária'}
+              </span>
+            </div>
+          </div>
+
+          {/* Chave PIX - Mostrar apenas se PIX for selecionado */}
+          {consignor.paymentMethod === 'pix' && (
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <QrCode className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>Chave PIX</label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800 font-mono'>{consignor.pixKey}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Informações Bancárias - Mostrar apenas se Transferência Bancária for selecionada */}
+          {consignor.paymentMethod === 'bank_transfer' && (
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              {/* Banco */}
               <div>
-                <label className='block text-sm font-medium text-slate-600 mb-2'>
-                  Método de Pagamento
-                </label>
-                <div className='flex items-center gap-2'>
-                  <span className='inline-flex px-3 py-1 text-sm font-medium rounded-full bg-purple-100 text-purple-800'>
-                    {consignor.paymentMethod === 'pix' && 'PIX'}
-                    {consignor.paymentMethod === 'money' && 'Dinheiro'}
-                    {consignor.paymentMethod === 'bank_transfer' && 'Transferência Bancária'}
+                <div className='flex items-center gap-2 mb-2'>
+                  <Building2 className='w-4 h-4 text-slate-600' />
+                  <label className='text-sm font-semibold text-slate-700'>Banco</label>
+                </div>
+                <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                  <span className='text-slate-800'>
+                    {consignor.bankAccount.bank || 'Não informado'}
                   </span>
                 </div>
               </div>
 
-              {/* Chave PIX - Mostrar apenas se PIX for selecionado */}
-              {consignor.paymentMethod === 'pix' && (
-                <div>
-                  <label className='block text-sm font-medium text-slate-600 mb-1 flex items-center gap-2'>
-                    <QrCode className='w-4 h-4 text-purple-600' />
-                    Chave PIX
-                  </label>
-                  <p className='text-sm font-medium text-slate-800 bg-white px-3 py-2 rounded-lg border border-slate-200'>
-                    {consignor.pixKey}
-                  </p>
+              {/* Agência */}
+              <div>
+                <div className='flex items-center gap-2 mb-2'>
+                  <Building2 className='w-4 h-4 text-slate-600' />
+                  <label className='text-sm font-semibold text-slate-700'>Agência</label>
                 </div>
-              )}
-
-              {/* Informações Bancárias - Mostrar apenas se Transferência Bancária for selecionada */}
-              {consignor.paymentMethod === 'bank_transfer' && (
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                  <div>
-                    <label className='block text-sm font-medium text-slate-600 mb-1 flex items-center gap-2'>
-                      <Building2 className='w-4 h-4 text-purple-600' />
-                      Banco
-                    </label>
-                    <p className='text-sm font-medium text-slate-800'>
-                      {consignor.bankAccount.bank || 'Não informado'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className='block text-sm font-medium text-slate-600 mb-1'>Agência</label>
-                    <p className='text-sm font-medium text-slate-800'>
-                      {consignor.bankAccount.agency || 'Não informada'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className='block text-sm font-medium text-slate-600 mb-1'>Conta</label>
-                    <p className='text-sm font-medium text-slate-800'>
-                      {consignor.bankAccount.account || 'Não informada'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className='block text-sm font-medium text-slate-600 mb-1'>
-                      Tipo de Conta
-                    </label>
-                    <p className='text-sm font-medium text-slate-800'>
-                      {getAccountTypeLabel(consignor.bankAccount.accountType)}
-                    </p>
-                  </div>
+                <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                  <span className='text-slate-800'>
+                    {consignor.bankAccount.agency || 'Não informada'}
+                  </span>
                 </div>
-              )}
+              </div>
+
+              {/* Conta */}
+              <div>
+                <div className='flex items-center gap-2 mb-2'>
+                  <CreditCard className='w-4 h-4 text-slate-600' />
+                  <label className='text-sm font-semibold text-slate-700'>Conta</label>
+                </div>
+                <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                  <span className='text-slate-800'>
+                    {consignor.bankAccount.account || 'Não informada'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Tipo de Conta */}
+              <div>
+                <div className='flex items-center gap-2 mb-2'>
+                  <CreditCard className='w-4 h-4 text-slate-600' />
+                  <label className='text-sm font-semibold text-slate-700'>Tipo de Conta</label>
+                </div>
+                <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                  <span className='text-slate-800'>
+                    {getAccountTypeLabel(consignor.bankAccount.accountType)}
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Estatísticas */}
-          <div className='bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6'>
-            <h3 className='text-lg font-semibold text-slate-800 flex items-center gap-2 mb-4'>
-              <TrendingUp className='w-5 h-5 text-purple-600' />
-              Estatísticas
-            </h3>
-
-            <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-              <div className='bg-white rounded-lg p-4 text-center shadow-sm'>
-                <div className='w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2'>
-                  <Package className='w-5 h-5 text-purple-600' />
-                </div>
-                <p className='text-2xl font-bold text-slate-800'>{consignor.totalProducts || 0}</p>
-                <p className='text-xs text-slate-600'>Total de Produtos</p>
+          <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+            {/* Total de Produtos */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <Package className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>Total de Produtos</label>
               </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800 font-medium text-lg'>
+                  {consignor.totalProducts || 0}
+                </span>
+              </div>
+            </div>
 
-              <div className='bg-white rounded-lg p-4 text-center shadow-sm'>
-                <div className='w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2'>
-                  <Package className='w-5 h-5 text-green-600' />
-                </div>
-                <p className='text-2xl font-bold text-slate-800'>
+            {/* Produtos à Venda */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <Package className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>À Venda</label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800 font-medium text-lg'>
                   {consignor.productsForSale || 0}
-                </p>
-                <p className='text-xs text-slate-600'>À Venda</p>
+                </span>
               </div>
+            </div>
 
-              <div className='bg-white rounded-lg p-4 text-center shadow-sm'>
-                <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2'>
-                  <Package className='w-5 h-5 text-blue-600' />
-                </div>
-                <p className='text-2xl font-bold text-slate-800'>{consignor.soldProducts || 0}</p>
-                <p className='text-xs text-slate-600'>Vendidos</p>
+            {/* Produtos Vendidos */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <Package className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>Vendidos</label>
               </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800 font-medium text-lg'>
+                  {consignor.soldProducts || 0}
+                </span>
+              </div>
+            </div>
 
-              <div className='bg-white rounded-lg p-4 text-center shadow-sm'>
-                <div className='w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2'>
-                  <DollarSign className='w-5 h-5 text-green-600' />
-                </div>
-                <p className='text-lg font-bold text-green-600'>
+            {/* Comissão Total */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <DollarSign className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>Comissão Total</label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-green-600 font-medium text-lg'>
                   {formatCurrency(consignor.totalCommission || 0)}
-                </p>
-                <p className='text-xs text-slate-600'>Comissão Total</p>
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Informações Adicionais */}
-          <div className='bg-slate-50 rounded-xl p-6'>
-            <h3 className='text-lg font-semibold text-slate-800 mb-4'>Informações Adicionais</h3>
-
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div>
-                <label className='block text-sm font-medium text-slate-600 mb-1'>
-                  Data de Cadastro
-                </label>
-                <p className='text-sm font-medium text-slate-800'>
-                  {formatDate(consignor.createdAt || '')}
-                </p>
+          {/* Datas */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {/* Data de Criação */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <Calendar className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>Data de Criação</label>
               </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800'>{formatDate(consignor.createdAt)}</span>
+              </div>
+            </div>
 
-              <div>
-                <label className='block text-sm font-medium text-slate-600 mb-1'>
-                  Última Atualização
-                </label>
-                <p className='text-sm font-medium text-slate-800'>
-                  {formatDate(consignor.updatedAt || '')}
-                </p>
+            {/* Última Atualização */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <Calendar className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>Última Atualização</label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800'>{formatDate(consignor.updatedAt)}</span>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className='flex items-center justify-end gap-4 p-6 border-t border-slate-200'>
-          <button
-            onClick={onClose}
-            className='px-6 py-3 text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all duration-300'
-          >
-            Fechar
-          </button>
-          <button
-            onClick={onEdit}
-            className='px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
-          >
-            Editar Consignante
-          </button>
+          {/* Ações */}
+          <div className='pt-6 border-t border-slate-200'>
+            <div className='flex flex-col sm:flex-row justify-end gap-3 sm:gap-4'>
+              <button
+                onClick={onClose}
+                className='w-full sm:w-auto px-8 py-3 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300 shadow-sm hover:shadow-md'
+              >
+                Fechar
+              </button>
+              <button
+                onClick={onEdit}
+                className='w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              >
+                Editar Consignante
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
