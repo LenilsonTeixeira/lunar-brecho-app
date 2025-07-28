@@ -30,7 +30,7 @@ const CategoryView = ({ category, onClose, onEdit }: CategoryViewProps) => {
 
   return (
     <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+      <div className='bg-white rounded-xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-y-auto'>
         {/* Header */}
         <div className='relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-4 text-white'>
           <div className='absolute inset-0 bg-black/20'></div>
@@ -132,19 +132,21 @@ const CategoryView = ({ category, onClose, onEdit }: CategoryViewProps) => {
           </div>
 
           {/* Ações */}
-          <div className='flex gap-4 pt-4 border-t border-slate-200'>
-            <button
-              onClick={onClose}
-              className='flex-1 py-3 px-4 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300'
-            >
-              Fechar
-            </button>
-            <button
-              onClick={onEdit || onClose}
-              className='flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300'
-            >
-              Editar Categoria
-            </button>
+          <div className='pt-6 border-t border-slate-200'>
+            <div className='flex flex-col sm:flex-row justify-end gap-3 sm:gap-4'>
+              <button
+                onClick={onClose}
+                className='w-full sm:w-auto px-8 py-3 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300 shadow-sm hover:shadow-md'
+              >
+                Fechar
+              </button>
+              <button
+                onClick={onEdit || onClose}
+                className='w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              >
+                Editar Categoria
+              </button>
+            </div>
           </div>
         </div>
       </div>

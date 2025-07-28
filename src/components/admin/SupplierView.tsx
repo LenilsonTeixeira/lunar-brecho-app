@@ -1,15 +1,4 @@
-import {
-  X,
-  Edit,
-  Building2,
-  User,
-  Mail,
-  Phone,
-  MapPin,
-  Globe,
-  FileText,
-  Calendar,
-} from 'lucide-react';
+import { X, Building2, User, Mail, Phone, MapPin, Globe, FileText, Calendar } from 'lucide-react';
 
 interface SupplierItem {
   id: number;
@@ -40,13 +29,14 @@ interface SupplierViewProps {
 const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
   const getTypeIcon = (type: string) => {
     return type === 'company' ? (
-      <Building2 className='w-5 h-5 text-blue-600' />
+      <Building2 className='w-4 h-4 text-white' />
     ) : (
-      <User className='w-5 h-5 text-purple-600' />
+      <User className='w-4 h-4 text-white' />
     );
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Não informado';
     return new Date(dateString).toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
@@ -57,96 +47,110 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
   };
 
   return (
-    <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto'>
+    <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'>
+      <div className='bg-white rounded-xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-y-auto'>
         {/* Header */}
-        <div className='flex items-center justify-between p-6 border-b border-slate-200'>
-          <div className='flex items-center gap-3'>
-            {getTypeIcon(supplier.type)}
+        <div className='relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-4 text-white'>
+          <div className='absolute inset-0 bg-black/20'></div>
+          <div className='relative flex items-center justify-between'>
             <div>
-              <h2 className='text-xl sm:text-2xl font-bold text-slate-800'>{supplier.name}</h2>
-              <p className='text-sm text-slate-600'>
-                {supplier.type === 'company' ? 'Empresa' : 'Pessoa Física'}
-              </p>
+              <div className='flex items-center gap-3 mb-1'>
+                <div className='w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm'>
+                  {getTypeIcon(supplier.type)}
+                </div>
+                <div>
+                  <h2 className='text-xl font-bold'>Fornecedor #{supplier.id}</h2>
+                  <p className='text-slate-300 text-sm'>{supplier.name}</p>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className='flex items-center gap-2'>
-            <button
-              onClick={onEdit}
-              className='p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
-              title='Editar'
-            >
-              <Edit className='w-5 h-5' />
-            </button>
             <button
               onClick={onClose}
-              className='p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors duration-200'
+              className='p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 backdrop-blur-sm'
             >
               <X className='w-5 h-5' />
             </button>
           </div>
         </div>
 
-        {/* Content */}
-        <div className='p-6 space-y-6'>
-          {/* Basic Info */}
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center gap-4'>
-              <span className='text-sm font-medium text-slate-600'>ID: #{supplier.id}</span>
+        <div className='p-4 space-y-4'>
+          {/* Primeira linha - Tipo e Documento */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {/* Tipo do Fornecedor */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <Building2 className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>Tipo do Fornecedor</label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800 font-medium'>
+                  {supplier.type === 'company' ? 'Empresa' : 'Pessoa Física'}
+                </span>
+              </div>
+            </div>
+
+            {/* Documento */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <FileText className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>
+                  {supplier.type === 'individual' ? 'CPF' : 'CNPJ'}
+                </label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800 font-mono'>{supplier.document}</span>
+              </div>
             </div>
           </div>
 
-          {/* Document */}
-          <div className='bg-slate-50 rounded-lg p-4'>
-            <div className='flex items-center gap-2 mb-2'>
-              <FileText className='w-4 h-4 text-slate-600' />
-              <span className='font-semibold text-slate-700'>
-                {supplier.type === 'individual' ? 'CPF' : 'CNPJ'}
-              </span>
+          {/* Segunda linha - E-mail e Telefone */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {/* E-mail */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <Mail className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>E-mail</label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800'>{supplier.email}</span>
+              </div>
             </div>
-            <p className='text-slate-800 font-mono'>{supplier.document}</p>
+
+            {/* Telefone */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <Phone className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>Telefone</label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800'>{supplier.phone}</span>
+              </div>
+            </div>
           </div>
 
-          {/* Contact Information */}
-          <div className='space-y-4'>
-            <h3 className='text-lg font-semibold text-slate-800 flex items-center gap-2'>
-              <Mail className='w-5 h-5' />
-              Informações de Contato
-            </h3>
-
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div className='bg-slate-50 rounded-lg p-4'>
+          {/* Terceira linha - Pessoa de Contato e Website */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {/* Pessoa de Contato (se disponível) */}
+            {supplier.contactPerson && (
+              <div>
                 <div className='flex items-center gap-2 mb-2'>
-                  <Mail className='w-4 h-4 text-slate-600' />
-                  <span className='font-semibold text-slate-700'>E-mail</span>
+                  <User className='w-4 h-4 text-slate-600' />
+                  <label className='text-sm font-semibold text-slate-700'>Pessoa de Contato</label>
                 </div>
-                <p className='text-slate-800'>{supplier.email}</p>
+                <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                  <span className='text-slate-800'>{supplier.contactPerson}</span>
+                </div>
               </div>
+            )}
 
-              <div className='bg-slate-50 rounded-lg p-4'>
+            {/* Website (se disponível) */}
+            {supplier.website && (
+              <div>
                 <div className='flex items-center gap-2 mb-2'>
-                  <Phone className='w-4 h-4 text-slate-600' />
-                  <span className='font-semibold text-slate-700'>Telefone</span>
+                  <Globe className='w-4 h-4 text-slate-600' />
+                  <label className='text-sm font-semibold text-slate-700'>Website</label>
                 </div>
-                <p className='text-slate-800'>{supplier.phone}</p>
-              </div>
-
-              {supplier.contactPerson && (
-                <div className='bg-slate-50 rounded-lg p-4'>
-                  <div className='flex items-center gap-2 mb-2'>
-                    <User className='w-4 h-4 text-slate-600' />
-                    <span className='font-semibold text-slate-700'>Pessoa de Contato</span>
-                  </div>
-                  <p className='text-slate-800'>{supplier.contactPerson}</p>
-                </div>
-              )}
-
-              {supplier.website && (
-                <div className='bg-slate-50 rounded-lg p-4'>
-                  <div className='flex items-center gap-2 mb-2'>
-                    <Globe className='w-4 h-4 text-slate-600' />
-                    <span className='font-semibold text-slate-700'>Website</span>
-                  </div>
+                <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
                   <a
                     href={
                       supplier.website.startsWith('http')
@@ -160,19 +164,18 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
                     {supplier.website}
                   </a>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
-          {/* Address Information */}
-          <div className='space-y-4'>
-            <h3 className='text-lg font-semibold text-slate-800 flex items-center gap-2'>
-              <MapPin className='w-5 h-5' />
-              Endereço
-            </h3>
-
-            <div className='bg-slate-50 rounded-lg p-4'>
-              <div className='space-y-2'>
+          {/* Endereço - Largura total */}
+          <div>
+            <div className='flex items-center gap-2 mb-2'>
+              <MapPin className='w-4 h-4 text-slate-600' />
+              <label className='text-sm font-semibold text-slate-700'>Endereço</label>
+            </div>
+            <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+              <div className='space-y-1'>
                 <p className='text-slate-800 font-medium'>{supplier.address}</p>
                 <p className='text-slate-600'>
                   {supplier.city} - {supplier.state}
@@ -182,65 +185,61 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
             </div>
           </div>
 
-          {/* Notes */}
+          {/* Observações (se disponível) - Largura total */}
           {supplier.notes && (
-            <div className='space-y-4'>
-              <h3 className='text-lg font-semibold text-slate-800 flex items-center gap-2'>
-                <FileText className='w-5 h-5' />
-                Observações
-              </h3>
-
-              <div className='bg-slate-50 rounded-lg p-4'>
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <FileText className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>Observações</label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
                 <p className='text-slate-800 whitespace-pre-wrap'>{supplier.notes}</p>
               </div>
             </div>
           )}
 
-          {/* Timestamps */}
-          <div className='space-y-4'>
-            <h3 className='text-lg font-semibold text-slate-800 flex items-center gap-2'>
-              <Calendar className='w-5 h-5' />
-              Informações do Sistema
-            </h3>
+          {/* Datas */}
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {/* Data de Criação */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <Calendar className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>Data de Criação</label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800'>{formatDate(supplier.createdAt)}</span>
+              </div>
+            </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              {supplier.createdAt && (
-                <div className='bg-slate-50 rounded-lg p-4'>
-                  <div className='flex items-center gap-2 mb-2'>
-                    <Calendar className='w-4 h-4 text-slate-600' />
-                    <span className='font-semibold text-slate-700'>Criado em</span>
-                  </div>
-                  <p className='text-slate-800'>{formatDate(supplier.createdAt)}</p>
-                </div>
-              )}
-
-              {supplier.updatedAt && (
-                <div className='bg-slate-50 rounded-lg p-4'>
-                  <div className='flex items-center gap-2 mb-2'>
-                    <Calendar className='w-4 h-4 text-slate-600' />
-                    <span className='font-semibold text-slate-700'>Atualizado em</span>
-                  </div>
-                  <p className='text-slate-800'>{formatDate(supplier.updatedAt)}</p>
-                </div>
-              )}
+            {/* Última Atualização */}
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <Calendar className='w-4 h-4 text-slate-600' />
+                <label className='text-sm font-semibold text-slate-700'>Última Atualização</label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800'>{formatDate(supplier.updatedAt)}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className='flex items-center justify-end gap-4 p-6 border-t border-slate-200'>
-          <button
-            onClick={onClose}
-            className='px-6 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200'
-          >
-            Fechar
-          </button>
-          <button
-            onClick={onEdit}
-            className='px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
-          >
-            Editar Fornecedor
-          </button>
+          {/* Ações */}
+          <div className='pt-6 border-t border-slate-200'>
+            <div className='flex flex-col sm:flex-row justify-end gap-3 sm:gap-4'>
+              <button
+                onClick={onClose}
+                className='w-full sm:w-auto px-8 py-3 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300 shadow-sm hover:shadow-md'
+              >
+                Fechar
+              </button>
+              <button
+                onClick={onEdit}
+                className='w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              >
+                Editar Fornecedor
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
