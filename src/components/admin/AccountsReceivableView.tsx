@@ -252,7 +252,7 @@ const AccountsReceivableView = ({ account, onClose, onEdit }: AccountsReceivable
               </button>
               <button
                 onClick={onEdit || onClose}
-                className='w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-500 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+                className='w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
               >
                 Editar Conta
               </button>

@@ -277,7 +277,7 @@ const AccountsReceivableForm = ({
             <button
               type='submit'
               disabled={isLoading}
-              className='w-full sm:flex-1 py-3 px-4 bg-gradient-to-r from-green-600 to-emerald-500 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-600 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
+              className='w-full sm:flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
             >
               {isLoading ? 'Salvando...' : account ? 'Atualizar Conta' : 'Criar Conta'}
             </button>
