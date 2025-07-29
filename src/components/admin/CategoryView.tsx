@@ -1,4 +1,4 @@
-import { X, Calendar, Image as ImageIcon, Tag } from 'lucide-react';
+import { X, Tag } from 'lucide-react';
 
 interface CategoryItem {
   id: number;
@@ -59,8 +59,7 @@ const CategoryView = ({ category, onClose, onEdit }: CategoryViewProps) => {
           {/* Imagem da Categoria */}
           <div>
             <div className='flex items-center gap-2 mb-2'>
-              <ImageIcon className='w-4 h-4 text-slate-600' />
-              <h3 className='text-sm font-semibold text-slate-700'>Imagem da Categoria</h3>
+              <label className='text-sm font-semibold text-slate-700'>Imagem da Categoria</label>
             </div>
             <div className='flex justify-center'>
               <div className='w-48 h-48 rounded-lg overflow-hidden border-2 border-slate-200 shadow-lg bg-white'>
@@ -76,18 +75,19 @@ const CategoryView = ({ category, onClose, onEdit }: CategoryViewProps) => {
           {/* Informações Básicas */}
           <div>
             <div className='flex items-center gap-2 mb-2'>
-              <Tag className='w-4 h-4 text-slate-600' />
               <label className='text-sm font-semibold text-slate-700'>Nome da Categoria</label>
             </div>
             <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-              <span className='text-slate-800 font-medium'>{category.name}</span>
+              <span className='text-slate-800'>{category.name}</span>
             </div>
           </div>
 
           {/* Descrição (se disponível) */}
           {category.description && (
             <div>
-              <label className='text-sm font-semibold text-slate-700 mb-2 block'>Descrição</label>
+              <div className='flex items-center gap-2 mb-2'>
+                <label className='text-sm font-semibold text-slate-700'>Descrição</label>
+              </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
                 <p className='text-slate-800'>{category.description}</p>
               </div>
@@ -96,13 +96,11 @@ const CategoryView = ({ category, onClose, onEdit }: CategoryViewProps) => {
 
           {/* Estatísticas */}
           <div>
-            <label className='text-sm font-semibold text-slate-700 mb-2 block'>
-              Produtos na Categoria
-            </label>
+            <div className='flex items-center gap-2 mb-2'>
+              <label className='text-sm font-semibold text-slate-700'>Produtos na Categoria</label>
+            </div>
             <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-              <span className='text-slate-800 font-medium'>
-                {category.productCount || 0} produtos
-              </span>
+              <span className='text-slate-800'>{category.productCount || 0} produtos</span>
             </div>
           </div>
 
@@ -111,7 +109,6 @@ const CategoryView = ({ category, onClose, onEdit }: CategoryViewProps) => {
             {/* Data de Criação */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Calendar className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Data de Criação</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -122,7 +119,6 @@ const CategoryView = ({ category, onClose, onEdit }: CategoryViewProps) => {
             {/* Última Atualização */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Calendar className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Última Atualização</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
