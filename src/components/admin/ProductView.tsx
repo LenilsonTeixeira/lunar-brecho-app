@@ -1,13 +1,4 @@
-import {
-  X,
-  Package,
-  Tag,
-  DollarSign,
-  Calendar,
-  Image as ImageIcon,
-  ShoppingBag,
-  AlertCircle,
-} from 'lucide-react';
+import { X, Package } from 'lucide-react';
 
 interface ProductItem {
   id: number;
@@ -94,7 +85,6 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
           {/* Imagem do Produto */}
           <div>
             <div className='flex items-center gap-2 mb-2'>
-              <ImageIcon className='w-4 h-4 text-slate-600' />
               <label className='text-sm font-semibold text-slate-700'>Imagem do Produto</label>
             </div>
             <div className='flex justify-center'>
@@ -113,22 +103,20 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
             {/* Nome do Produto */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Package className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Nome do Produto</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-slate-800 font-medium'>{product.name}</span>
+                <span className='text-slate-800'>{product.name}</span>
               </div>
             </div>
 
             {/* Categoria */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Tag className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Categoria</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-slate-800 font-medium'>{product.category}</span>
+                <span className='text-slate-800'>{product.category}</span>
               </div>
             </div>
           </div>
@@ -138,24 +126,20 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
             {/* Marca */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <ShoppingBag className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Marca</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-slate-800 font-medium'>{product.brand}</span>
+                <span className='text-slate-800'>{product.brand}</span>
               </div>
             </div>
 
             {/* Tipo */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Tag className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Tipo</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='inline-flex px-3 py-1 text-sm font-medium'>
-                  {getTypeLabel(product.type)}
-                </span>
+                <span className='text-slate-800'>{getTypeLabel(product.type)}</span>
               </div>
             </div>
           </div>
@@ -165,24 +149,20 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
             {/* Preço Original */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <DollarSign className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Preço Original</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-slate-500 line-through'>{formatPrice(product.price)}</span>
+                <span className='text-slate-500'>{formatPrice(product.price)}</span>
               </div>
             </div>
 
             {/* Preço com Desconto */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <DollarSign className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Preço com Desconto</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-slate-800 font-semibold'>
-                  {formatPrice(product.offerPrice)}
-                </span>
+                <span className='text-slate-800'>{formatPrice(product.offerPrice)}</span>
               </div>
             </div>
           </div>
@@ -190,11 +170,10 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
           {/* Status */}
           <div>
             <div className='flex items-center gap-2 mb-2'>
-              <AlertCircle className='w-4 h-4 text-slate-600' />
               <label className='text-sm font-semibold text-slate-700'>Status</label>
             </div>
             <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-              <span className={`font-medium ${getStatusColor(product.status)}`}>
+              <span className={`${getStatusColor(product.status)}`}>
                 {product.status === 'ativo' ? 'Ativo' : 'Inativo'}
               </span>
             </div>
@@ -203,7 +182,6 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
           {/* Estoque por Tamanho */}
           <div>
             <div className='flex items-center gap-2 mb-2'>
-              <Package className='w-4 h-4 text-slate-600' />
               <label className='text-sm font-semibold text-slate-700'>Estoque por Tamanho</label>
             </div>
             <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
@@ -249,7 +227,7 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
                     <Package className='w-5 h-5 text-white' />
                   </div>
                   <div>
-                    <p className='font-semibold text-slate-800'>Total em Estoque</p>
+                    <p className='text-slate-800'>Total em Estoque</p>
                     <p className='text-sm text-slate-600'>Todas as unidades</p>
                   </div>
                 </div>
@@ -267,7 +245,6 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
           {product.description && (
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Package className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Descrição</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -280,7 +257,6 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
           {product.observations && (
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <AlertCircle className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Observações</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -294,7 +270,6 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
             {/* Data de Criação */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Calendar className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Data de Criação</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -305,7 +280,6 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
             {/* Última Atualização */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Calendar className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Última Atualização</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
