@@ -12,8 +12,8 @@ import Dashboard from './pages/admin/Dashboard';
 import Banner from './components/banner/Banner';
 import AddProduct from './pages/admin/AddProduct';
 import ListProduct from './pages/admin/ListProduct';
-import ListUser from './pages/admin/ListUser';
-import AddUser from './pages/admin/AddUser';
+import ListCustomers from './pages/admin/ListCustomers';
+import AddCustomer from './pages/admin/AddCustomer';
 import OrderPage from './pages/admin/Order';
 import AddOrder from './pages/admin/AddOrder';
 import Category from './pages/admin/Category';
@@ -60,7 +60,7 @@ const App = () => {
           <Route path='/admin' element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path='produtos/adicionar' element={<AddProduct />} />
-            <Route path='usuarios/adicionar' element={<AddUser />} />
+            <Route path='clientes/adicionar' element={<AddCustomer />} />
             <Route path='pedidos/adicionar' element={<AddOrder />} />
             <Route path='categorias/adicionar' element={<AddCategory />} />
             <Route path='fornecedores/adicionar' element={<AddSupplier />} />
@@ -69,7 +69,7 @@ const App = () => {
             <Route path='fluxo-caixa/abrir' element={<OpenCashBox />} />
             <Route path='fluxo-caixa/fechar/:sessionId' element={<CloseCashBox />} />
             <Route path='fluxo-caixa/movimentacao/adicionar' element={<AddCashMovement />} />
-            <Route path='usuarios' element={<ListUser />} />
+            <Route path='clientes' element={<ListCustomers />} />
             <Route path='configuracoes' element={<Configuration />} />
             <Route path='notificacoes' element={<Notification />} />
             <Route path='notificacoes/lista' element={<NotificationList />} />

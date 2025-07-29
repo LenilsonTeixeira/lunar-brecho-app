@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Plus, X, Star, StarOff } from 'lucide-react';
 
-const AddUser = () => {
+const AddCustomer = () => {
   const [phones, setPhones] = useState([{ id: 1, phone: '' }]);
   const [addresses, setAddresses] = useState([
     {
@@ -73,9 +73,9 @@ const AddUser = () => {
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
       <div className='w-full max-w-7xl mx-auto'>
         <div className='mb-8'>
-          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Adicionar Usuário</h1>
+          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Adicionar Cliente</h1>
           <p className='text-sm sm:text-base text-slate-600'>
-            Preencha as informações do usuário abaixo
+            Preencha as informações do cliente abaixo
           </p>
         </div>
 
@@ -384,7 +384,7 @@ const AddUser = () => {
               type='submit'
               className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
             >
-              Adicionar Usuário
+              Adicionar Cliente
             </button>
           </div>
         </form>
@@ -393,4 +393,4 @@ const AddUser = () => {
   );
 };
 
-export default AddUser;
+export default AddCustomer;

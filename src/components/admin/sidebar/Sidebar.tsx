@@ -71,6 +71,11 @@ const sidebarGroups = [
     label: 'Vendas & Marketing',
     items: [
       {
+        label: 'Clientes',
+        icon: <Users />,
+        path: '/admin/clientes',
+      },
+      {
         label: 'Pedidos',
         icon: <ShoppingCart />,
         path: '/admin/pedidos',
@@ -107,11 +112,6 @@ const sidebarGroups = [
     id: 'system',
     label: 'Sistema',
     items: [
-      {
-        label: 'Usuários',
-        icon: <Users />,
-        path: '/admin/usuarios',
-      },
       {
         label: 'Notificações',
         icon: <Bell />,

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
-const ListUser = () => {
+const ListCustomers = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -146,17 +146,17 @@ const ListUser = () => {
         <div className='mb-8'>
           <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
             <div>
-              <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Usuários</h1>
+              <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Clientes</h1>
               <p className='text-sm sm:text-base text-slate-600'>
-                Gerencie o cadastro de usuários da sua loja
+                Gerencie o cadastro de clientes da sua loja
               </p>
             </div>
             <button
-              onClick={() => navigate('/admin/usuarios/adicionar')}
+              onClick={() => navigate('/admin/clientes/adicionar')}
               className='flex items-center justify-center gap-2 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
             >
               <Plus className='w-4 h-4' />
-              Adicionar Usuário
+              Adicionar Cliente
             </button>
           </div>
         </div>
@@ -169,7 +169,7 @@ const ListUser = () => {
               <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400' />
               <input
                 type='text'
-                placeholder='Buscar usuários...'
+                placeholder='Buscar clientes...'
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className='w-full pl-10 pr-4 py-2 sm:py-3 text-sm border border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300'
@@ -193,7 +193,7 @@ const ListUser = () => {
               <thead className='bg-slate-50 border-b border-slate-200'>
                 <tr>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
-                    Usuário
+                    Cliente
                   </th>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Telefone
@@ -266,10 +266,10 @@ const ListUser = () => {
                 <Search className='w-8 h-8 text-slate-400' />
               </div>
               <h3 className='text-base sm:text-lg font-medium text-slate-800 mb-2'>
-                Nenhum usuário encontrado
+                Nenhum cliente encontrado
               </h3>
               <p className='text-sm sm:text-base text-slate-600'>
-                Tente ajustar os filtros ou adicionar um novo usuário.
+                Tente ajustar os filtros ou adicionar um novo cliente.
               </p>
             </div>
           )}
@@ -279,7 +279,7 @@ const ListUser = () => {
         {filteredUsers.length > 0 && (
           <div className='mt-6 flex items-center justify-between bg-white rounded-xl shadow-lg p-4'>
             <div className='text-xs sm:text-sm text-slate-600'>
-              Mostrando {filteredUsers.length} de {users.length} usuários
+              Mostrando {filteredUsers.length} de {users.length} clientes
             </div>
             <div className='flex items-center gap-2'>
               <button className='px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200'>
@@ -299,4 +299,4 @@ const ListUser = () => {
   );
 };
 
-export default ListUser;
+export default ListCustomers;
