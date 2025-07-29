@@ -2,15 +2,38 @@ import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import ProductTypeBadge from '../../components/product/ProductTypeBadge';
+import ProductView from '../../components/admin/ProductView';
+
+interface ProductItem {
+  id: number;
+  name: string;
+  category: string;
+  brand: string;
+  type: 'novo' | 'bazar';
+  price: number;
+  offerPrice: number;
+  totalQuantity: number;
+  status: 'ativo' | 'inativo';
+  sizes: Array<{
+    size: string;
+    quantity: number;
+  }>;
+  mainImage: string;
+  description?: string;
+  observations?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 const ListProduct = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedType, setSelectedType] = useState('');
+  const [viewingProduct, setViewingProduct] = useState<ProductItem | undefined>(undefined);
 
   // Mock data - substitua por dados reais da sua API
-  const products = [
+  const products: ProductItem[] = [
     {
       id: 1,
       name: 'Vestido Floral Vintage',
@@ -28,6 +51,11 @@ const ListProduct = () => {
       ],
       mainImage:
         'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
+      description:
+        'Vestido floral vintage com tecido leve e confortável. Ideal para eventos casuais e festas.',
+      observations: 'Produto em excelente estado, apenas uma pequena marca na parte inferior.',
+      createdAt: '2024-01-15T10:30:00Z',
+      updatedAt: '2024-03-20T14:45:00Z',
     },
     {
       id: 2,
@@ -45,6 +73,9 @@ const ListProduct = () => {
       ],
       mainImage:
         'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=100&h=100&fit=crop',
+      description: 'Blazer clássico em tecido premium, perfeito para o ambiente corporativo.',
+      createdAt: '2024-02-08T09:15:00Z',
+      updatedAt: '2024-03-18T16:20:00Z',
     },
     {
       id: 3,
@@ -58,6 +89,10 @@ const ListProduct = () => {
       status: 'inativo',
       sizes: [{ size: 'Único', quantity: 3 }],
       mainImage: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop',
+      description: 'Bolsa de couro genuíno com acabamento artesanal.',
+      observations: 'Produto temporariamente indisponível para venda.',
+      createdAt: '2024-01-22T11:45:00Z',
+      updatedAt: '2024-02-28T13:30:00Z',
     },
     {
       id: 4,
@@ -75,6 +110,9 @@ const ListProduct = () => {
         { size: '38', quantity: 3 },
       ],
       mainImage: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=100&h=100&fit=crop',
+      description: 'Sapatos de salto alto elegantes, ideais para eventos especiais.',
+      createdAt: '2024-02-12T08:20:00Z',
+      updatedAt: '2024-03-22T10:15:00Z',
     },
     {
       id: 5,
@@ -93,6 +131,9 @@ const ListProduct = () => {
       ],
       mainImage:
         'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100&h=100&fit=crop',
+      description: 'Blusa básica em 100% algodão, confortável e versátil para o dia a dia.',
+      createdAt: '2024-01-30T14:10:00Z',
+      updatedAt: '2024-03-25T09:45:00Z',
     },
     {
       id: 6,
@@ -110,6 +151,8 @@ const ListProduct = () => {
         { size: 'G', quantity: 2 },
       ],
       mainImage: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=100&h=100&fit=crop',
+      createdAt: '2024-02-05T12:30:00Z',
+      updatedAt: '2024-03-19T15:20:00Z',
     },
     {
       id: 7,
@@ -127,6 +170,8 @@ const ListProduct = () => {
         { size: '40', quantity: 3 },
       ],
       mainImage: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=100&h=100&fit=crop',
+      createdAt: '2024-01-18T16:45:00Z',
+      updatedAt: '2024-03-21T11:30:00Z',
     },
     {
       id: 8,
@@ -145,6 +190,8 @@ const ListProduct = () => {
       ],
       mainImage:
         'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=100&h=100&fit=crop',
+      createdAt: '2024-02-15T10:00:00Z',
+      updatedAt: '2024-03-23T14:15:00Z',
     },
     {
       id: 9,
@@ -162,6 +209,8 @@ const ListProduct = () => {
         { size: '40', quantity: 3 },
       ],
       mainImage: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=100&h=100&fit=crop',
+      createdAt: '2024-01-25T13:20:00Z',
+      updatedAt: '2024-03-17T16:40:00Z',
     },
     {
       id: 10,
@@ -180,6 +229,8 @@ const ListProduct = () => {
       ],
       mainImage:
         'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100&h=100&fit=crop',
+      createdAt: '2024-02-20T09:30:00Z',
+      updatedAt: '2024-03-24T12:50:00Z',
     },
     {
       id: 11,
@@ -197,6 +248,8 @@ const ListProduct = () => {
         { size: 'G', quantity: 2 },
       ],
       mainImage: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=100&h=100&fit=crop',
+      createdAt: '2024-02-10T15:45:00Z',
+      updatedAt: '2024-03-26T08:30:00Z',
     },
     {
       id: 12,
@@ -215,6 +268,8 @@ const ListProduct = () => {
       ],
       mainImage:
         'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100&h=100&fit=crop',
+      createdAt: '2024-01-28T11:15:00Z',
+      updatedAt: '2024-03-20T13:25:00Z',
     },
     {
       id: 13,
@@ -232,6 +287,8 @@ const ListProduct = () => {
         { size: 'G', quantity: 4 },
       ],
       mainImage: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=100&h=100&fit=crop',
+      createdAt: '2024-02-25T14:20:00Z',
+      updatedAt: '2024-03-27T10:45:00Z',
     },
     {
       id: 14,
@@ -249,6 +306,8 @@ const ListProduct = () => {
         { size: '40', quantity: 2 },
       ],
       mainImage: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=100&h=100&fit=crop',
+      createdAt: '2024-01-20T10:50:00Z',
+      updatedAt: '2024-03-18T15:10:00Z',
     },
     {
       id: 15,
@@ -267,6 +326,8 @@ const ListProduct = () => {
       ],
       mainImage:
         'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=100&h=100&fit=crop',
+      createdAt: '2024-02-18T12:40:00Z',
+      updatedAt: '2024-03-25T16:55:00Z',
     },
     {
       id: 16,
@@ -284,6 +345,8 @@ const ListProduct = () => {
         { size: '40', quantity: 2 },
       ],
       mainImage: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=100&h=100&fit=crop',
+      createdAt: '2024-01-12T09:25:00Z',
+      updatedAt: '2024-03-19T14:20:00Z',
     },
     {
       id: 17,
@@ -302,6 +365,8 @@ const ListProduct = () => {
       ],
       mainImage:
         'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100&h=100&fit=crop',
+      createdAt: '2024-02-22T16:30:00Z',
+      updatedAt: '2024-03-28T11:15:00Z',
     },
     {
       id: 18,
@@ -319,6 +384,8 @@ const ListProduct = () => {
         { size: 'G', quantity: 1 },
       ],
       mainImage: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=100&h=100&fit=crop',
+      createdAt: '2024-01-15T13:45:00Z',
+      updatedAt: '2024-03-21T09:40:00Z',
     },
     {
       id: 19,
@@ -337,6 +404,8 @@ const ListProduct = () => {
       ],
       mainImage:
         'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100&h=100&fit=crop',
+      createdAt: '2024-02-28T10:15:00Z',
+      updatedAt: '2024-03-29T14:30:00Z',
     },
     {
       id: 20,
@@ -354,6 +423,8 @@ const ListProduct = () => {
         { size: 'G', quantity: 1 },
       ],
       mainImage: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=100&h=100&fit=crop',
+      createdAt: '2024-01-30T15:20:00Z',
+      updatedAt: '2024-03-22T12:45:00Z',
     },
   ];
 
@@ -395,6 +466,20 @@ const ListProduct = () => {
       style: 'currency',
       currency: 'BRL',
     }).format(price);
+  };
+
+  const handleViewProduct = (product: ProductItem) => {
+    setViewingProduct(product);
+  };
+
+  const handleCloseView = () => {
+    setViewingProduct(undefined);
+  };
+
+  const handleEditFromView = () => {
+    // Implementar navegação para edição do produto
+    console.log('Editar produto:', viewingProduct);
+    setViewingProduct(undefined);
   };
 
   return (
@@ -584,6 +669,7 @@ const ListProduct = () => {
                     <td className='px-6 py-4'>
                       <div className='flex items-center gap-1 sm:gap-2'>
                         <button
+                          onClick={() => handleViewProduct(product)}
                           className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
                           title='Visualizar'
                         >
@@ -645,6 +731,15 @@ const ListProduct = () => {
           </div>
         )}
       </div>
+
+      {/* View Modal */}
+      {viewingProduct && (
+        <ProductView
+          product={viewingProduct}
+          onClose={handleCloseView}
+          onEdit={handleEditFromView}
+        />
+      )}
     </div>
   );
 };
