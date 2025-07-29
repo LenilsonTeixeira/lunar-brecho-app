@@ -1,4 +1,4 @@
-import { X, User, Package, MapPin, CreditCard, Store, Truck, Calendar, Phone } from 'lucide-react';
+import { X, Package } from 'lucide-react';
 import { Order } from '../../types/order';
 
 interface OrderViewProps {
@@ -57,13 +57,12 @@ const OrderView = ({ order, onClose, onEdit }: OrderViewProps) => {
           {/* Status do Pedido */}
           <div>
             <div className='flex items-center gap-2 mb-2'>
-              <Package className='w-4 h-4 text-slate-600' />
               <label className='text-sm font-semibold text-slate-700'>Status do Pedido</label>
             </div>
             <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
               <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-3'>
-                  <span className='text-slate-800 font-medium'>
+                  <span className='text-slate-800'>
                     {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                   </span>
                 </div>
@@ -76,18 +75,16 @@ const OrderView = ({ order, onClose, onEdit }: OrderViewProps) => {
             {/* Nome do Cliente */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <User className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Nome do Cliente</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-slate-800 font-medium'>{order.customer}</span>
+                <span className='text-slate-800'>{order.customer}</span>
               </div>
             </div>
 
             {/* Telefone do Cliente */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Phone className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Telefone</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -99,25 +96,14 @@ const OrderView = ({ order, onClose, onEdit }: OrderViewProps) => {
           {/* Tipo de Entrega */}
           <div>
             <div className='flex items-center gap-2 mb-2'>
-              {order.deliveryType === 'delivery' ? (
-                <Truck className='w-4 h-4 text-slate-600' />
-              ) : (
-                <Store className='w-4 h-4 text-slate-600' />
-              )}
               <label className='text-sm font-semibold text-slate-700'>Tipo de Entrega</label>
             </div>
             <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
               <div className='flex items-center gap-3'>
                 {order.deliveryType === 'delivery' ? (
-                  <>
-                    <Truck className='w-4 h-4 text-green-600' />
-                    <span className='text-slate-800 font-medium'>Entrega em Domicílio</span>
-                  </>
+                  <span className='text-slate-800'>Entrega em Domicílio</span>
                 ) : (
-                  <>
-                    <Store className='w-4 h-4 text-blue-600' />
-                    <span className='text-slate-800 font-medium'>Retirada na Loja</span>
-                  </>
+                  <span className='text-slate-800'>Retirada na Loja</span>
                 )}
               </div>
             </div>
@@ -127,12 +113,11 @@ const OrderView = ({ order, onClose, onEdit }: OrderViewProps) => {
           {order.deliveryType === 'delivery' && order.address && (
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <MapPin className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Endereço de Entrega</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
                 <div className='space-y-1'>
-                  <p className='text-slate-800 font-medium'>
+                  <p className='text-slate-800'>
                     {order.address.street}, {order.address.number}
                   </p>
                   <p className='text-slate-600'>
@@ -150,7 +135,6 @@ const OrderView = ({ order, onClose, onEdit }: OrderViewProps) => {
           {/* Produtos */}
           <div>
             <div className='flex items-center gap-2 mb-2'>
-              <Package className='w-4 h-4 text-slate-600' />
               <label className='text-sm font-semibold text-slate-700'>Produtos do Pedido</label>
             </div>
             <div className='space-y-2'>
@@ -159,17 +143,17 @@ const OrderView = ({ order, onClose, onEdit }: OrderViewProps) => {
                   <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-3'>
                       <div className='w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center'>
-                        <span className='text-xs font-medium text-purple-600'>{index + 1}</span>
+                        <span className='text-xs text-purple-600'>{index + 1}</span>
                       </div>
                       <div>
-                        <p className='font-medium text-slate-800'>{product.name}</p>
+                        <p className='text-slate-800'>{product.name}</p>
                         <p className='text-sm text-slate-600'>
                           Qtd: {product.quantity} | Unit: {formatPrice(product.price)}
                         </p>
                       </div>
                     </div>
                     <div className='text-right'>
-                      <p className='font-semibold text-slate-800'>
+                      <p className='text-slate-800'>
                         {formatPrice(product.quantity * product.price)}
                       </p>
                     </div>
@@ -179,10 +163,8 @@ const OrderView = ({ order, onClose, onEdit }: OrderViewProps) => {
             </div>
             <div className='mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200'>
               <div className='flex justify-between items-center'>
-                <span className='font-semibold text-slate-800'>Total do Pedido</span>
-                <span className='text-lg font-bold text-purple-600'>
-                  {formatPrice(order.total)}
-                </span>
+                <span className='text-slate-800'>Total do Pedido</span>
+                <span className='text-lg text-purple-600'>{formatPrice(order.total)}</span>
               </div>
             </div>
           </div>
@@ -192,18 +174,16 @@ const OrderView = ({ order, onClose, onEdit }: OrderViewProps) => {
             {/* Forma de Pagamento */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <CreditCard className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Forma de Pagamento</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-slate-800 font-medium'>{order.paymentMethod}</span>
+                <span className='text-slate-800'>{order.paymentMethod}</span>
               </div>
             </div>
 
             {/* Data do Pedido */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Calendar className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Data do Pedido</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -216,7 +196,6 @@ const OrderView = ({ order, onClose, onEdit }: OrderViewProps) => {
           {order.deliveryType === 'pickup' && (
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Store className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>
                   Informações de Retirada
                 </label>

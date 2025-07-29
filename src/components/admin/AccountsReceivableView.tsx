@@ -1,4 +1,4 @@
-import { X, Calendar, DollarSign, Tag, User, Hash } from 'lucide-react';
+import { X, DollarSign } from 'lucide-react';
 
 interface AccountsReceivableItem {
   id: number;
@@ -32,21 +32,6 @@ const AccountsReceivableView = ({ account, onClose, onEdit }: AccountsReceivable
       hour: '2-digit',
       minute: '2-digit',
     });
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'received':
-        return 'bg-green-100 text-green-800';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'overdue':
-        return 'bg-red-100 text-red-800';
-      case 'cancelled':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
   };
 
   const getStatusText = (status: string) => {
@@ -98,57 +83,65 @@ const AccountsReceivableView = ({ account, onClose, onEdit }: AccountsReceivable
 
   return (
     <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
-        <div className='p-6 border-b border-slate-200'>
-          <div className='flex items-center justify-between'>
-            <h2 className='text-xl font-bold text-slate-800'>Detalhes da Conta a Receber</h2>
+      <div className='bg-white rounded-xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-y-auto'>
+        {/* Header */}
+        <div className='relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 p-4 text-white'>
+          <div className='absolute inset-0 bg-black/20'></div>
+          <div className='relative flex items-center justify-between'>
+            <div>
+              <div className='flex items-center gap-3 mb-1'>
+                <div className='w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm'>
+                  <DollarSign className='w-4 h-4 text-white' />
+                </div>
+                <div>
+                  <h2 className='text-xl font-bold'>Conta a Receber #{account.id}</h2>
+                  <p className='text-slate-300 text-sm'>{account.description}</p>
+                </div>
+              </div>
+            </div>
             <button
               onClick={onClose}
-              className='p-2 hover:bg-slate-100 rounded-lg transition-colors'
+              className='p-2 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 backdrop-blur-sm'
             >
-              <X className='w-5 h-5 text-slate-600' />
+              <X className='w-5 h-5' />
             </button>
           </div>
         </div>
 
-        <div className='p-6 space-y-6'>
+        <div className='p-4 space-y-4'>
           {/* Status */}
           <div>
-            <label className='text-sm font-semibold text-slate-700 mb-2 block'>Status</label>
+            <div className='flex items-center gap-2 mb-2'>
+              <label className='text-sm font-semibold text-slate-700'>Status</label>
+            </div>
             <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-              <span
-                className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(account.status)}`}
-              >
-                {getStatusText(account.status)}
-              </span>
+              <span className='text-slate-800'>{getStatusText(account.status)}</span>
             </div>
           </div>
 
           {/* Description */}
           <div>
-            <label className='text-sm font-semibold text-slate-700 mb-2 block'>Descrição</label>
+            <div className='flex items-center gap-2 mb-2'>
+              <label className='text-sm font-semibold text-slate-700'>Descrição</label>
+            </div>
             <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-              <span className='text-slate-800 font-medium'>{account.description}</span>
+              <span className='text-slate-800'>{account.description}</span>
             </div>
           </div>
 
           {/* Amount and Due Date */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <DollarSign className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Valor</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-slate-800 font-bold text-lg'>
-                  R$ {account.amount.toFixed(2)}
-                </span>
+                <span className='text-slate-800 text-lg'>R$ {account.amount.toFixed(2)}</span>
               </div>
             </div>
 
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Calendar className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Data de Vencimento</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -158,11 +151,11 @@ const AccountsReceivableView = ({ account, onClose, onEdit }: AccountsReceivable
           </div>
 
           {/* Payment Method and Category */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
-              <label className='text-sm font-semibold text-slate-700 mb-2 block'>
-                Forma de Pagamento
-              </label>
+              <div className='flex items-center gap-2 mb-2'>
+                <label className='text-sm font-semibold text-slate-700'>Forma de Pagamento</label>
+              </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
                 <span className='text-slate-800'>
                   {getPaymentMethodText(account.paymentMethod)}
@@ -172,7 +165,6 @@ const AccountsReceivableView = ({ account, onClose, onEdit }: AccountsReceivable
 
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Tag className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Categoria</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -182,10 +174,9 @@ const AccountsReceivableView = ({ account, onClose, onEdit }: AccountsReceivable
           </div>
 
           {/* Customer Name and Order ID */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <User className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Cliente</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -195,7 +186,6 @@ const AccountsReceivableView = ({ account, onClose, onEdit }: AccountsReceivable
 
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Hash className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>ID do Pedido</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -208,7 +198,6 @@ const AccountsReceivableView = ({ account, onClose, onEdit }: AccountsReceivable
           {account.status === 'received' && account.receivedDate && (
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Calendar className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Data do Recebimento</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -220,7 +209,9 @@ const AccountsReceivableView = ({ account, onClose, onEdit }: AccountsReceivable
           {/* Notes */}
           {account.notes && (
             <div>
-              <label className='text-sm font-semibold text-slate-700 mb-2 block'>Observações</label>
+              <div className='flex items-center gap-2 mb-2'>
+                <label className='text-sm font-semibold text-slate-700'>Observações</label>
+              </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
                 <p className='text-slate-800'>{account.notes}</p>
               </div>
@@ -228,11 +219,10 @@ const AccountsReceivableView = ({ account, onClose, onEdit }: AccountsReceivable
           )}
 
           {/* Dates */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             {/* Created Date */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Calendar className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Data de Criação</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -243,7 +233,6 @@ const AccountsReceivableView = ({ account, onClose, onEdit }: AccountsReceivable
             {/* Updated Date */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Calendar className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Última Atualização</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -253,19 +242,21 @@ const AccountsReceivableView = ({ account, onClose, onEdit }: AccountsReceivable
           </div>
 
           {/* Actions */}
-          <div className='flex gap-4 pt-4 border-t border-slate-200'>
-            <button
-              onClick={onClose}
-              className='flex-1 py-3 px-4 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300'
-            >
-              Fechar
-            </button>
-            <button
-              onClick={onEdit || onClose}
-              className='flex-1 py-3 px-4 bg-gradient-to-r from-green-600 to-emerald-500 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-600 transform hover:scale-105 transition-all duration-300'
-            >
-              Editar Conta
-            </button>
+          <div className='pt-6 border-t border-slate-200'>
+            <div className='flex flex-col sm:flex-row justify-end gap-3 sm:gap-4'>
+              <button
+                onClick={onClose}
+                className='w-full sm:w-auto px-8 py-3 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300 shadow-sm hover:shadow-md'
+              >
+                Fechar
+              </button>
+              <button
+                onClick={onEdit || onClose}
+                className='w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-500 text-white font-semibold rounded-lg hover:from-green-700 hover:to-emerald-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              >
+                Editar Conta
+              </button>
+            </div>
           </div>
         </div>
       </div>
