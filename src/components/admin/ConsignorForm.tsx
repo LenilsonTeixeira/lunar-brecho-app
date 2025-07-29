@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, User, Mail, Phone, CreditCard, QrCode, Building2 } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface ConsignorItem {
   id: number;
@@ -157,14 +157,11 @@ const ConsignorForm = ({
         <form onSubmit={handleSubmit} className='p-6 space-y-6'>
           {/* Informações Pessoais */}
           <div className='space-y-4'>
-            <h3 className='text-lg font-semibold text-slate-800 flex items-center gap-2'>
-              <User className='w-5 h-5 text-purple-600' />
-              Informações Pessoais
-            </h3>
+            <h3 className='text-lg font-semibold text-slate-800'>Informações Pessoais</h3>
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
-                <label className='block text-sm font-medium text-slate-700 mb-2'>
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>
                   Nome Completo *
                 </label>
                 <input
@@ -178,7 +175,7 @@ const ConsignorForm = ({
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-slate-700 mb-2'>CPF *</label>
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>CPF *</label>
                 <input
                   type='text'
                   value={formData.cpf}
@@ -193,10 +190,7 @@ const ConsignorForm = ({
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
-                <label className='block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2'>
-                  <Mail className='w-4 h-4 text-purple-600' />
-                  E-mail *
-                </label>
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>E-mail *</label>
                 <input
                   type='email'
                   value={formData.email}
@@ -208,8 +202,7 @@ const ConsignorForm = ({
               </div>
 
               <div>
-                <label className='block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2'>
-                  <Phone className='w-4 h-4 text-purple-600' />
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>
                   Telefone *
                 </label>
                 <input
@@ -227,14 +220,11 @@ const ConsignorForm = ({
 
           {/* Informações Bancárias */}
           <div className='space-y-4'>
-            <h3 className='text-lg font-semibold text-slate-800 flex items-center gap-2'>
-              <CreditCard className='w-5 h-5 text-purple-600' />
-              Informações de Pagamento
-            </h3>
+            <h3 className='text-lg font-semibold text-slate-800'>Informações de Pagamento</h3>
 
             {/* Método de Pagamento */}
             <div>
-              <label className='block text-sm font-medium text-slate-700 mb-3'>
+              <label className='block text-sm font-semibold text-slate-700 mb-3'>
                 Método de Pagamento *
               </label>
               <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
@@ -290,8 +280,7 @@ const ConsignorForm = ({
             {/* Chave PIX - Mostrar apenas se PIX for selecionado */}
             {formData.paymentMethod === 'pix' && (
               <div>
-                <label className='block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2'>
-                  <QrCode className='w-4 h-4 text-purple-600' />
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>
                   Chave PIX *
                 </label>
                 <input
@@ -310,8 +299,7 @@ const ConsignorForm = ({
               <>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div>
-                    <label className='block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2'>
-                      <Building2 className='w-4 h-4 text-purple-600' />
+                    <label className='block text-sm font-semibold text-slate-700 mb-2'>
                       Banco *
                     </label>
                     <select
@@ -330,7 +318,7 @@ const ConsignorForm = ({
                   </div>
 
                   <div>
-                    <label className='block text-sm font-medium text-slate-700 mb-2'>
+                    <label className='block text-sm font-semibold text-slate-700 mb-2'>
                       Agência *
                     </label>
                     <input
@@ -346,7 +334,9 @@ const ConsignorForm = ({
 
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <div>
-                    <label className='block text-sm font-medium text-slate-700 mb-2'>Conta *</label>
+                    <label className='block text-sm font-semibold text-slate-700 mb-2'>
+                      Conta *
+                    </label>
                     <input
                       type='text'
                       value={formData.bankAccount.account}
@@ -358,7 +348,7 @@ const ConsignorForm = ({
                   </div>
 
                   <div>
-                    <label className='block text-sm font-medium text-slate-700 mb-2'>
+                    <label className='block text-sm font-semibold text-slate-700 mb-2'>
                       Tipo de Conta *
                     </label>
                     <select

@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Search, Edit, Trash2, Eye, Plus, User, History } from 'lucide-react';
-import { Link } from 'react-router';
-import ConsignorForm from '../../components/admin/ConsignorForm';
+import { Search, Edit, Trash2, Eye, Plus, TrendingUp } from 'lucide-react';
 import ConsignorView from '../../components/admin/ConsignorView';
+import ConsignorForm from '../../components/admin/ConsignorForm';
 import ConsignorHistory from '../../components/admin/ConsignorHistory';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 
@@ -381,13 +380,6 @@ const Consignor = () => {
                 <Plus className='w-4 h-4' />
                 Novo Consignante
               </button>
-              <Link
-                to='/admin/consignantes/adicionar'
-                className='w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 bg-slate-600 text-white font-semibold rounded-lg hover:bg-slate-700 transform hover:scale-105 transition-all duration-300 shadow-lg'
-              >
-                <Plus className='w-4 h-4' />
-                Adicionar Consignante
-              </Link>
             </div>
           </div>
         </div>
@@ -498,7 +490,7 @@ const Consignor = () => {
                             className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
                             title='Histórico'
                           >
-                            <History className='w-3 h-3 sm:w-4 sm:h-4' />
+                            <TrendingUp className='w-3 h-3 sm:w-4 sm:h-4' />
                           </button>
                           <button
                             onClick={() => handleView(consignor)}
@@ -530,7 +522,7 @@ const Consignor = () => {
                     <td colSpan={6} className='py-12 text-center text-slate-500'>
                       <div className='flex flex-col items-center gap-2'>
                         <div className='w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center'>
-                          <User className='w-8 h-8 text-slate-400' />
+                          <Plus className='w-8 h-8 text-slate-400' />
                         </div>
                         <h3 className='text-base sm:text-lg font-medium text-slate-800 mb-2'>
                           Nenhum consignante encontrado
