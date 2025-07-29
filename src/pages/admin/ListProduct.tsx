@@ -648,7 +648,7 @@ const ListProduct = () => {
                             <span className='text-xs font-medium text-slate-600 bg-slate-200 px-2 py-1 rounded'>
                               {sizeItem.size}
                             </span>
-                            <span className='text-xs sm:text-sm font-medium text-slate-50 bg-black w-6 h-6 rounded-full flex items-center justify-center'>
+                            <span className='text-xs sm:text-sm font-medium text-white bg-gradient-to-br from-purple-500 to-pink-500 w-6 h-6 rounded-full flex items-center justify-center shadow-lg'>
                               {sizeItem.quantity}
                             </span>
                           </div>

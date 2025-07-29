@@ -153,7 +153,7 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
                 <label className='text-sm font-semibold text-slate-700'>Tipo</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='inline-flex px-3 py-1 text-sm font-medium rounded-full bg-purple-100 text-purple-800'>
+                <span className='inline-flex px-3 py-1 text-sm font-medium'>
                   {getTypeLabel(product.type)}
                 </span>
               </div>
