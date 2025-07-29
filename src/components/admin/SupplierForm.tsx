@@ -443,18 +443,18 @@ const SupplierForm = ({ supplier, onSubmit, onCancel, isLoading = false }: Suppl
           </div>
 
           {/* Actions */}
-          <div className='flex items-center justify-end gap-4 pt-6 border-t border-slate-200'>
+          <div className='flex flex-col sm:flex-row items-center justify-end gap-4 pt-6 border-t border-slate-200'>
             <button
               type='button'
               onClick={onCancel}
-              className='px-6 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200'
+              className='w-full sm:w-auto px-6 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200'
             >
               Cancelar
             </button>
             <button
               type='submit'
               disabled={isLoading}
-              className='px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
+              className='w-full sm:w-auto px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
             >
               {isLoading ? (
                 <div className='flex items-center gap-2'>

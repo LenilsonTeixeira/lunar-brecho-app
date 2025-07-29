@@ -295,18 +295,18 @@ const CouponForm = ({ coupon, onSubmit, onCancel, isLoading = false }: CouponFor
           </div>
 
           {/* Botões */}
-          <div className='flex gap-4 pt-4'>
+          <div className='flex flex-col sm:flex-row gap-4 pt-4'>
             <button
               type='button'
               onClick={onCancel}
-              className='flex-1 py-3 px-4 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300'
+              className='w-full sm:flex-1 py-3 px-4 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300'
             >
               Cancelar
             </button>
             <button
               type='submit'
               disabled={isLoading}
-              className='flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
+              className='w-full sm:flex-1 py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
             >
               {isLoading ? 'Salvando...' : coupon ? 'Atualizar Cupom' : 'Criar Cupom'}
             </button>
