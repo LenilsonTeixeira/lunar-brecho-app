@@ -1,4 +1,4 @@
-import { X, Building2, User, Mail, Phone, MapPin, Globe, FileText, Calendar } from 'lucide-react';
+import { X, User, Building2 } from 'lucide-react';
 
 interface SupplierItem {
   id: number;
@@ -79,11 +79,10 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
             {/* Tipo do Fornecedor */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Building2 className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Tipo do Fornecedor</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-slate-800 font-medium'>
+                <span className='text-slate-800'>
                   {supplier.type === 'company' ? 'Empresa' : 'Pessoa Física'}
                 </span>
               </div>
@@ -92,7 +91,6 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
             {/* Documento */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <FileText className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>
                   {supplier.type === 'individual' ? 'CPF' : 'CNPJ'}
                 </label>
@@ -108,7 +106,6 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
             {/* E-mail */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Mail className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>E-mail</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -119,7 +116,6 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
             {/* Telefone */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Phone className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Telefone</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -134,7 +130,6 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
             {supplier.contactPerson && (
               <div>
                 <div className='flex items-center gap-2 mb-2'>
-                  <User className='w-4 h-4 text-slate-600' />
                   <label className='text-sm font-semibold text-slate-700'>Pessoa de Contato</label>
                 </div>
                 <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -147,7 +142,6 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
             {supplier.website && (
               <div>
                 <div className='flex items-center gap-2 mb-2'>
-                  <Globe className='w-4 h-4 text-slate-600' />
                   <label className='text-sm font-semibold text-slate-700'>Website</label>
                 </div>
                 <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -171,12 +165,11 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
           {/* Endereço - Largura total */}
           <div>
             <div className='flex items-center gap-2 mb-2'>
-              <MapPin className='w-4 h-4 text-slate-600' />
               <label className='text-sm font-semibold text-slate-700'>Endereço</label>
             </div>
             <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
               <div className='space-y-1'>
-                <p className='text-slate-800 font-medium'>{supplier.address}</p>
+                <p className='text-slate-800'>{supplier.address}</p>
                 <p className='text-slate-600'>
                   {supplier.city} - {supplier.state}
                 </p>
@@ -189,7 +182,6 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
           {supplier.notes && (
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <FileText className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Observações</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -203,7 +195,6 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
             {/* Data de Criação */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Calendar className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Data de Criação</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -214,7 +205,6 @@ const SupplierView = ({ supplier, onClose, onEdit }: SupplierViewProps) => {
             {/* Última Atualização */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Calendar className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Última Atualização</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>

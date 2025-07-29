@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Building2, User, Mail, Phone, MapPin, Globe, FileText } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface SupplierItem {
   id: number;
@@ -160,7 +160,6 @@ const SupplierForm = ({ supplier, onSubmit, onCancel, isLoading = false }: Suppl
                     : 'border-slate-200 bg-white text-slate-600 hover:border-purple-300'
                 }`}
               >
-                <User className='w-6 h-6' />
                 <div className='text-left'>
                   <div className='font-semibold'>Pessoa Física</div>
                   <div className='text-xs'>CPF</div>
@@ -178,7 +177,6 @@ const SupplierForm = ({ supplier, onSubmit, onCancel, isLoading = false }: Suppl
                     : 'border-slate-200 bg-white text-slate-600 hover:border-purple-300'
                 }`}
               >
-                <Building2 className='w-6 h-6' />
                 <div className='text-left'>
                   <div className='font-semibold'>Empresa</div>
                   <div className='text-xs'>CNPJ</div>
@@ -243,18 +241,15 @@ const SupplierForm = ({ supplier, onSubmit, onCancel, isLoading = false }: Suppl
               <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='email'>
                 E-mail
               </label>
-              <div className='relative'>
-                <Mail className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400' />
-                <input
-                  id='email'
-                  type='email'
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder='Digite o e-mail'
-                  className='w-full pl-10 pr-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                  required
-                />
-              </div>
+              <input
+                id='email'
+                type='email'
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                placeholder='Digite o e-mail'
+                className='w-full px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                required
+              />
             </div>
 
             {/* Phone */}
@@ -262,31 +257,25 @@ const SupplierForm = ({ supplier, onSubmit, onCancel, isLoading = false }: Suppl
               <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='phone'>
                 Telefone
               </label>
-              <div className='relative'>
-                <Phone className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400' />
-                <input
-                  id='phone'
-                  type='text'
-                  value={formData.phone}
-                  onChange={(e) => {
-                    const formatted = formatPhone(e.target.value);
-                    handleInputChange('phone', formatted);
-                  }}
-                  placeholder='(00) 00000-0000'
-                  className='w-full pl-10 pr-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                  required
-                  maxLength={15}
-                />
-              </div>
+              <input
+                id='phone'
+                type='text'
+                value={formData.phone}
+                onChange={(e) => {
+                  const formatted = formatPhone(e.target.value);
+                  handleInputChange('phone', formatted);
+                }}
+                placeholder='(00) 00000-0000'
+                className='w-full px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                required
+                maxLength={15}
+              />
             </div>
           </div>
 
           {/* Address Information */}
           <div className='space-y-4'>
-            <h3 className='text-lg font-semibold text-slate-800 flex items-center gap-2'>
-              <MapPin className='w-5 h-5' />
-              Endereço
-            </h3>
+            <h3 className='text-lg font-semibold text-slate-800'>Endereço</h3>
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               {/* Address */}
@@ -397,10 +386,7 @@ const SupplierForm = ({ supplier, onSubmit, onCancel, isLoading = false }: Suppl
 
           {/* Additional Information */}
           <div className='space-y-4'>
-            <h3 className='text-lg font-semibold text-slate-800 flex items-center gap-2'>
-              <FileText className='w-5 h-5' />
-              Informações Adicionais
-            </h3>
+            <h3 className='text-lg font-semibold text-slate-800'>Informações Adicionais</h3>
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               {/* Contact Person */}
@@ -429,17 +415,14 @@ const SupplierForm = ({ supplier, onSubmit, onCancel, isLoading = false }: Suppl
                 >
                   Website
                 </label>
-                <div className='relative'>
-                  <Globe className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400' />
-                  <input
-                    id='website'
-                    type='url'
-                    value={formData.website}
-                    onChange={(e) => handleInputChange('website', e.target.value)}
-                    placeholder='https://www.exemplo.com'
-                    className='w-full pl-10 pr-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                  />
-                </div>
+                <input
+                  id='website'
+                  type='url'
+                  value={formData.website}
+                  onChange={(e) => handleInputChange('website', e.target.value)}
+                  placeholder='https://www.exemplo.com'
+                  className='w-full px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
               </div>
             </div>
 

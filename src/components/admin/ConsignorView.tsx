@@ -1,15 +1,4 @@
-import {
-  X,
-  User,
-  Mail,
-  Phone,
-  CreditCard,
-  QrCode,
-  Building2,
-  Package,
-  DollarSign,
-  Calendar,
-} from 'lucide-react';
+import { X, User } from 'lucide-react';
 
 interface ConsignorItem {
   id: number;
@@ -96,18 +85,16 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
             {/* Nome Completo */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <User className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Nome Completo</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-slate-800 font-medium'>{consignor.name}</span>
+                <span className='text-slate-800'>{consignor.name}</span>
               </div>
             </div>
 
             {/* CPF */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <CreditCard className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>CPF</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -121,7 +108,6 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
             {/* E-mail */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Mail className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>E-mail</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -132,7 +118,6 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
             {/* Telefone */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Phone className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Telefone</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -144,11 +129,10 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
           {/* Método de Pagamento */}
           <div>
             <div className='flex items-center gap-2 mb-2'>
-              <CreditCard className='w-4 h-4 text-slate-600' />
               <label className='text-sm font-semibold text-slate-700'>Método de Pagamento</label>
             </div>
             <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-              <span className='inline-flex px-3 py-1 text-sm font-medium rounded-full bg-purple-100 text-purple-800'>
+              <span className='text-slate-800'>
                 {consignor.paymentMethod === 'pix' && 'PIX'}
                 {consignor.paymentMethod === 'money' && 'Dinheiro'}
                 {consignor.paymentMethod === 'bank_transfer' && 'Transferência Bancária'}
@@ -160,7 +144,6 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
           {consignor.paymentMethod === 'pix' && (
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <QrCode className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Chave PIX</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -175,7 +158,6 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
               {/* Banco */}
               <div>
                 <div className='flex items-center gap-2 mb-2'>
-                  <Building2 className='w-4 h-4 text-slate-600' />
                   <label className='text-sm font-semibold text-slate-700'>Banco</label>
                 </div>
                 <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -188,7 +170,6 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
               {/* Agência */}
               <div>
                 <div className='flex items-center gap-2 mb-2'>
-                  <Building2 className='w-4 h-4 text-slate-600' />
                   <label className='text-sm font-semibold text-slate-700'>Agência</label>
                 </div>
                 <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -201,7 +182,6 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
               {/* Conta */}
               <div>
                 <div className='flex items-center gap-2 mb-2'>
-                  <CreditCard className='w-4 h-4 text-slate-600' />
                   <label className='text-sm font-semibold text-slate-700'>Conta</label>
                 </div>
                 <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -214,7 +194,6 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
               {/* Tipo de Conta */}
               <div>
                 <div className='flex items-center gap-2 mb-2'>
-                  <CreditCard className='w-4 h-4 text-slate-600' />
                   <label className='text-sm font-semibold text-slate-700'>Tipo de Conta</label>
                 </div>
                 <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -231,50 +210,40 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
             {/* Total de Produtos */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Package className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Total de Produtos</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-slate-800 font-medium text-lg'>
-                  {consignor.totalProducts || 0}
-                </span>
+                <span className='text-slate-800 text-lg'>{consignor.totalProducts || 0}</span>
               </div>
             </div>
 
             {/* Produtos à Venda */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Package className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>À Venda</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-slate-800 font-medium text-lg'>
-                  {consignor.productsForSale || 0}
-                </span>
+                <span className='text-slate-800 text-lg'>{consignor.productsForSale || 0}</span>
               </div>
             </div>
 
             {/* Produtos Vendidos */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Package className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Vendidos</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-slate-800 font-medium text-lg'>
-                  {consignor.soldProducts || 0}
-                </span>
+                <span className='text-slate-800 text-lg'>{consignor.soldProducts || 0}</span>
               </div>
             </div>
 
             {/* Comissão Total */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <DollarSign className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Comissão Total</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
-                <span className='text-green-600 font-medium text-lg'>
+                <span className='text-green-600 text-lg'>
                   {formatCurrency(consignor.totalCommission || 0)}
                 </span>
               </div>
@@ -286,7 +255,6 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
             {/* Data de Criação */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Calendar className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Data de Criação</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
@@ -297,7 +265,6 @@ const ConsignorView = ({ consignor, onClose, onEdit }: ConsignorViewProps) => {
             {/* Última Atualização */}
             <div>
               <div className='flex items-center gap-2 mb-2'>
-                <Calendar className='w-4 h-4 text-slate-600' />
                 <label className='text-sm font-semibold text-slate-700'>Última Atualização</label>
               </div>
               <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
