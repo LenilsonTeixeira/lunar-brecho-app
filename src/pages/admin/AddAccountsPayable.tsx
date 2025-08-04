@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 
 const AddAccountsPayable = () => {
   const navigate = useNavigate();
@@ -35,16 +35,15 @@ const AddAccountsPayable = () => {
   return (
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
       <div className='w-full max-w-7xl mx-auto'>
-        {/* Header */}
         <div className='mb-8'>
           <div className='flex items-center gap-4 mb-4'>
-            <Link
-              to='/admin/contas-pagar'
-              className='flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors duration-200'
+            <button
+              onClick={() => navigate('/admin/contas-pagar')}
+              className='flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all duration-300'
             >
               <ArrowLeft className='w-4 h-4' />
-              <span className='text-sm font-medium'>Voltar</span>
-            </Link>
+              Voltar
+            </button>
           </div>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
             Adicionar Conta a Pagar
@@ -58,172 +57,191 @@ const AddAccountsPayable = () => {
           onSubmit={handleSubmit}
           className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'
         >
-          {/* Description */}
-          <div className='flex flex-col gap-2'>
-            <label
-              className='text-sm sm:text-base font-semibold text-slate-700'
-              htmlFor='description'
-            >
-              Descrição *
-            </label>
-            <input
-              id='description'
-              name='description'
-              type='text'
-              placeholder='Ex: Compra de Estoque - Fornecedor ABC'
-              value={formData.description}
-              onChange={handleInputChange}
-              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
-              required
-            />
-          </div>
+          {/* Informações Básicas */}
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2'>
+              Informações Básicas
+            </h3>
 
-          {/* Amount and Due Date */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             <div className='flex flex-col gap-2'>
-              <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='amount'>
-                Valor (R$) *
+              <label
+                className='text-sm sm:text-base font-semibold text-slate-700'
+                htmlFor='description'
+              >
+                Descrição *
               </label>
               <input
-                id='amount'
-                name='amount'
-                type='number'
-                step='0.01'
-                min='0'
-                placeholder='0,00'
-                value={formData.amount}
-                onChange={handleInputChange}
-                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
-                required
-              />
-            </div>
-
-            <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm sm:text-base font-semibold text-slate-700'
-                htmlFor='dueDate'
-              >
-                Data de Vencimento *
-              </label>
-              <input
-                id='dueDate'
-                name='dueDate'
-                type='date'
-                value={formData.dueDate}
-                onChange={handleInputChange}
-                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
-                required
-              />
-            </div>
-          </div>
-
-          {/* Payment Method and Category */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm sm:text-base font-semibold text-slate-700'
-                htmlFor='paymentMethod'
-              >
-                Forma de Pagamento *
-              </label>
-              <select
-                id='paymentMethod'
-                name='paymentMethod'
-                value={formData.paymentMethod}
-                onChange={handleInputChange}
-                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
-                required
-              >
-                <option value='boleto'>Boleto</option>
-                <option value='pix'>PIX</option>
-                <option value='transfer'>Transferência</option>
-                <option value='card'>Cartão</option>
-                <option value='money'>Dinheiro</option>
-              </select>
-            </div>
-
-            <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm sm:text-base font-semibold text-slate-700'
-                htmlFor='category'
-              >
-                Categoria *
-              </label>
-              <select
-                id='category'
-                name='category'
-                value={formData.category}
-                onChange={handleInputChange}
-                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
-                required
-              >
-                <option value='supplier'>Fornecedor</option>
-                <option value='logistics'>Logística</option>
-                <option value='marketing'>Marketing</option>
-                <option value='system'>Sistema</option>
-                <option value='taxes'>Impostos</option>
-                <option value='rent'>Aluguel</option>
-                <option value='utilities'>Serviços</option>
-                <option value='other'>Outros</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Supplier Name and Recurrence */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm sm:text-base font-semibold text-slate-700'
-                htmlFor='supplierName'
-              >
-                Nome do Fornecedor
-              </label>
-              <input
-                id='supplierName'
-                name='supplierName'
+                id='description'
+                name='description'
                 type='text'
-                placeholder='Nome do fornecedor (opcional)'
-                value={formData.supplierName}
+                placeholder='Ex: Compra de Estoque - Fornecedor ABC'
+                value={formData.description}
                 onChange={handleInputChange}
                 className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                required
               />
             </div>
 
-            <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm sm:text-base font-semibold text-slate-700'
-                htmlFor='recurrence'
-              >
-                Recorrência
-              </label>
-              <select
-                id='recurrence'
-                name='recurrence'
-                value={formData.recurrence}
-                onChange={handleInputChange}
-                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
-              >
-                <option value='once'>Único</option>
-                <option value='monthly'>Mensal</option>
-                <option value='yearly'>Anual</option>
-              </select>
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='amount'
+                >
+                  Valor (R$) *
+                </label>
+                <input
+                  id='amount'
+                  name='amount'
+                  type='number'
+                  step='0.01'
+                  min='0'
+                  placeholder='0,00'
+                  value={formData.amount}
+                  onChange={handleInputChange}
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                  required
+                />
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='dueDate'
+                >
+                  Data de Vencimento *
+                </label>
+                <input
+                  id='dueDate'
+                  name='dueDate'
+                  type='date'
+                  value={formData.dueDate}
+                  onChange={handleInputChange}
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                  required
+                />
+              </div>
             </div>
           </div>
 
-          {/* Notes */}
-          <div className='flex flex-col gap-2'>
-            <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='notes'>
-              Observações
-            </label>
-            <textarea
-              id='notes'
-              name='notes'
-              rows={4}
-              placeholder='Observações adicionais (opcional)'
-              value={formData.notes}
-              onChange={handleInputChange}
-              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white resize-none'
-            />
+          {/* Informações de Pagamento */}
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2'>
+              Informações de Pagamento
+            </h3>
+
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='paymentMethod'
+                >
+                  Forma de Pagamento *
+                </label>
+                <select
+                  id='paymentMethod'
+                  name='paymentMethod'
+                  value={formData.paymentMethod}
+                  onChange={handleInputChange}
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                  required
+                >
+                  <option value='boleto'>Boleto</option>
+                  <option value='pix'>PIX</option>
+                  <option value='transfer'>Transferência</option>
+                  <option value='card'>Cartão</option>
+                  <option value='money'>Dinheiro</option>
+                </select>
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='category'
+                >
+                  Categoria *
+                </label>
+                <select
+                  id='category'
+                  name='category'
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                  required
+                >
+                  <option value='supplier'>Fornecedor</option>
+                  <option value='logistics'>Logística</option>
+                  <option value='marketing'>Marketing</option>
+                  <option value='system'>Sistema</option>
+                  <option value='taxes'>Impostos</option>
+                  <option value='rent'>Aluguel</option>
+                  <option value='utilities'>Serviços</option>
+                  <option value='other'>Outros</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Informações Adicionais */}
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2'>
+              Informações Adicionais
+            </h3>
+
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='supplierName'
+                >
+                  Nome do Fornecedor
+                </label>
+                <input
+                  id='supplierName'
+                  name='supplierName'
+                  type='text'
+                  placeholder='Nome do fornecedor (opcional)'
+                  value={formData.supplierName}
+                  onChange={handleInputChange}
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='recurrence'
+                >
+                  Recorrência
+                </label>
+                <select
+                  id='recurrence'
+                  name='recurrence'
+                  value={formData.recurrence}
+                  onChange={handleInputChange}
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                >
+                  <option value='once'>Único</option>
+                  <option value='monthly'>Mensal</option>
+                  <option value='yearly'>Anual</option>
+                </select>
+              </div>
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='notes'>
+                Observações
+              </label>
+              <textarea
+                id='notes'
+                name='notes'
+                rows={4}
+                placeholder='Observações adicionais (opcional)'
+                value={formData.notes}
+                onChange={handleInputChange}
+                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white resize-none'
+              />
+            </div>
           </div>
 
           {/* Submit Button */}

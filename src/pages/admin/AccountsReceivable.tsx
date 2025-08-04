@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Search, Edit, Trash2, Plus, DollarSign, Calendar, CreditCard, Eye } from 'lucide-react';
+import { Search, Edit, Trash2, Eye, Plus, DollarSign, Calendar, CreditCard } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import AccountsReceivableForm from '../../components/admin/AccountsReceivableForm';
 import AccountsReceivableView from '../../components/admin/AccountsReceivableView';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
@@ -32,6 +33,7 @@ interface AccountsReceivableFormData {
 }
 
 const AccountsReceivable = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showForm, setShowForm] = useState(false);
@@ -240,7 +242,7 @@ const AccountsReceivable = () => {
               </p>
             </div>
             <button
-              onClick={() => setShowForm(true)}
+              onClick={() => navigate('/admin/contas-receber/adicionar')}
               className='flex items-center justify-center gap-2 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
             >
               <Plus className='w-4 h-4' />
