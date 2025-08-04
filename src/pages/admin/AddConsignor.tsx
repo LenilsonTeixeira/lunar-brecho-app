@@ -204,44 +204,67 @@ const AddConsignor = () => {
                 {/* PIX Card */}
                 <div
                   onClick={() => handleInputChange('paymentMethod', 'pix')}
-                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                    formData.paymentMethod === 'pix'
-                      ? 'border-purple-500 bg-purple-50 shadow-md'
-                      : 'border-slate-200 bg-white hover:border-purple-300'
-                  }`}
+                  className='group cursor-pointer transition-all duration-300 ease-out hover:scale-102'
                 >
-                  <div className='flex items-center gap-3'>
+                  <div
+                    className={`relative overflow-hidden rounded-xl p-4 transition-all duration-300 ease-out ${
+                      formData.paymentMethod === 'pix'
+                        ? 'bg-gradient-to-br from-green-500 to-emerald-600 shadow-card-payment-method-colored shadow-green-500/25'
+                        : 'bg-white hover:border-green-300 shadow-card-payment-method'
+                    }`}
+                  >
+                    {/* Selection Indicator */}
                     <div
-                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                      className={`absolute top-2 right-2 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-300 ease-out ${
                         formData.paymentMethod === 'pix'
-                          ? 'border-purple-500 bg-purple-500'
-                          : 'border-slate-300'
+                          ? 'border-white bg-white'
+                          : 'border-slate-300 group-hover:border-green-400'
                       }`}
                     >
                       {formData.paymentMethod === 'pix' && (
-                        <div className='w-2 h-2 bg-white rounded-full'></div>
+                        <div className='w-2 h-2 bg-green-600 rounded-full transition-all duration-300 ease-out'></div>
                       )}
                     </div>
-                    <div className='flex-1'>
-                      <div className='flex items-center gap-2 mb-1'>
-                        <div className='w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center'>
-                          <svg
-                            className='w-5 h-5 text-green-600'
-                            fill='none'
-                            stroke='currentColor'
-                            viewBox='0 0 24 24'
-                          >
-                            <path
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
-                              strokeWidth={2}
-                              d='M13 10V3L4 14h7v7l9-11h-7z'
-                            />
-                          </svg>
-                        </div>
-                        <span className='font-semibold text-slate-800'>PIX</span>
-                      </div>
-                      <p className='text-xs text-slate-600'>Transferência instantânea</p>
+
+                    {/* Icon */}
+                    <div
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-all duration-300 ease-out ${
+                        formData.paymentMethod === 'pix' ? 'bg-white/20' : 'bg-green-50'
+                      }`}
+                    >
+                      <svg
+                        className={`w-5 h-5 transition-all duration-300 ease-out ${
+                          formData.paymentMethod === 'pix' ? 'text-white' : 'text-green-600'
+                        }`}
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M13 10V3L4 14h7v7l9-11h-7z'
+                        />
+                      </svg>
+                    </div>
+
+                    {/* Content */}
+                    <div>
+                      <h3
+                        className={`text-base font-semibold mb-1 transition-all duration-300 ease-out ${
+                          formData.paymentMethod === 'pix' ? 'text-white' : 'text-slate-800'
+                        }`}
+                      >
+                        PIX
+                      </h3>
+                      <p
+                        className={`text-xs transition-all duration-300 ease-out ${
+                          formData.paymentMethod === 'pix' ? 'text-green-100' : 'text-slate-600'
+                        }`}
+                      >
+                        Transferência instantânea
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -249,44 +272,67 @@ const AddConsignor = () => {
                 {/* Dinheiro Card */}
                 <div
                   onClick={() => handleInputChange('paymentMethod', 'money')}
-                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                    formData.paymentMethod === 'money'
-                      ? 'border-purple-500 bg-purple-50 shadow-md'
-                      : 'border-slate-200 bg-white hover:border-purple-300'
-                  }`}
+                  className='group cursor-pointer transition-all duration-300 ease-out hover:scale-102'
                 >
-                  <div className='flex items-center gap-3'>
+                  <div
+                    className={`relative overflow-hidden rounded-xl p-4 transition-all duration-300 ease-out ${
+                      formData.paymentMethod === 'money'
+                        ? 'bg-gradient-to-br from-amber-500 to-orange-600 shadow-card-payment-method-colored shadow-amber-500/25'
+                        : 'bg-white hover:border-amber-300 shadow-card-payment-method'
+                    }`}
+                  >
+                    {/* Selection Indicator */}
                     <div
-                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                      className={`absolute top-2 right-2 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-300 ease-out ${
                         formData.paymentMethod === 'money'
-                          ? 'border-purple-500 bg-purple-500'
-                          : 'border-slate-300'
+                          ? 'border-white bg-white'
+                          : 'border-slate-300 group-hover:border-amber-400'
                       }`}
                     >
                       {formData.paymentMethod === 'money' && (
-                        <div className='w-2 h-2 bg-white rounded-full'></div>
+                        <div className='w-2 h-2 bg-amber-600 rounded-full transition-all duration-300 ease-out'></div>
                       )}
                     </div>
-                    <div className='flex-1'>
-                      <div className='flex items-center gap-2 mb-1'>
-                        <div className='w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center'>
-                          <svg
-                            className='w-5 h-5 text-yellow-600'
-                            fill='none'
-                            stroke='currentColor'
-                            viewBox='0 0 24 24'
-                          >
-                            <path
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
-                              strokeWidth={2}
-                              d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1'
-                            />
-                          </svg>
-                        </div>
-                        <span className='font-semibold text-slate-800'>Dinheiro</span>
-                      </div>
-                      <p className='text-xs text-slate-600'>Pagamento presencial</p>
+
+                    {/* Icon */}
+                    <div
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-all duration-300 ease-out ${
+                        formData.paymentMethod === 'money' ? 'bg-white/20' : 'bg-amber-50'
+                      }`}
+                    >
+                      <svg
+                        className={`w-5 h-5 transition-all duration-300 ease-out ${
+                          formData.paymentMethod === 'money' ? 'text-white' : 'text-amber-600'
+                        }`}
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1'
+                        />
+                      </svg>
+                    </div>
+
+                    {/* Content */}
+                    <div>
+                      <h3
+                        className={`text-base font-semibold mb-1 transition-all duration-300 ease-out ${
+                          formData.paymentMethod === 'money' ? 'text-white' : 'text-slate-800'
+                        }`}
+                      >
+                        Dinheiro
+                      </h3>
+                      <p
+                        className={`text-xs transition-all duration-300 ease-out ${
+                          formData.paymentMethod === 'money' ? 'text-amber-100' : 'text-slate-600'
+                        }`}
+                      >
+                        Pagamento presencial
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -294,163 +340,193 @@ const AddConsignor = () => {
                 {/* Transferência Bancária Card */}
                 <div
                   onClick={() => handleInputChange('paymentMethod', 'bank_transfer')}
-                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                    formData.paymentMethod === 'bank_transfer'
-                      ? 'border-purple-500 bg-purple-50 shadow-md'
-                      : 'border-slate-200 bg-white hover:border-purple-300'
-                  }`}
+                  className='group cursor-pointer transition-all duration-300 ease-out hover:scale-102'
                 >
-                  <div className='flex items-center gap-3'>
+                  <div
+                    className={`relative overflow-hidden rounded-xl p-4 transition-all duration-300 ease-out ${
+                      formData.paymentMethod === 'bank_transfer'
+                        ? 'bg-gradient-to-br from-blue-500 to-indigo-600 shadow-card-payment-method-colored shadow-blue-500/25'
+                        : 'bg-white hover:border-blue-300 shadow-card-payment-method'
+                    }`}
+                  >
+                    {/* Selection Indicator */}
                     <div
-                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                      className={`absolute top-2 right-2 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-300 ease-out ${
                         formData.paymentMethod === 'bank_transfer'
-                          ? 'border-purple-500 bg-purple-500'
-                          : 'border-slate-300'
+                          ? 'border-white bg-white'
+                          : 'border-slate-300 group-hover:border-blue-400'
                       }`}
                     >
                       {formData.paymentMethod === 'bank_transfer' && (
-                        <div className='w-2 h-2 bg-white rounded-full'></div>
+                        <div className='w-2 h-2 bg-blue-600 rounded-full transition-all duration-300 ease-out'></div>
                       )}
                     </div>
-                    <div className='flex-1'>
-                      <div className='flex items-center gap-2 mb-1'>
-                        <div className='w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center'>
-                          <svg
-                            className='w-5 h-5 text-blue-600'
-                            fill='none'
-                            stroke='currentColor'
-                            viewBox='0 0 24 24'
-                          >
-                            <path
-                              strokeLinecap='round'
-                              strokeLinejoin='round'
-                              strokeWidth={2}
-                              d='M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z'
-                            />
-                          </svg>
-                        </div>
-                        <span className='font-semibold text-slate-800'>Transferência</span>
-                      </div>
-                      <p className='text-xs text-slate-600'>Transferência bancária</p>
+
+                    {/* Icon */}
+                    <div
+                      className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 transition-all duration-300 ease-out ${
+                        formData.paymentMethod === 'bank_transfer' ? 'bg-white/20' : 'bg-blue-50'
+                      }`}
+                    >
+                      <svg
+                        className={`w-5 h-5 transition-all duration-300 ease-out ${
+                          formData.paymentMethod === 'bank_transfer'
+                            ? 'text-white'
+                            : 'text-blue-600'
+                        }`}
+                        fill='none'
+                        stroke='currentColor'
+                        viewBox='0 0 24 24'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z'
+                        />
+                      </svg>
+                    </div>
+
+                    {/* Content */}
+                    <div>
+                      <h3
+                        className={`text-base font-semibold mb-1 transition-all duration-300 ease-out ${
+                          formData.paymentMethod === 'bank_transfer'
+                            ? 'text-white'
+                            : 'text-slate-800'
+                        }`}
+                      >
+                        Transferência
+                      </h3>
+                      <p
+                        className={`text-xs transition-all duration-300 ease-out ${
+                          formData.paymentMethod === 'bank_transfer'
+                            ? 'text-blue-100'
+                            : 'text-slate-600'
+                        }`}
+                      >
+                        Transferência bancária
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-
-            {/* Campos Condicionais */}
-            <div className='mt-6'>
-              {formData.paymentMethod === 'pix' && (
-                <div className='flex flex-col gap-2'>
-                  <label
-                    className='text-sm sm:text-base font-semibold text-slate-700'
-                    htmlFor='pixKey'
-                  >
-                    Chave PIX
-                  </label>
-                  <input
-                    id='pixKey'
-                    type='text'
-                    value={formData.pixKey}
-                    onChange={(e) => handleInputChange('pixKey', e.target.value)}
-                    placeholder='Digite a chave PIX'
-                    className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                    required={formData.paymentMethod === 'pix'}
-                  />
-                </div>
-              )}
-            </div>
           </div>
 
-          {/* Informações Bancárias - Apenas para Transferência Bancária */}
-          {formData.paymentMethod === 'bank_transfer' && (
-            <div className='space-y-4'>
-              <h3 className='text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2'>
-                Informações Bancárias
-              </h3>
+          {/* Campos Condicionais */}
+          <div className='mt-6 transition-all duration-500 ease-out'>
+            {formData.paymentMethod === 'pix' && (
+              <div className='flex flex-col gap-2 opacity-100 transform translate-y-0 transition-all duration-500 ease-out'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='pixKey'
+                >
+                  Chave PIX
+                </label>
+                <input
+                  id='pixKey'
+                  type='text'
+                  value={formData.pixKey}
+                  onChange={(e) => handleInputChange('pixKey', e.target.value)}
+                  placeholder='Digite a chave PIX'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  required={formData.paymentMethod === 'pix'}
+                />
+              </div>
+            )}
 
-              <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-                <div className='flex flex-col gap-2'>
-                  <label
-                    className='text-sm sm:text-base font-semibold text-slate-700'
-                    htmlFor='bank'
-                  >
-                    Banco
-                  </label>
-                  <select
-                    id='bank'
-                    value={formData.bankAccount.bank}
-                    onChange={(e) => handleBankAccountChange('bank', e.target.value)}
-                    className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                    required={formData.paymentMethod === 'bank_transfer'}
-                  >
-                    <option value=''>Selecione o banco</option>
-                    {banks.map((bank) => (
-                      <option key={bank} value={bank}>
-                        {bank}
-                      </option>
-                    ))}
-                  </select>
+            {formData.paymentMethod === 'bank_transfer' && (
+              <div className='space-y-4 opacity-100 transform translate-y-0 transition-all duration-500 ease-out'>
+                <h3 className='text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2'>
+                  Informações Bancárias
+                </h3>
+
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+                  <div className='flex flex-col gap-2 opacity-100 transform translate-x-0 transition-all duration-500 ease-out delay-100'>
+                    <label
+                      className='text-sm sm:text-base font-semibold text-slate-700'
+                      htmlFor='bank'
+                    >
+                      Banco
+                    </label>
+                    <select
+                      id='bank'
+                      value={formData.bankAccount.bank}
+                      onChange={(e) => handleBankAccountChange('bank', e.target.value)}
+                      className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                      required={formData.paymentMethod === 'bank_transfer'}
+                    >
+                      <option value=''>Selecione o banco</option>
+                      {banks.map((bank) => (
+                        <option key={bank} value={bank}>
+                          {bank}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className='flex flex-col gap-2 opacity-100 transform translate-x-0 transition-all duration-500 ease-out delay-200'>
+                    <label
+                      className='text-sm sm:text-base font-semibold text-slate-700'
+                      htmlFor='agency'
+                    >
+                      Agência
+                    </label>
+                    <input
+                      id='agency'
+                      type='text'
+                      value={formData.bankAccount.agency}
+                      onChange={(e) => handleBankAccountChange('agency', e.target.value)}
+                      placeholder='Digite a agência'
+                      className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                      required={formData.paymentMethod === 'bank_transfer'}
+                    />
+                  </div>
                 </div>
 
-                <div className='flex flex-col gap-2'>
-                  <label
-                    className='text-sm sm:text-base font-semibold text-slate-700'
-                    htmlFor='agency'
-                  >
-                    Agência
-                  </label>
-                  <input
-                    id='agency'
-                    type='text'
-                    value={formData.bankAccount.agency}
-                    onChange={(e) => handleBankAccountChange('agency', e.target.value)}
-                    placeholder='Digite a agência'
-                    className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                    required={formData.paymentMethod === 'bank_transfer'}
-                  />
+                <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+                  <div className='flex flex-col gap-2 opacity-100 transform translate-x-0 transition-all duration-500 ease-out delay-300'>
+                    <label
+                      className='text-sm sm:text-base font-semibold text-slate-700'
+                      htmlFor='account'
+                    >
+                      Conta
+                    </label>
+                    <input
+                      id='account'
+                      type='text'
+                      value={formData.bankAccount.account}
+                      onChange={(e) => handleBankAccountChange('account', e.target.value)}
+                      placeholder='Digite o número da conta'
+                      className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                      required={formData.paymentMethod === 'bank_transfer'}
+                    />
+                  </div>
+
+                  <div className='flex flex-col gap-2 opacity-100 transform translate-x-0 transition-all duration-500 ease-out delay-400'>
+                    <label
+                      className='text-sm sm:text-base font-semibold text-slate-700'
+                      htmlFor='accountType'
+                    >
+                      Tipo de Conta
+                    </label>
+                    <select
+                      id='accountType'
+                      value={formData.bankAccount.accountType}
+                      onChange={(e) =>
+                        handleBankAccountChange('accountType', e.target.value as any)
+                      }
+                      className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                    >
+                      <option value='checking'>Conta Corrente</option>
+                      <option value='savings'>Conta Poupança</option>
+                    </select>
+                  </div>
                 </div>
               </div>
-
-              <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-                <div className='flex flex-col gap-2'>
-                  <label
-                    className='text-sm sm:text-base font-semibold text-slate-700'
-                    htmlFor='account'
-                  >
-                    Conta
-                  </label>
-                  <input
-                    id='account'
-                    type='text'
-                    value={formData.bankAccount.account}
-                    onChange={(e) => handleBankAccountChange('account', e.target.value)}
-                    placeholder='Digite o número da conta'
-                    className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                    required={formData.paymentMethod === 'bank_transfer'}
-                  />
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                  <label
-                    className='text-sm sm:text-base font-semibold text-slate-700'
-                    htmlFor='accountType'
-                  >
-                    Tipo de Conta
-                  </label>
-                  <select
-                    id='accountType'
-                    value={formData.bankAccount.accountType}
-                    onChange={(e) => handleBankAccountChange('accountType', e.target.value as any)}
-                    className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                  >
-                    <option value='checking'>Conta Corrente</option>
-                    <option value='savings'>Conta Poupança</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Observações */}
           <div className='flex flex-col gap-2'>
