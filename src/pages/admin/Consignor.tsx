@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import ConsignorView from '../../components/admin/ConsignorView';
 import ConsignorForm from '../../components/admin/ConsignorForm';
 import ConsignorHistory from '../../components/admin/ConsignorHistory';
@@ -45,6 +46,7 @@ interface ConsignorFormData {
 }
 
 const Consignor = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [showView, setShowView] = useState(false);
@@ -374,7 +376,7 @@ const Consignor = () => {
             </div>
             <div className='flex flex-col sm:flex-row items-center gap-3'>
               <button
-                onClick={() => setShowForm(true)}
+                onClick={() => navigate('/admin/consignantes/adicionar')}
                 className='w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
               >
                 <Plus className='w-4 h-4' />

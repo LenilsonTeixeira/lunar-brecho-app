@@ -21,6 +21,7 @@ import AddCategory from './pages/admin/AddCategory';
 import Supplier from './pages/admin/Supplier';
 import AddSupplier from './pages/admin/AddSupplier';
 import Consignor from './pages/admin/Consignor';
+import AddConsignor from './pages/admin/AddConsignor';
 import Configuration from './pages/admin/Configuration';
 import Notification from './pages/admin/Notification';
 import NotificationList from './pages/admin/NotificationList';
@@ -64,6 +65,7 @@ const App = () => {
             <Route path='pedidos/adicionar' element={<AddOrder />} />
             <Route path='categorias/adicionar' element={<AddCategory />} />
             <Route path='fornecedores/adicionar' element={<AddSupplier />} />
+            <Route path='consignantes/adicionar' element={<AddConsignor />} />
             <Route path='contas-receber/adicionar' element={<AddAccountsReceivable />} />
             <Route path='contas-pagar/adicionar' element={<AddAccountsPayable />} />
             <Route path='fluxo-caixa/abrir' element={<OpenCashBox />} />
