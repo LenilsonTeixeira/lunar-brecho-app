@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Building2, User, Mail, Phone, MapPin, Globe, FileText } from 'lucide-react';
+import { ArrowLeft, Building2, User, Mail, Phone, MapPin, Globe, FileText } from 'lucide-react';
+import { useNavigate } from 'react-router';
 
 const AddSupplier = () => {
+  const navigate = useNavigate();
   const [supplierType, setSupplierType] = useState<'individual' | 'company'>('individual');
-  const [status, setStatus] = useState<'active' | 'inactive'>('active');
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -22,7 +23,6 @@ const AddSupplier = () => {
       contactPerson: formData.get('contactPerson') as string,
       website: formData.get('website') as string,
       notes: formData.get('notes') as string,
-      status: status,
     };
 
     console.log('Fornecedor a ser adicionado:', supplierData);
@@ -54,6 +54,15 @@ const AddSupplier = () => {
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
       <div className='w-full max-w-7xl mx-auto'>
         <div className='mb-8'>
+          <div className='flex items-center gap-4 mb-4'>
+            <button
+              onClick={() => navigate('/admin/fornecedores')}
+              className='flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all duration-300'
+            >
+              <ArrowLeft className='w-4 h-4' />
+              Voltar
+            </button>
+          </div>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
             Adicionar Fornecedor
           </h1>
@@ -66,11 +75,12 @@ const AddSupplier = () => {
           onSubmit={handleSubmit}
           className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'
         >
-          {/* Supplier Type Selection */}
-          <div>
-            <label className='text-sm sm:text-base font-semibold text-slate-700 mb-3 block'>
+          {/* Tipo de Fornecedor */}
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2'>
               Tipo de Fornecedor
-            </label>
+            </h3>
+
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
               <button
                 type='button'
@@ -105,106 +115,126 @@ const AddSupplier = () => {
             </div>
           </div>
 
-          {/* Basic Information */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            {/* Name */}
-            <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm sm:text-base font-semibold text-slate-700'
-                htmlFor='supplierName'
-              >
-                {supplierType === 'individual' ? 'Nome Completo' : 'Razão Social'}
-              </label>
-              <input
-                id='supplierName'
-                name='supplierName'
-                type='text'
-                placeholder={
-                  supplierType === 'individual' ? 'Digite o nome completo' : 'Digite a razão social'
-                }
-                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                required
-              />
-            </div>
+          {/* Informações Básicas */}
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2'>
+              Informações Básicas
+            </h3>
 
-            {/* Document */}
-            <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm sm:text-base font-semibold text-slate-700'
-                htmlFor='document'
-              >
-                {supplierType === 'individual' ? 'CPF' : 'CNPJ'}
-              </label>
-              <input
-                id='document'
-                name='document'
-                type='text'
-                placeholder={
-                  supplierType === 'individual' ? '000.000.000-00' : '00.000.000/0000-00'
-                }
-                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                required
-                onChange={(e) => {
-                  e.target.value = formatDocument(e.target.value, supplierType);
-                }}
-                maxLength={supplierType === 'individual' ? 14 : 18}
-              />
-            </div>
-          </div>
-
-          {/* Contact Information */}
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            {/* Email */}
-            <div className='flex flex-col gap-2'>
-              <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='email'>
-                E-mail
-              </label>
-              <div className='relative'>
-                <Mail className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400' />
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              {/* Name */}
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='supplierName'
+                >
+                  {supplierType === 'individual' ? 'Nome Completo' : 'Razão Social'}
+                </label>
                 <input
-                  id='email'
-                  name='email'
-                  type='email'
-                  placeholder='Digite o e-mail'
-                  className='w-full pl-10 pr-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  id='supplierName'
+                  name='supplierName'
+                  type='text'
+                  placeholder={
+                    supplierType === 'individual'
+                      ? 'Digite o nome completo'
+                      : 'Digite a razão social'
+                  }
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 />
               </div>
-            </div>
 
-            {/* Phone */}
-            <div className='flex flex-col gap-2'>
-              <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='phone'>
-                Telefone
-              </label>
-              <div className='relative'>
-                <Phone className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400' />
+              {/* Document */}
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='document'
+                >
+                  {supplierType === 'individual' ? 'CPF' : 'CNPJ'}
+                </label>
                 <input
-                  id='phone'
-                  name='phone'
+                  id='document'
+                  name='document'
                   type='text'
-                  placeholder='(00) 00000-0000'
-                  className='w-full pl-10 pr-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  placeholder={
+                    supplierType === 'individual' ? '000.000.000-00' : '00.000.000/0000-00'
+                  }
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                   onChange={(e) => {
-                    e.target.value = formatPhone(e.target.value);
+                    e.target.value = formatDocument(e.target.value, supplierType);
                   }}
-                  maxLength={15}
+                  maxLength={supplierType === 'individual' ? 14 : 18}
                 />
               </div>
             </div>
           </div>
 
-          {/* Address Information */}
+          {/* Informações de Contato */}
           <div className='space-y-4'>
-            <h3 className='text-lg font-semibold text-slate-800 flex items-center gap-2'>
+            <h3 className='text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2'>
+              Informações de Contato
+            </h3>
+
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              {/* Email */}
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='email'
+                >
+                  E-mail
+                </label>
+                <div className='relative'>
+                  <Mail className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400' />
+                  <input
+                    id='email'
+                    name='email'
+                    type='email'
+                    placeholder='Digite o e-mail'
+                    className='w-full pl-10 pr-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='phone'
+                >
+                  Telefone
+                </label>
+                <div className='relative'>
+                  <Phone className='absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400' />
+                  <input
+                    id='phone'
+                    name='phone'
+                    type='text'
+                    placeholder='(00) 00000-0000'
+                    className='w-full pl-10 pr-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                    required
+                    onChange={(e) => {
+                      e.target.value = formatPhone(e.target.value);
+                    }}
+                    maxLength={15}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Informações de Endereço */}
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2 flex items-center gap-2'>
               <MapPin className='w-5 h-5' />
               Endereço
             </h3>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
               {/* Address */}
-              <div className='md:col-span-2 flex flex-col gap-2'>
+              <div className='lg:col-span-2 flex flex-col gap-2'>
                 <label
                   className='text-sm sm:text-base font-semibold text-slate-700'
                   htmlFor='address'
@@ -305,14 +335,14 @@ const AddSupplier = () => {
             </div>
           </div>
 
-          {/* Additional Information */}
+          {/* Informações Adicionais */}
           <div className='space-y-4'>
-            <h3 className='text-lg font-semibold text-slate-800 flex items-center gap-2'>
+            <h3 className='text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2 flex items-center gap-2'>
               <FileText className='w-5 h-5' />
               Informações Adicionais
             </h3>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
               {/* Contact Person */}
               <div className='flex flex-col gap-2'>
                 <label
@@ -363,35 +393,6 @@ const AddSupplier = () => {
                 placeholder='Informações adicionais sobre o fornecedor...'
                 className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white resize-none'
               />
-            </div>
-
-            {/* Status */}
-            <div className='flex flex-col gap-2'>
-              <label className='text-sm sm:text-base font-semibold text-slate-700'>Status</label>
-              <div className='flex gap-4'>
-                <label className='flex items-center gap-2 cursor-pointer'>
-                  <input
-                    type='radio'
-                    name='status'
-                    value='active'
-                    checked={status === 'active'}
-                    onChange={(e) => setStatus(e.target.value as 'active' | 'inactive')}
-                    className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
-                  />
-                  <span className='text-sm text-slate-700'>Ativo</span>
-                </label>
-                <label className='flex items-center gap-2 cursor-pointer'>
-                  <input
-                    type='radio'
-                    name='status'
-                    value='inactive'
-                    checked={status === 'inactive'}
-                    onChange={(e) => setStatus(e.target.value as 'active' | 'inactive')}
-                    className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
-                  />
-                  <span className='text-sm text-slate-700'>Inativo</span>
-                </label>
-              </div>
             </div>
           </div>
 

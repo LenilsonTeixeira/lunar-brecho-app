@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, Building2 } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import SupplierForm from '../../components/admin/SupplierForm';
 import SupplierView from '../../components/admin/SupplierView';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
@@ -41,6 +42,7 @@ interface SupplierFormData {
 }
 
 const Supplier = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [showView, setShowView] = useState(false);
@@ -316,7 +318,7 @@ const Supplier = () => {
               </p>
             </div>
             <button
-              onClick={() => setShowForm(true)}
+              onClick={() => navigate('/admin/fornecedores/adicionar')}
               className='flex items-center justify-center gap-2 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
             >
               <Plus className='w-4 h-4' />
