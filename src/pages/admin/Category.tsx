@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, FolderOpen } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import CategoryForm from '../../components/admin/CategoryForm';
 import CategoryView from '../../components/admin/CategoryView';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
@@ -21,6 +22,7 @@ interface CategoryFormData {
 }
 
 const Category = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [showView, setShowView] = useState(false);
@@ -251,7 +253,7 @@ const Category = () => {
               </p>
             </div>
             <button
-              onClick={() => setShowForm(true)}
+              onClick={() => navigate('/admin/categorias/adicionar')}
               className='flex items-center justify-center gap-2 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
             >
               <Plus className='w-4 h-4' />

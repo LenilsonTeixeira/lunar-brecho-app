@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router';
 
 const AddCategory = () => {
+  const navigate = useNavigate();
   const [categoryImage, setCategoryImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string>('');
 
@@ -28,6 +30,8 @@ const AddCategory = () => {
     console.log('Categoria a ser adicionada:', {
       name: (event.target as HTMLFormElement).categoryName.value,
       image: categoryImage,
+      color: (event.target as HTMLFormElement).categoryColor.value,
+      description: (event.target as HTMLFormElement).categoryDescription.value,
     });
   };
 
@@ -35,6 +39,15 @@ const AddCategory = () => {
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
       <div className='w-full max-w-7xl mx-auto'>
         <div className='mb-8'>
+          <div className='flex items-center gap-4 mb-4'>
+            <button
+              onClick={() => navigate('/admin/categorias')}
+              className='flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all duration-300'
+            >
+              <ArrowLeft className='w-4 h-4' />
+              Voltar
+            </button>
+          </div>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
             Adicionar Categoria
           </h1>
@@ -127,44 +140,102 @@ const AddCategory = () => {
             </div>
           </div>
 
-          {/* Category Name */}
-          <div className='flex flex-col gap-2'>
-            <label
-              className='text-sm sm:text-base font-semibold text-slate-700'
-              htmlFor='categoryName'
-            >
-              Nome da Categoria
-            </label>
-            <input
-              id='categoryName'
-              name='categoryName'
-              type='text'
-              placeholder='Digite o nome da categoria'
-              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-              required
-            />
+          {/* Category Name and Color - Side by side on larger screens */}
+          <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+            <div className='flex flex-col gap-2'>
+              <label
+                className='text-sm sm:text-base font-semibold text-slate-700'
+                htmlFor='categoryName'
+              >
+                Nome da Categoria
+              </label>
+              <input
+                id='categoryName'
+                name='categoryName'
+                type='text'
+                placeholder='Digite o nome da categoria'
+                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                required
+              />
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              <label
+                className='text-sm sm:text-base font-semibold text-slate-700'
+                htmlFor='category-color'
+              >
+                Cor da Categoria
+              </label>
+              <div className='flex items-center gap-4'>
+                <input
+                  id='category-color'
+                  name='categoryColor'
+                  type='color'
+                  className='w-16 h-12 rounded-lg border border-slate-200 cursor-pointer'
+                  defaultValue='#8b5cf6'
+                />
+                <span className='text-xs text-slate-500'>
+                  Escolha uma cor para identificar a categoria
+                </span>
+              </div>
+            </div>
           </div>
 
-          {/* Category Color (Optional) */}
+          {/* Category Description */}
           <div className='flex flex-col gap-2'>
             <label
               className='text-sm sm:text-base font-semibold text-slate-700'
-              htmlFor='category-color'
+              htmlFor='category-description'
             >
-              Cor da Categoria
+              Descrição da Categoria
             </label>
-            <div className='flex items-center gap-4'>
-              <input
-                id='category-color'
-                name='categoryColor'
-                type='color'
-                className='w-16 h-12 rounded-lg border border-slate-200 cursor-pointer'
-                defaultValue='#8b5cf6'
-              />
-              <span className='text-xs text-slate-500'>
-                Escolha uma cor para identificar a categoria
-              </span>
-            </div>
+            <textarea
+              id='category-description'
+              name='categoryDescription'
+              rows={4}
+              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
+              placeholder='Digite uma descrição para a categoria'
+            ></textarea>
+          </div>
+
+          {/* Category Status */}
+          <div className='flex flex-col gap-2'>
+            <label
+              className='text-sm sm:text-base font-semibold text-slate-700'
+              htmlFor='category-status'
+            >
+              Status da Categoria
+            </label>
+            <select
+              id='category-status'
+              name='categoryStatus'
+              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+            >
+              <option value='active'>Ativa</option>
+              <option value='inactive'>Inativa</option>
+            </select>
+          </div>
+
+          {/* Category Priority */}
+          <div className='flex flex-col gap-2'>
+            <label
+              className='text-sm sm:text-base font-semibold text-slate-700'
+              htmlFor='category-priority'
+            >
+              Prioridade de Exibição
+            </label>
+            <input
+              id='category-priority'
+              name='categoryPriority'
+              type='number'
+              min='1'
+              max='100'
+              placeholder='1'
+              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+            />
+            <span className='text-xs text-slate-500'>
+              Número de 1 a 100 para definir a ordem de exibição (1 = maior prioridade)
+            </span>
           </div>
 
           {/* Submit Button */}
