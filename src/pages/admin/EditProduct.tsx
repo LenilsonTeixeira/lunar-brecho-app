@@ -19,7 +19,7 @@ interface ProductItem {
   totalQuantity: number;
   status: 'ativo' | 'inativo';
   sizes: ProductSize[];
-  mainImage: string;
+  images: string[];
   description?: string;
   observations?: string;
   createdAt?: string;
@@ -46,7 +46,14 @@ const EditProduct = () => {
       { id: 2, size: 'M', quantity: 5 },
       { id: 3, size: 'G', quantity: 4 },
     ],
-    mainImage: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
+      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
+      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
+      '',
+      '',
+      '',
+    ],
     description:
       'Vestido floral vintage com tecido leve e confortável. Ideal para eventos casuais e festas.',
     observations: 'Produto em excelente estado, apenas uma pequena marca na parte inferior.',
@@ -64,7 +71,7 @@ const EditProduct = () => {
   const [productOfferPrice, setProductOfferPrice] = useState(mockProduct.offerPrice);
   const [productDescription, setProductDescription] = useState(mockProduct.description || '');
   const [productObservations, setProductObservations] = useState(mockProduct.observations || '');
-  const [productImage, setProductImage] = useState(mockProduct.mainImage);
+  const [productImages, setProductImages] = useState<string[]>(mockProduct.images);
   const [sizes, setSizes] = useState<ProductSize[]>(mockProduct.sizes);
 
   useEffect(() => {
@@ -95,19 +102,23 @@ const EditProduct = () => {
     setSizes(sizes.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
   };
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setProductImage(e.target?.result as string);
+        const newImages = [...productImages];
+        newImages[index] = e.target?.result as string;
+        setProductImages(newImages);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const removeImage = () => {
-    setProductImage('');
+  const removeImage = (index: number) => {
+    const newImages = [...productImages];
+    newImages[index] = '';
+    setProductImages(newImages);
   };
 
   const calculateTotalQuantity = () => {
@@ -148,7 +159,7 @@ const EditProduct = () => {
       offerPrice: productOfferPrice,
       description: productDescription,
       observations: productObservations,
-      mainImage: productImage,
+      images: productImages,
       sizes,
       totalQuantity: calculateTotalQuantity(),
     };
@@ -283,46 +294,139 @@ const EditProduct = () => {
             </div>
           </div>
 
-          {/* Imagem do Produto */}
+          {/* Imagens do Produto */}
           <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
             <div className='flex items-center gap-3 mb-4'>
               <Image className='w-5 h-5 text-purple-600' />
-              <h3 className='text-lg font-semibold text-slate-800'>Imagem do Produto</h3>
+              <h3 className='text-lg font-semibold text-slate-800'>Imagens do Produto</h3>
             </div>
 
-            <div className='space-y-4'>
-              {productImage && (
-                <div className='flex justify-center'>
-                  <img
-                    src={productImage}
-                    alt='Preview'
-                    className='w-48 h-48 rounded-lg object-cover shadow-lg'
-                  />
-                </div>
-              )}
-
-              <div className='flex items-center gap-4'>
-                <label className='flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg cursor-pointer hover:bg-purple-700 transition-colors'>
-                  <Image className='w-4 h-4' />
-                  Escolher Imagem
+            <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4'>
+              {/* Imagem Principal */}
+              <div className='relative group'>
+                <label htmlFor='main-image' className='cursor-pointer block'>
                   <input
-                    type='file'
                     accept='image/*'
-                    onChange={handleImageChange}
+                    type='file'
+                    id='main-image'
+                    onChange={(e) => handleImageChange(0, e)}
                     className='hidden'
                   />
+                  {productImages[0] ? (
+                    <div className='aspect-square rounded-lg overflow-hidden border-2 border-purple-400 shadow-lg group-hover:shadow-xl transition-all duration-300'>
+                      <img
+                        src={productImages[0]}
+                        alt='Imagem Principal'
+                        className='w-full h-full object-cover'
+                      />
+                      <div className='absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center'>
+                        <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                          <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center'>
+                            <Image className='w-4 h-4 text-purple-600' />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className='aspect-square border-2 border-dashed border-purple-400 rounded-lg flex items-center justify-center bg-purple-50 group-hover:border-purple-500 group-hover:bg-purple-100 transition-all duration-300'>
+                      <div className='text-center'>
+                        <div className='w-8 h-8 mx-auto mb-2 bg-purple-200 rounded-full flex items-center justify-center group-hover:bg-purple-300 transition-colors'>
+                          <svg
+                            className='w-4 h-4 text-purple-600 group-hover:text-purple-700'
+                            fill='none'
+                            stroke='currentColor'
+                            viewBox='0 0 24 24'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              strokeWidth={2}
+                              d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                            />
+                          </svg>
+                        </div>
+                        <p className='text-xs text-purple-600 group-hover:text-purple-700 font-medium'>
+                          Imagem Principal
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </label>
-
-                {productImage && (
+                {productImages[0] && (
                   <button
                     type='button'
-                    onClick={removeImage}
-                    className='px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors'
+                    onClick={() => removeImage(0)}
+                    className='absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg'
                   >
-                    Remover Imagem
+                    <X className='w-3 h-3' />
                   </button>
                 )}
               </div>
+
+              {/* Imagens Adicionais */}
+              {Array(5)
+                .fill('')
+                .map((_, index) => (
+                  <div key={index + 1} className='relative group'>
+                    <label htmlFor={`image${index + 1}`} className='cursor-pointer block'>
+                      <input
+                        accept='image/*'
+                        type='file'
+                        id={`image${index + 1}`}
+                        onChange={(e) => handleImageChange(index + 1, e)}
+                        className='hidden'
+                      />
+                      {productImages[index + 1] ? (
+                        <div className='aspect-square rounded-lg overflow-hidden border-2 border-slate-300 shadow-lg group-hover:shadow-xl transition-all duration-300'>
+                          <img
+                            src={productImages[index + 1]}
+                            alt={`Imagem ${index + 2}`}
+                            className='w-full h-full object-cover'
+                          />
+                          <div className='absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center'>
+                            <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                              <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center'>
+                                <Image className='w-4 h-4 text-purple-600' />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className='aspect-square border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center bg-slate-50 group-hover:border-purple-400 group-hover:bg-purple-50 transition-all duration-300'>
+                          <div className='text-center'>
+                            <div className='w-8 h-8 mx-auto mb-2 bg-slate-200 rounded-full flex items-center justify-center group-hover:bg-purple-200 transition-colors'>
+                              <svg
+                                className='w-4 h-4 text-slate-500 group-hover:text-purple-600'
+                                fill='none'
+                                stroke='currentColor'
+                                viewBox='0 0 24 24'
+                              >
+                                <path
+                                  strokeLinecap='round'
+                                  strokeLinejoin='round'
+                                  strokeWidth={2}
+                                  d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                                />
+                              </svg>
+                            </div>
+                            <p className='text-xs text-slate-500 group-hover:text-purple-600'>
+                              Adicionar
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </label>
+                    {productImages[index + 1] && (
+                      <button
+                        type='button'
+                        onClick={() => removeImage(index + 1)}
+                        className='absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg'
+                      >
+                        <X className='w-3 h-3' />
+                      </button>
+                    )}
+                  </div>
+                ))}
             </div>
           </div>
 

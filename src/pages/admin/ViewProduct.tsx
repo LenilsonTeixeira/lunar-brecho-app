@@ -16,7 +16,7 @@ interface ProductItem {
     size: string;
     quantity: number;
   }>;
-  mainImage: string;
+  images: string[];
   description?: string;
   observations?: string;
   createdAt?: string;
@@ -43,7 +43,14 @@ const ViewProduct = () => {
       { size: 'M', quantity: 5 },
       { size: 'G', quantity: 4 },
     ],
-    mainImage: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
+    images: [
+      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
+      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
+      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
+      '',
+      '',
+      '',
+    ],
     description:
       'Vestido floral vintage com tecido leve e confortável. Ideal para eventos casuais e festas.',
     observations: 'Produto em excelente estado, apenas uma pequena marca na parte inferior.',
@@ -79,6 +86,9 @@ const ViewProduct = () => {
         return 'bg-slate-300 text-slate-950';
     }
   };
+
+  // Filtrar apenas imagens que existem
+  const existingImages = mockProduct.images.filter((img) => img);
 
   return (
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
@@ -160,19 +170,47 @@ const ViewProduct = () => {
             </div>
           </div>
 
-          {/* Imagem do Produto */}
+          {/* Imagens do Produto */}
           <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
             <div className='flex items-center gap-3 mb-4'>
               <Image className='w-5 h-5 text-purple-600' />
-              <h3 className='text-lg font-semibold text-slate-800'>Imagem do Produto</h3>
+              <h3 className='text-lg font-semibold text-slate-800'>Imagens do Produto</h3>
             </div>
-            <div className='flex justify-center'>
-              <img
-                src={mockProduct.mainImage}
-                alt={mockProduct.name}
-                className='w-48 h-48 rounded-lg object-cover shadow-lg'
-              />
-            </div>
+
+            {existingImages.length > 0 ? (
+              <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4'>
+                {existingImages.map((image, index) => (
+                  <div key={index} className='relative group'>
+                    <div className='aspect-square rounded-lg overflow-hidden border-2 border-slate-300 shadow-lg hover:shadow-xl transition-all duration-300'>
+                      <img
+                        src={image}
+                        alt={`Imagem ${index + 1}`}
+                        className='w-full h-full object-cover'
+                      />
+                      <div className='absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center'>
+                        <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                          <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg'>
+                            <Image className='w-4 h-4 text-purple-600' />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {index === 0 && (
+                      <div className='absolute -top-2 -left-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg'>
+                        Principal
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className='text-center py-8'>
+                <div className='w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-4'>
+                  <Image className='w-8 h-8 text-slate-400' />
+                </div>
+                <p className='text-slate-500'>Nenhuma imagem disponível</p>
+              </div>
+            )}
           </div>
 
           {/* Preços */}
