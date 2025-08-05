@@ -336,11 +336,7 @@ const AddCashMovement = () => {
           <div className='pt-4'>
             <button
               type='submit'
-              className={`w-full py-2 sm:py-3 px-4 sm:px-6 text-white text-sm sm:text-base font-semibold rounded-lg transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl ${
-                formData.type === 'entry'
-                  ? 'bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-700 hover:to-emerald-600'
-                  : 'bg-gradient-to-r from-red-600 to-orange-500 hover:from-red-700 hover:to-orange-600'
-              }`}
+              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
             >
               <div className='flex items-center justify-center gap-2'>
                 {formData.type === 'entry' ? (
