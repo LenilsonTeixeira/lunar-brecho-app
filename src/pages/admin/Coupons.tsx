@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Filter, Download, RefreshCw } from 'lucide-react';
+import { Plus, Search, Filter, Download, RefreshCw, Edit, Trash2, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import {
   Coupon,
   CouponStatus,
@@ -10,10 +11,10 @@ import {
 } from '../../types/coupon';
 import { useCoupons } from '../../hooks/useCoupons';
 import CouponForm from '../../components/admin/CouponForm';
-import CouponTableRow from '../../components/admin/CouponTableRow';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 
 const Coupons = () => {
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<Coupon | undefined>();
   const [deletingCoupon, setDeletingCoupon] = useState<Coupon | undefined>();
@@ -31,7 +32,6 @@ const Coupons = () => {
     createCoupon,
     updateCoupon,
     deleteCoupon,
-    toggleCouponStatus,
     refreshCoupons,
   } = useCoupons(filters);
 
@@ -111,17 +111,12 @@ const Coupons = () => {
     }
   };
 
-  const handleToggleStatus = async (coupon: Coupon) => {
-    try {
-      await toggleCouponStatus(coupon.id, !coupon.isActive);
-    } catch (error) {
-      console.error('Erro ao alterar status do cupom:', error);
-    }
+  const handleViewCoupon = (coupon: Coupon) => {
+    navigate(`/admin/cupons/visualizar/${coupon.id}`);
   };
 
-  const handleEdit = (coupon: Coupon) => {
-    setEditingCoupon(coupon);
-    setShowForm(true);
+  const handleEditCoupon = (coupon: Coupon) => {
+    navigate(`/admin/cupons/editar/${coupon.id}`);
   };
 
   const handleSort = (field: keyof Coupon) => {
@@ -146,7 +141,7 @@ const Coupons = () => {
   };
 
   return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50'>
+    <div className='py-6 flex flex-col bg-slate-50'>
       <div className='w-full max-w-7xl mx-auto'>
         {/* Header */}
         <div className='mb-8'>
@@ -160,8 +155,8 @@ const Coupons = () => {
               </p>
             </div>
             <button
-              onClick={() => setShowForm(true)}
-              className='flex items-center  justify-center gap-2 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
+              onClick={() => navigate('/admin/cupons/adicionar')}
+              className='flex items-center justify-center gap-2 sm:px-4 py-3 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg'
             >
               <Plus className='w-4 h-4' />
               Novo Cupom
@@ -387,13 +382,110 @@ const Coupons = () => {
                   </tr>
                 ) : filteredCoupons.length > 0 ? (
                   filteredCoupons.map((coupon) => (
-                    <CouponTableRow
+                    <tr
                       key={coupon.id}
-                      coupon={coupon}
-                      onEdit={handleEdit}
-                      onDelete={handleDeleteCoupon}
-                      onToggleStatus={handleToggleStatus}
-                    />
+                      className='border-b border-slate-200 hover:bg-slate-50 transition-colors duration-200'
+                    >
+                      {/* Código */}
+                      <td className='py-4 px-4'>
+                        <div className='flex items-center'>
+                          <span className='font-mono font-semibold text-slate-800 bg-slate-100 px-2 py-1 rounded text-sm'>
+                            {coupon.code}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* Tipo */}
+                      <td className='py-4 px-4'>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            coupon.type === 'PERCENTAGE'
+                              ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                              : 'bg-purple-100 text-purple-800 border border-purple-200'
+                          }`}
+                        >
+                          {coupon.type === 'PERCENTAGE' ? '%' : 'R$'}
+                        </span>
+                      </td>
+
+                      {/* Valor */}
+                      <td className='py-4 px-4'>
+                        <span className='font-semibold text-slate-800'>
+                          {coupon.type === 'PERCENTAGE'
+                            ? `${coupon.value}%`
+                            : `R$ ${coupon.value.toFixed(2).replace('.', ',')}`}
+                        </span>
+                        {coupon.minOrderValue && (
+                          <div className='text-xs text-slate-500 mt-1'>
+                            Mín: R$ {coupon.minOrderValue.toFixed(2).replace('.', ',')}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Expiração */}
+                      <td className='py-4 px-4'>
+                        <div className='text-sm'>
+                          <div className='font-medium text-slate-800'>
+                            {new Date(coupon.expirationDate).toLocaleDateString('pt-BR')}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Usos */}
+                      <td className='py-4 px-4'>
+                        <div className='flex items-center gap-2'>
+                          <span className='text-sm font-medium text-slate-800'>
+                            {coupon.currentUsage}/{coupon.maxUsage}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* Status */}
+                      <td className='py-4 px-4'>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            !coupon.isActive
+                              ? 'bg-red-100 text-red-800 border border-red-200'
+                              : new Date() > new Date(coupon.expirationDate)
+                                ? 'bg-orange-100 text-orange-800 border border-orange-200'
+                                : 'bg-green-100 text-green-800 border border-green-200'
+                          }`}
+                        >
+                          {!coupon.isActive
+                            ? 'Inativo'
+                            : new Date() > new Date(coupon.expirationDate)
+                              ? 'Expirado'
+                              : 'Ativo'}
+                        </span>
+                      </td>
+
+                      {/* Ações */}
+                      <td className='py-4 px-4'>
+                        <div className='flex items-center gap-2'>
+                          <button
+                            onClick={() => handleViewCoupon(coupon)}
+                            className='p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
+                            title='Visualizar'
+                          >
+                            <Eye className='w-4 h-4' />
+                          </button>
+                          <button
+                            onClick={() => handleEditCoupon(coupon)}
+                            className='p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
+                            title='Editar'
+                          >
+                            <Edit className='w-4 h-4' />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCoupon(coupon)}
+                            className='p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
+                            title='Excluir'
+                          >
+                            <Trash2 className='w-4 h-4' />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   ))
                 ) : (
                   <tr>

@@ -38,6 +38,9 @@ import Configuration from './pages/admin/Configuration';
 import Notification from './pages/admin/Notification';
 import NotificationList from './pages/admin/NotificationList';
 import Coupons from './pages/admin/Coupons';
+import AddCoupon from './pages/admin/AddCoupon';
+import ViewCoupon from './pages/admin/ViewCoupon';
+import EditCoupon from './pages/admin/EditCoupon';
 import AccountsReceivable from './pages/admin/AccountsReceivable';
 import AddAccountsReceivable from './pages/admin/AddAccountsReceivable';
 import ViewAccountsReceivable from './pages/admin/ViewAccountsReceivable';
@@ -123,6 +126,9 @@ const App = () => {
             <Route path='contas-pagar' element={<AccountsPayable />} />
             <Route path='fluxo-caixa' element={<CashFlow />} />
             <Route path='cupons' element={<Coupons />} />
+            <Route path='cupons/adicionar' element={<AddCoupon />} />
+            <Route path='cupons/visualizar/:couponId' element={<ViewCoupon />} />
+            <Route path='cupons/editar/:couponId' element={<EditCoupon />} />
             <Route path='usuarios/adicionar' element={<AddUser />} />
             <Route path='usuarios/visualizar/:userId' element={<ViewUser />} />
             <Route path='usuarios/editar/:userId' element={<EditUser />} />
