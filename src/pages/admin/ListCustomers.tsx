@@ -234,12 +234,14 @@ const ListCustomers = () => {
                     <td className='px-6 py-4'>
                       <div className='flex items-center gap-1 sm:gap-2'>
                         <button
+                          onClick={() => navigate(`/admin/clientes/visualizar/${user.id}`)}
                           className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
                           title='Visualizar'
                         >
                           <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
                         </button>
                         <button
+                          onClick={() => navigate(`/admin/clientes/editar/${user.id}`)}
                           className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
                           title='Editar'
                         >

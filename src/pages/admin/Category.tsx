@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, FolderOpen } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import CategoryForm from '../../components/admin/CategoryForm';
-import CategoryView from '../../components/admin/CategoryView';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 
 interface CategoryItem {
@@ -25,10 +24,8 @@ const Category = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [showView, setShowView] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<CategoryItem | undefined>();
-  const [viewingCategory, setViewingCategory] = useState<CategoryItem | undefined>();
-  const [deletingCategory, setDeletingCategory] = useState<CategoryItem | undefined>();
+  const [editingCategory, setEditingCategory] = useState<CategoryItem | undefined>(undefined);
+  const [deletingCategory, setDeletingCategory] = useState<CategoryItem | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<CategoryItem[]>([
     {
@@ -192,6 +189,14 @@ const Category = () => {
     }
   };
 
+  const handleViewCategory = (category: CategoryItem) => {
+    navigate(`/admin/categorias/visualizar/${category.id}`);
+  };
+
+  const handleEditCategory = (category: CategoryItem) => {
+    navigate(`/admin/categorias/editar/${category.id}`);
+  };
+
   const handleDeleteCategory = (category: CategoryItem) => {
     setDeletingCategory(category);
   };
@@ -210,29 +215,6 @@ const Category = () => {
       console.error('Erro ao excluir categoria:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleEdit = (category: CategoryItem) => {
-    setEditingCategory(category);
-    setShowForm(true);
-  };
-
-  const handleView = (category: CategoryItem) => {
-    setViewingCategory(category);
-    setShowView(true);
-  };
-
-  const handleCloseView = () => {
-    setShowView(false);
-    setViewingCategory(undefined);
-  };
-
-  const handleEditFromView = () => {
-    if (viewingCategory) {
-      setEditingCategory(viewingCategory);
-      setShowView(false);
-      setShowForm(true);
     }
   };
 
@@ -356,14 +338,14 @@ const Category = () => {
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-1 sm:gap-2 justify-center'>
                           <button
-                            onClick={() => handleView(category)}
+                            onClick={() => handleViewCategory(category)}
                             className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
                             title='Visualizar'
                           >
                             <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
                           </button>
                           <button
-                            onClick={() => handleEdit(category)}
+                            onClick={() => handleEditCategory(category)}
                             className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
                             title='Editar'
                           >
@@ -424,15 +406,6 @@ const Category = () => {
             setEditingCategory(undefined);
           }}
           isLoading={loading}
-        />
-      )}
-
-      {/* View Modal */}
-      {showView && viewingCategory && (
-        <CategoryView
-          category={viewingCategory}
-          onClose={handleCloseView}
-          onEdit={handleEditFromView}
         />
       )}
 

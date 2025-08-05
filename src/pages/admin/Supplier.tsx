@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import SupplierForm from '../../components/admin/SupplierForm';
-import SupplierView from '../../components/admin/SupplierView';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 
 interface SupplierItem {
@@ -19,7 +18,6 @@ interface SupplierItem {
   contactPerson?: string;
   website?: string;
   notes?: string;
-  status: 'active' | 'inactive';
   createdAt?: string;
   updatedAt?: string;
   productCount?: number;
@@ -38,16 +36,13 @@ interface SupplierFormData {
   contactPerson: string;
   website: string;
   notes: string;
-  status: 'active' | 'inactive';
 }
 
 const Supplier = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [showView, setShowView] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<SupplierItem | undefined>();
-  const [viewingSupplier, setViewingSupplier] = useState<SupplierItem | undefined>();
   const [deletingSupplier, setDeletingSupplier] = useState<SupplierItem | undefined>();
   const [loading, setLoading] = useState(false);
   const [suppliers, setSuppliers] = useState<SupplierItem[]>([
@@ -65,7 +60,6 @@ const Supplier = () => {
       contactPerson: 'Maria Silva',
       website: '',
       notes: 'Fornecedora de roupas usadas em bom estado',
-      status: 'active',
       createdAt: '2024-01-15T10:30:00Z',
       updatedAt: '2024-01-20T14:45:00Z',
       productCount: 45,
@@ -84,7 +78,6 @@ const Supplier = () => {
       contactPerson: 'João Santos',
       website: 'www.brechodojao.com.br',
       notes: 'Brechó parceiro com produtos de qualidade',
-      status: 'active',
       createdAt: '2024-01-10T09:15:00Z',
       updatedAt: '2024-01-18T16:20:00Z',
       productCount: 78,
@@ -103,7 +96,6 @@ const Supplier = () => {
       contactPerson: 'Ana Costa',
       website: '',
       notes: 'Fornecedora de acessórios e bolsas',
-      status: 'active',
       createdAt: '2024-01-12T11:00:00Z',
       updatedAt: '2024-01-19T13:30:00Z',
       productCount: 32,
@@ -122,7 +114,6 @@ const Supplier = () => {
       contactPerson: 'Carlos Oliveira',
       website: 'www.modasustentavel.com.br',
       notes: 'Empresa especializada em roupas sustentáveis',
-      status: 'active',
       createdAt: '2024-01-08T08:45:00Z',
       updatedAt: '2024-01-17T15:10:00Z',
       productCount: 56,
@@ -141,7 +132,6 @@ const Supplier = () => {
       contactPerson: 'Pedro Mendes',
       website: '',
       notes: 'Fornecedor de calçados usados',
-      status: 'inactive',
       createdAt: '2024-01-05T12:20:00Z',
       updatedAt: '2024-01-16T10:55:00Z',
       productCount: 18,
@@ -160,7 +150,6 @@ const Supplier = () => {
       contactPerson: 'Fernanda Lima',
       website: 'www.fashionoutlet.com.br',
       notes: 'Outlet de roupas com preços competitivos',
-      status: 'active',
       createdAt: '2024-01-03T14:30:00Z',
       updatedAt: '2024-01-15T11:25:00Z',
       productCount: 89,
@@ -179,7 +168,6 @@ const Supplier = () => {
       contactPerson: 'Lucia Ferreira',
       website: '',
       notes: 'Fornecedora de vestidos de festa',
-      status: 'active',
       createdAt: '2024-01-01T16:00:00Z',
       updatedAt: '2024-01-14T09:40:00Z',
       productCount: 23,
@@ -198,7 +186,6 @@ const Supplier = () => {
       contactPerson: 'Roberto Silva',
       website: 'www.vintagecollection.com.br',
       notes: 'Especializada em peças vintage',
-      status: 'active',
       createdAt: '2024-01-07T13:45:00Z',
       updatedAt: '2024-01-13T17:15:00Z',
       productCount: 67,
@@ -254,6 +241,14 @@ const Supplier = () => {
     }
   };
 
+  const handleViewSupplier = (supplier: SupplierItem) => {
+    navigate(`/admin/fornecedores/visualizar/${supplier.id}`);
+  };
+
+  const handleEditSupplier = (supplier: SupplierItem) => {
+    navigate(`/admin/fornecedores/editar/${supplier.id}`);
+  };
+
   const handleDeleteSupplier = (supplier: SupplierItem) => {
     setDeletingSupplier(supplier);
   };
@@ -272,29 +267,6 @@ const Supplier = () => {
       console.error('Erro ao excluir fornecedor:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleEdit = (supplier: SupplierItem) => {
-    setEditingSupplier(supplier);
-    setShowForm(true);
-  };
-
-  const handleView = (supplier: SupplierItem) => {
-    setViewingSupplier(supplier);
-    setShowView(true);
-  };
-
-  const handleCloseView = () => {
-    setShowView(false);
-    setViewingSupplier(undefined);
-  };
-
-  const handleEditFromView = () => {
-    if (viewingSupplier) {
-      setEditingSupplier(viewingSupplier);
-      setShowView(false);
-      setShowForm(true);
     }
   };
 
@@ -417,14 +389,14 @@ const Supplier = () => {
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-1 sm:gap-2 justify-center'>
                           <button
-                            onClick={() => handleView(supplier)}
+                            onClick={() => handleViewSupplier(supplier)}
                             className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
                             title='Visualizar'
                           >
                             <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
                           </button>
                           <button
-                            onClick={() => handleEdit(supplier)}
+                            onClick={() => handleEditSupplier(supplier)}
                             className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
                             title='Editar'
                           >
@@ -485,15 +457,6 @@ const Supplier = () => {
             setEditingSupplier(undefined);
           }}
           isLoading={loading}
-        />
-      )}
-
-      {/* View Modal */}
-      {showView && viewingSupplier && (
-        <SupplierView
-          supplier={viewingSupplier}
-          onClose={handleCloseView}
-          onEdit={handleEditFromView}
         />
       )}
 

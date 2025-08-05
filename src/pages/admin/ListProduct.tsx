@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import ProductTypeBadge from '../../components/product/ProductTypeBadge';
-import ProductView from '../../components/admin/ProductView';
 
 interface ProductItem {
   id: number;
@@ -30,7 +29,6 @@ const ListProduct = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedType, setSelectedType] = useState('');
-  const [viewingProduct, setViewingProduct] = useState<ProductItem | undefined>(undefined);
 
   // Mock data - substitua por dados reais da sua API
   const products: ProductItem[] = [
@@ -469,17 +467,16 @@ const ListProduct = () => {
   };
 
   const handleViewProduct = (product: ProductItem) => {
-    setViewingProduct(product);
+    navigate(`/admin/produtos/visualizar/${product.id}`);
   };
 
-  const handleCloseView = () => {
-    setViewingProduct(undefined);
+  const handleEditProduct = (product: ProductItem) => {
+    navigate(`/admin/produtos/editar/${product.id}`);
   };
 
-  const handleEditFromView = () => {
-    // Implementar navegação para edição do produto
-    console.log('Editar produto:', viewingProduct);
-    setViewingProduct(undefined);
+  const handleDeleteProduct = (product: ProductItem) => {
+    // Implementar lógica de exclusão
+    console.log('Excluir produto:', product);
   };
 
   return (
@@ -676,12 +673,14 @@ const ListProduct = () => {
                           <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
                         </button>
                         <button
+                          onClick={() => handleEditProduct(product)}
                           className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
                           title='Editar'
                         >
                           <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
                         </button>
                         <button
+                          onClick={() => handleDeleteProduct(product)}
                           className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
                           title='Excluir'
                         >
@@ -731,15 +730,6 @@ const ListProduct = () => {
           </div>
         )}
       </div>
-
-      {/* View Modal */}
-      {viewingProduct && (
-        <ProductView
-          product={viewingProduct}
-          onClose={handleCloseView}
-          onEdit={handleEditFromView}
-        />
-      )}
     </div>
   );
 };
