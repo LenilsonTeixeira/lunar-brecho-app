@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Tag, Palette, FileText, Image, ArrowLeft } from 'lucide-react';
+import { Tag, Palette, FileText, Image, ArrowLeft, X } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 
 interface Category {
@@ -219,55 +219,73 @@ const EditCategory = () => {
                   />
                 </div>
               </div>
-
-              <div className='flex items-center gap-4'>
-                <span className='text-sm text-slate-600'>Preview:</span>
-                <div
-                  className='w-12 h-12 rounded-lg border-2 border-slate-200'
-                  style={{ backgroundColor: categoryColor }}
-                ></div>
-                <span className='text-sm font-mono text-slate-800'>{categoryColor}</span>
-              </div>
             </div>
           </div>
 
           {/* Imagem da Categoria */}
-          <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
-            <div className='flex items-center gap-3 mb-4'>
-              <Image className='w-5 h-5 text-purple-600' />
-              <h3 className='text-lg font-semibold text-slate-800'>Imagem da Categoria</h3>
-            </div>
+          <div>
+            <label className='text-sm sm:text-base font-semibold text-slate-700 mb-3 block'>
+              Imagem da Categoria
+            </label>
 
-            <div className='space-y-4'>
-              {categoryImage && (
-                <div className='flex justify-center'>
-                  <img
-                    src={categoryImage}
-                    alt='Preview'
-                    className='w-48 h-48 rounded-lg object-cover shadow-lg'
-                  />
-                </div>
-              )}
-
-              <div className='flex items-center gap-4'>
-                <label className='flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg cursor-pointer hover:bg-purple-700 transition-colors'>
-                  <Image className='w-4 h-4' />
-                  Escolher Imagem
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+              {/* Imagem Principal */}
+              <div className='relative group'>
+                <label htmlFor='category-image' className='cursor-pointer block'>
                   <input
-                    type='file'
                     accept='image/*'
+                    type='file'
+                    id='category-image'
                     onChange={handleImageChange}
                     className='hidden'
                   />
+                  {categoryImage ? (
+                    <div className='aspect-square rounded-lg overflow-hidden border-2 border-purple-400 shadow-lg group-hover:shadow-xl transition-all duration-300'>
+                      <img
+                        src={categoryImage}
+                        alt='Imagem da Categoria'
+                        className='w-full h-full object-cover'
+                      />
+                      <div className='absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center'>
+                        <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                          <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center'>
+                            <Image className='w-4 h-4 text-purple-600' />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className='aspect-square border-2 border-dashed border-purple-400 rounded-lg flex items-center justify-center bg-purple-50 group-hover:border-purple-500 group-hover:bg-purple-100 transition-all duration-300'>
+                      <div className='text-center'>
+                        <div className='w-8 h-8 mx-auto mb-2 bg-purple-200 rounded-full flex items-center justify-center group-hover:bg-purple-300 transition-colors'>
+                          <svg
+                            className='w-4 h-4 text-purple-600 group-hover:text-purple-700'
+                            fill='none'
+                            stroke='currentColor'
+                            viewBox='0 0 24 24'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              strokeWidth={2}
+                              d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                            />
+                          </svg>
+                        </div>
+                        <p className='text-xs text-purple-600 group-hover:text-purple-700 font-medium'>
+                          Imagem da Categoria
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </label>
-
                 {categoryImage && (
                   <button
                     type='button'
                     onClick={removeImage}
-                    className='px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors'
+                    className='absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg'
                   >
-                    Remover Imagem
+                    <X className='w-3 h-3' />
                   </button>
                 )}
               </div>

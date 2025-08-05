@@ -1,27 +1,24 @@
 import { useState } from 'react';
-import { X, ArrowLeft } from 'lucide-react';
+import { X, ArrowLeft, Image } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 const AddCategory = () => {
   const navigate = useNavigate();
-  const [categoryImage, setCategoryImage] = useState<File | null>(null);
-  const [previewImage, setPreviewImage] = useState<string>('');
+  const [categoryImage, setCategoryImage] = useState<string>('');
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setCategoryImage(file);
       const reader = new FileReader();
       reader.onload = (e) => {
-        setPreviewImage(e.target?.result as string);
+        setCategoryImage(e.target?.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
   const removeImage = () => {
-    setCategoryImage(null);
-    setPreviewImage('');
+    setCategoryImage('');
   };
 
   const handleSubmit = (event: React.FormEvent) => {
@@ -60,83 +57,73 @@ const AddCategory = () => {
           onSubmit={handleSubmit}
           className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'
         >
-          {/* Category Image */}
+          {/* Imagem da Categoria */}
           <div>
             <label className='text-sm sm:text-base font-semibold text-slate-700 mb-3 block'>
               Imagem da Categoria
             </label>
 
-            <div className='flex justify-center'>
-              <label htmlFor='category-image' className='cursor-pointer group'>
-                <input
-                  accept='image/*'
-                  type='file'
-                  id='category-image'
-                  className='hidden'
-                  onChange={handleImageChange}
-                  required
-                />
-                {previewImage ? (
-                  <div className='relative group'>
-                    <div className='w-56 h-56 rounded-xl overflow-hidden border-2 border-purple-400 shadow-lg bg-white'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
+              {/* Imagem Principal */}
+              <div className='relative group'>
+                <label htmlFor='category-image' className='cursor-pointer block'>
+                  <input
+                    accept='image/*'
+                    type='file'
+                    id='category-image'
+                    onChange={handleImageChange}
+                    className='hidden'
+                  />
+                  {categoryImage ? (
+                    <div className='aspect-square rounded-lg overflow-hidden border-2 border-purple-400 shadow-lg group-hover:shadow-xl transition-all duration-300'>
                       <img
-                        src={previewImage}
-                        alt='Preview da categoria'
-                        className='w-full h-full object-cover transition-transform duration-300 group-hover:scale-105'
+                        src={categoryImage}
+                        alt='Imagem da Categoria'
+                        className='w-full h-full object-cover'
                       />
-                      {/* Overlay com ações */}
-                      <div className='absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center'>
-                        <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex gap-2'>
-                          <button
-                            type='button'
-                            onClick={removeImage}
-                            className='p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors duration-200 shadow-lg'
-                            aria-label='Remover imagem'
-                          >
-                            <X className='w-4 h-4' />
-                          </button>
+                      <div className='absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center'>
+                        <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                          <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center'>
+                            <Image className='w-4 h-4 text-purple-600' />
+                          </div>
                         </div>
                       </div>
                     </div>
-                    {/* Indicador de sucesso */}
-                    <div className='absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-lg'>
-                      <svg className='w-3 h-3 text-white' fill='currentColor' viewBox='0 0 20 20'>
-                        <path
-                          fillRule='evenodd'
-                          d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'
-                          clipRule='evenodd'
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                ) : (
-                  <div className='w-48 h-48 border-2 border-dashed border-purple-400 rounded-xl flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 group-hover:border-purple-500 group-hover:from-purple-100 group-hover:to-pink-100 transition-all duration-300 shadow-sm group-hover:shadow-md'>
-                    <div className='text-center'>
-                      <div className='w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-200 to-pink-200 rounded-full flex items-center justify-center group-hover:from-purple-300 group-hover:to-pink-300 transition-all duration-300 shadow-inner'>
-                        <svg
-                          className='w-8 h-8 text-purple-600 group-hover:text-purple-700 transition-colors duration-300'
-                          fill='none'
-                          stroke='currentColor'
-                          viewBox='0 0 24 24'
-                        >
-                          <path
-                            strokeLinecap='round'
-                            strokeLinejoin='round'
-                            strokeWidth={2}
-                            d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
-                          />
-                        </svg>
+                  ) : (
+                    <div className='aspect-square border-2 border-dashed border-purple-400 rounded-lg flex items-center justify-center bg-purple-50 group-hover:border-purple-500 group-hover:bg-purple-100 transition-all duration-300'>
+                      <div className='text-center'>
+                        <div className='w-8 h-8 mx-auto mb-2 bg-purple-200 rounded-full flex items-center justify-center group-hover:bg-purple-300 transition-colors'>
+                          <svg
+                            className='w-4 h-4 text-purple-600 group-hover:text-purple-700'
+                            fill='none'
+                            stroke='currentColor'
+                            viewBox='0 0 24 24'
+                          >
+                            <path
+                              strokeLinecap='round'
+                              strokeLinejoin='round'
+                              strokeWidth={2}
+                              d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                            />
+                          </svg>
+                        </div>
+                        <p className='text-xs text-purple-600 group-hover:text-purple-700 font-medium'>
+                          Imagem da Categoria
+                        </p>
                       </div>
-                      <p className='text-sm font-semibold text-purple-700 group-hover:text-purple-800 transition-colors duration-300'>
-                        Adicionar Imagem
-                      </p>
-                      <p className='text-xs text-purple-500 mt-1 group-hover:text-purple-600 transition-colors duration-300'>
-                        Clique para selecionar
-                      </p>
                     </div>
-                  </div>
+                  )}
+                </label>
+                {categoryImage && (
+                  <button
+                    type='button'
+                    onClick={removeImage}
+                    className='absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg'
+                  >
+                    <X className='w-3 h-3' />
+                  </button>
                 )}
-              </label>
+              </div>
             </div>
           </div>
 

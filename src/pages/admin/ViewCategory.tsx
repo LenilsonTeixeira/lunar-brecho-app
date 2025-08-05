@@ -1,4 +1,4 @@
-import { ArrowLeft, Tag, Palette, FileText, Star } from 'lucide-react';
+import { ArrowLeft, Tag, Palette, FileText, Star, Image } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 
 interface Category {
@@ -126,7 +126,7 @@ const ViewCategory = () => {
             </div>
             <div className='flex items-center gap-4'>
               <div
-                className='w-12 h-12 rounded-lg border-2 border-slate-200'
+                className='w-12 h-12 rounded-lg border-2 border-slate-200 shadow-lg'
                 style={{ backgroundColor: mockCategory.color }}
               ></div>
               <div className='p-3 bg-white rounded-lg border border-slate-200'>
@@ -139,15 +139,26 @@ const ViewCategory = () => {
           {mockCategory.image && (
             <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
               <div className='flex items-center gap-3 mb-4'>
-                <Tag className='w-5 h-5 text-purple-600' />
+                <Image className='w-5 h-5 text-purple-600' />
                 <h3 className='text-lg font-semibold text-slate-800'>Imagem da Categoria</h3>
               </div>
               <div className='flex justify-center'>
-                <img
-                  src={mockCategory.image}
-                  alt={mockCategory.name}
-                  className='w-48 h-48 rounded-lg object-cover shadow-lg'
-                />
+                <div className='relative group'>
+                  <div className='aspect-square rounded-lg overflow-hidden border-2 border-slate-300 shadow-lg hover:shadow-xl transition-all duration-300'>
+                    <img
+                      src={mockCategory.image}
+                      alt={mockCategory.name}
+                      className='w-48 h-48 object-cover'
+                    />
+                    <div className='absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center'>
+                      <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                        <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg'>
+                          <Image className='w-4 h-4 text-purple-600' />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}
