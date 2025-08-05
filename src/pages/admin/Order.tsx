@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, Package, RefreshCw } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
-import OrderView from '../../components/admin/OrderView';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import { Order } from '../../types/order';
 
 const OrderPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
-  const [viewingOrder, setViewingOrder] = useState<Order | undefined>();
   const [deletingOrder, setDeletingOrder] = useState<Order | undefined>();
 
   const navigate = useNavigate();
@@ -316,10 +314,6 @@ const OrderPage = () => {
     );
   };
 
-  const handleViewOrder = (order: Order) => {
-    setViewingOrder(order);
-  };
-
   const handleDeleteOrder = (order: Order) => {
     setDeletingOrder(order);
   };
@@ -511,7 +505,7 @@ const OrderPage = () => {
                     <td className='px-6 py-4'>
                       <div className='flex items-center gap-1 sm:gap-2'>
                         <button
-                          onClick={() => handleViewOrder(order)}
+                          onClick={() => navigate(`/admin/pedidos/visualizar/${order.id}`)}
                           className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
                           title='Visualizar'
                         >
@@ -594,15 +588,6 @@ const OrderPage = () => {
           </div>
         )}
       </div>
-
-      {/* View Modal */}
-      {viewingOrder && (
-        <OrderView
-          order={viewingOrder}
-          onClose={() => setViewingOrder(undefined)}
-          onEdit={() => navigate(`/admin/pedidos/editar/${viewingOrder.id}`)}
-        />
-      )}
 
       {/* Confirm Delete Dialog */}
       <ConfirmDialog
