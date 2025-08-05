@@ -330,7 +330,7 @@ const Category = () => {
                       </td>
                       <td className='px-6 py-4 text-center'>
                         <div className='flex items-center justify-center'>
-                          <span className='text-xs sm:text-sm font-medium text-slate-50 bg-black w-8 h-8 rounded-full flex items-center justify-center'>
+                          <span className='text-xs sm:text-sm font-semibold text-white bg-gradient-to-br from-purple-500 to-pink-500 w-8 h-8 rounded-full flex items-center justify-center shadow-lg'>
                             {category.productCount || 0}
                           </span>
                         </div>
