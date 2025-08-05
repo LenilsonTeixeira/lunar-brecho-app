@@ -16,6 +16,7 @@ import ListCustomers from './pages/admin/ListCustomers';
 import AddCustomer from './pages/admin/AddCustomer';
 import OrderPage from './pages/admin/Order';
 import AddOrder from './pages/admin/AddOrder';
+import EditOrder from './pages/admin/EditOrder';
 import Category from './pages/admin/Category';
 import AddCategory from './pages/admin/AddCategory';
 import Supplier from './pages/admin/Supplier';
@@ -63,6 +64,7 @@ const App = () => {
             <Route path='produtos/adicionar' element={<AddProduct />} />
             <Route path='clientes/adicionar' element={<AddCustomer />} />
             <Route path='pedidos/adicionar' element={<AddOrder />} />
+            <Route path='pedidos/editar/:orderId' element={<EditOrder />} />
             <Route path='categorias/adicionar' element={<AddCategory />} />
             <Route path='fornecedores/adicionar' element={<AddSupplier />} />
             <Route path='consignantes/adicionar' element={<AddConsignor />} />

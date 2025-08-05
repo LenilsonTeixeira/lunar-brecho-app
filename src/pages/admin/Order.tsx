@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, Package, RefreshCw } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import OrderView from '../../components/admin/OrderView';
-import OrderEdit from '../../components/admin/OrderEdit';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import { Order } from '../../types/order';
 
@@ -10,9 +9,9 @@ const OrderPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [viewingOrder, setViewingOrder] = useState<Order | undefined>();
-  const [editingOrder, setEditingOrder] = useState<Order | undefined>();
   const [deletingOrder, setDeletingOrder] = useState<Order | undefined>();
-  const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const [orders, setOrders] = useState<Order[]>([
     {
@@ -321,33 +320,13 @@ const OrderPage = () => {
     setViewingOrder(order);
   };
 
-  const handleEditOrder = (order: Order) => {
-    setEditingOrder(order);
-  };
-
   const handleDeleteOrder = (order: Order) => {
     setDeletingOrder(order);
-  };
-
-  const handleUpdateOrder = async (updatedOrder: Order) => {
-    setIsLoading(true);
-    try {
-      // Simular uma chamada de API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setOrders(orders.map((order) => (order.id === updatedOrder.id ? updatedOrder : order)));
-      setEditingOrder(undefined);
-    } catch (error) {
-      console.error('Erro ao atualizar pedido:', error);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleConfirmDelete = async () => {
     if (!deletingOrder) return;
 
-    setIsLoading(true);
     try {
       // Simular uma chamada de API
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -356,8 +335,6 @@ const OrderPage = () => {
       setDeletingOrder(undefined);
     } catch (error) {
       console.error('Erro ao deletar pedido:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -541,7 +518,7 @@ const OrderPage = () => {
                           <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
                         </button>
                         <button
-                          onClick={() => handleEditOrder(order)}
+                          onClick={() => navigate(`/admin/pedidos/editar/${order.id}`)}
                           className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
                           title='Editar'
                         >
@@ -623,20 +600,7 @@ const OrderPage = () => {
         <OrderView
           order={viewingOrder}
           onClose={() => setViewingOrder(undefined)}
-          onEdit={() => {
-            setEditingOrder(viewingOrder);
-            setViewingOrder(undefined);
-          }}
-        />
-      )}
-
-      {/* Edit Modal */}
-      {editingOrder && (
-        <OrderEdit
-          order={editingOrder}
-          onSubmit={handleUpdateOrder}
-          onCancel={() => setEditingOrder(undefined)}
-          isLoading={isLoading}
+          onEdit={() => navigate(`/admin/pedidos/editar/${viewingOrder.id}`)}
         />
       )}
 
