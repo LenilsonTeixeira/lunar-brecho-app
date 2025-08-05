@@ -113,6 +113,11 @@ const sidebarGroups = [
     label: 'Sistema',
     items: [
       {
+        label: 'Usuários',
+        icon: <Users />,
+        path: '/admin/usuarios',
+      },
+      {
         label: 'Notificações',
         icon: <Bell />,
         path: '/admin/notificacoes',
