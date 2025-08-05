@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import ConsignorView from '../../components/admin/ConsignorView';
 import ConsignorForm from '../../components/admin/ConsignorForm';
 import ConsignorHistory from '../../components/admin/ConsignorHistory';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
@@ -49,10 +48,8 @@ const Consignor = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const [showView, setShowView] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [editingConsignor, setEditingConsignor] = useState<ConsignorItem | undefined>();
-  const [viewingConsignor, setViewingConsignor] = useState<ConsignorItem | undefined>();
   const [historyConsignor, setHistoryConsignor] = useState<ConsignorItem | undefined>();
   const [deletingConsignor, setDeletingConsignor] = useState<ConsignorItem | undefined>();
   const [loading, setLoading] = useState(false);
@@ -322,27 +319,12 @@ const Consignor = () => {
     }
   };
 
-  const handleEdit = (consignor: ConsignorItem) => {
-    setEditingConsignor(consignor);
-    setShowForm(true);
+  const handleViewConsignor = (consignor: ConsignorItem) => {
+    navigate(`/admin/consignantes/visualizar/${consignor.id}`);
   };
 
-  const handleView = (consignor: ConsignorItem) => {
-    setViewingConsignor(consignor);
-    setShowView(true);
-  };
-
-  const handleCloseView = () => {
-    setShowView(false);
-    setViewingConsignor(undefined);
-  };
-
-  const handleEditFromView = () => {
-    if (viewingConsignor) {
-      setEditingConsignor(viewingConsignor);
-      setShowView(false);
-      setShowForm(true);
-    }
+  const handleEditConsignor = (consignor: ConsignorItem) => {
+    navigate(`/admin/consignantes/editar/${consignor.id}`);
   };
 
   const handleViewHistory = (consignor: ConsignorItem) => {
@@ -495,14 +477,14 @@ const Consignor = () => {
                             <TrendingUp className='w-3 h-3 sm:w-4 sm:h-4' />
                           </button>
                           <button
-                            onClick={() => handleView(consignor)}
+                            onClick={() => handleViewConsignor(consignor)}
                             className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
                             title='Visualizar'
                           >
                             <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
                           </button>
                           <button
-                            onClick={() => handleEdit(consignor)}
+                            onClick={() => handleEditConsignor(consignor)}
                             className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
                             title='Editar'
                           >
@@ -563,15 +545,6 @@ const Consignor = () => {
             setEditingConsignor(undefined);
           }}
           isLoading={loading}
-        />
-      )}
-
-      {/* View Modal */}
-      {showView && viewingConsignor && (
-        <ConsignorView
-          consignor={viewingConsignor}
-          onClose={handleCloseView}
-          onEdit={handleEditFromView}
         />
       )}
 

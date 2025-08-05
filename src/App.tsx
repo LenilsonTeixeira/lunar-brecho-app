@@ -32,18 +32,28 @@ import ViewSupplier from './pages/admin/ViewSupplier';
 import EditSupplier from './pages/admin/EditSupplier';
 import Consignor from './pages/admin/Consignor';
 import AddConsignor from './pages/admin/AddConsignor';
+import ViewConsignor from './pages/admin/ViewConsignor';
+import EditConsignor from './pages/admin/EditConsignor';
 import Configuration from './pages/admin/Configuration';
 import Notification from './pages/admin/Notification';
 import NotificationList from './pages/admin/NotificationList';
 import Coupons from './pages/admin/Coupons';
 import AccountsReceivable from './pages/admin/AccountsReceivable';
 import AddAccountsReceivable from './pages/admin/AddAccountsReceivable';
+import ViewAccountsReceivable from './pages/admin/ViewAccountsReceivable';
+import EditAccountsReceivable from './pages/admin/EditAccountsReceivable';
 import AccountsPayable from './pages/admin/AccountsPayable';
 import AddAccountsPayable from './pages/admin/AddAccountsPayable';
+import ViewAccountsPayable from './pages/admin/ViewAccountsPayable';
+import EditAccountsPayable from './pages/admin/EditAccountsPayable';
 import CashFlow from './pages/admin/CashFlow';
 import OpenCashBox from './pages/admin/OpenCashBox';
 import CloseCashBox from './pages/admin/CloseCashBox';
 import AddCashMovement from './pages/admin/AddCashMovement';
+import ListUser from './pages/admin/ListUser';
+import AddUser from './pages/admin/AddUser';
+import ViewUser from './pages/admin/ViewUser';
+import EditUser from './pages/admin/EditUser';
 
 const App = () => {
   const isAdminPath = useLocation().pathname.includes('admin');
@@ -86,8 +96,17 @@ const App = () => {
             <Route path='fornecedores/visualizar/:supplierId' element={<ViewSupplier />} />
             <Route path='fornecedores/editar/:supplierId' element={<EditSupplier />} />
             <Route path='consignantes/adicionar' element={<AddConsignor />} />
+            <Route path='consignantes/visualizar/:consignorId' element={<ViewConsignor />} />
+            <Route path='consignantes/editar/:consignorId' element={<EditConsignor />} />
             <Route path='contas-receber/adicionar' element={<AddAccountsReceivable />} />
+            <Route
+              path='contas-receber/visualizar/:accountId'
+              element={<ViewAccountsReceivable />}
+            />
+            <Route path='contas-receber/editar/:accountId' element={<EditAccountsReceivable />} />
             <Route path='contas-pagar/adicionar' element={<AddAccountsPayable />} />
+            <Route path='contas-pagar/visualizar/:accountId' element={<ViewAccountsPayable />} />
+            <Route path='contas-pagar/editar/:accountId' element={<EditAccountsPayable />} />
             <Route path='fluxo-caixa/abrir' element={<OpenCashBox />} />
             <Route path='fluxo-caixa/fechar/:sessionId' element={<CloseCashBox />} />
             <Route path='fluxo-caixa/movimentacao/adicionar' element={<AddCashMovement />} />
@@ -104,6 +123,10 @@ const App = () => {
             <Route path='contas-pagar' element={<AccountsPayable />} />
             <Route path='fluxo-caixa' element={<CashFlow />} />
             <Route path='cupons' element={<Coupons />} />
+            <Route path='usuarios/adicionar' element={<AddUser />} />
+            <Route path='usuarios/visualizar/:userId' element={<ViewUser />} />
+            <Route path='usuarios/editar/:userId' element={<EditUser />} />
+            <Route path='usuarios' element={<ListUser />} />
           </Route>
         </Routes>
         {!isAdminPath && <Footer />}

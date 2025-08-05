@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, DollarSign, Calendar, CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import AccountsReceivableForm from '../../components/admin/AccountsReceivableForm';
-import AccountsReceivableView from '../../components/admin/AccountsReceivableView';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 
 interface AccountsReceivableItem {
@@ -21,25 +19,10 @@ interface AccountsReceivableItem {
   updatedAt: string;
 }
 
-interface AccountsReceivableFormData {
-  description: string;
-  amount: string;
-  dueDate: string;
-  paymentMethod: 'money' | 'card' | 'pix' | 'boleto';
-  category: 'sale' | 'adjustment' | 'commission' | 'refund' | 'other';
-  customerName: string;
-  orderId: string;
-  notes: string;
-}
-
 const AccountsReceivable = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [showForm, setShowForm] = useState(false);
-  const [showView, setShowView] = useState(false);
-  const [editingAccount, setEditingAccount] = useState<AccountsReceivableItem | undefined>();
-  const [viewingAccount, setViewingAccount] = useState<AccountsReceivableItem | undefined>();
   const [deletingAccount, setDeletingAccount] = useState<AccountsReceivableItem | undefined>();
   const [loading, setLoading] = useState(false);
   const [accounts, setAccounts] = useState<AccountsReceivableItem[]>([
@@ -74,69 +57,6 @@ const AccountsReceivable = () => {
     },
   ]);
 
-  const handleCreateAccount = async (data: AccountsReceivableFormData) => {
-    setLoading(true);
-    try {
-      // Simular chamada à API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const newAccount: AccountsReceivableItem = {
-        id: Math.max(...accounts.map((a) => a.id)) + 1,
-        description: data.description,
-        amount: parseFloat(data.amount),
-        dueDate: data.dueDate,
-        status: 'pending',
-        paymentMethod: data.paymentMethod,
-        category: data.category,
-        customerName: data.customerName || undefined,
-        orderId: data.orderId ? parseInt(data.orderId) : undefined,
-        notes: data.notes || undefined,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      setAccounts((prev) => [...prev, newAccount]);
-      setShowForm(false);
-    } catch (error) {
-      console.error('Erro ao criar conta:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdateAccount = async (data: AccountsReceivableFormData) => {
-    if (!editingAccount) return;
-
-    setLoading(true);
-    try {
-      // Simular chamada à API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const updatedAccount: AccountsReceivableItem = {
-        ...editingAccount,
-        description: data.description,
-        amount: parseFloat(data.amount),
-        dueDate: data.dueDate,
-        paymentMethod: data.paymentMethod,
-        category: data.category,
-        customerName: data.customerName || undefined,
-        orderId: data.orderId ? parseInt(data.orderId) : undefined,
-        notes: data.notes || undefined,
-        updatedAt: new Date().toISOString(),
-      };
-
-      setAccounts((prev) =>
-        prev.map((acc) => (acc.id === editingAccount.id ? updatedAccount : acc)),
-      );
-      setShowForm(false);
-      setEditingAccount(undefined);
-    } catch (error) {
-      console.error('Erro ao atualizar conta:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleDeleteAccount = (account: AccountsReceivableItem) => {
     setDeletingAccount(account);
   };
@@ -159,26 +79,11 @@ const AccountsReceivable = () => {
   };
 
   const handleEdit = (account: AccountsReceivableItem) => {
-    setEditingAccount(account);
-    setShowForm(true);
+    navigate(`/admin/contas-receber/editar/${account.id}`);
   };
 
   const handleView = (account: AccountsReceivableItem) => {
-    setViewingAccount(account);
-    setShowView(true);
-  };
-
-  const handleCloseView = () => {
-    setShowView(false);
-    setViewingAccount(undefined);
-  };
-
-  const handleEditFromView = () => {
-    if (viewingAccount) {
-      setEditingAccount(viewingAccount);
-      setShowView(false);
-      setShowForm(true);
-    }
+    navigate(`/admin/contas-receber/visualizar/${account.id}`);
   };
 
   const getStatusColor = (status: string) => {
@@ -477,26 +382,12 @@ const AccountsReceivable = () => {
       </div>
 
       {/* Form Modal */}
-      {showForm && (
-        <AccountsReceivableForm
-          account={editingAccount}
-          onSubmit={editingAccount ? handleUpdateAccount : handleCreateAccount}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingAccount(undefined);
-          }}
-          isLoading={loading}
-        />
-      )}
+      {/* showForm state was removed */}
+      {/* AccountsReceivableForm component was removed */}
 
       {/* View Modal */}
-      {showView && viewingAccount && (
-        <AccountsReceivableView
-          account={viewingAccount}
-          onClose={handleCloseView}
-          onEdit={handleEditFromView}
-        />
-      )}
+      {/* showView state was removed */}
+      {/* AccountsReceivableView component was removed */}
 
       {/* Confirm Delete Dialog */}
       <ConfirmDialog

@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, DollarSign, Calendar, CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import AccountsPayableForm from '../../components/admin/AccountsPayableForm';
-import AccountsPayableView from '../../components/admin/AccountsPayableView';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 
 interface AccountsPayableItem {
@@ -29,33 +27,10 @@ interface AccountsPayableItem {
   updatedAt: string;
 }
 
-interface AccountsPayableFormData {
-  description: string;
-  amount: string;
-  dueDate: string;
-  paymentMethod: 'money' | 'card' | 'pix' | 'boleto' | 'transfer';
-  category:
-    | 'supplier'
-    | 'logistics'
-    | 'marketing'
-    | 'system'
-    | 'taxes'
-    | 'rent'
-    | 'utilities'
-    | 'other';
-  supplierName: string;
-  recurrence: 'monthly' | 'yearly' | 'once';
-  notes: string;
-}
-
 const AccountsPayable = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [showForm, setShowForm] = useState(false);
-  const [showView, setShowView] = useState(false);
-  const [editingAccount, setEditingAccount] = useState<AccountsPayableItem | undefined>();
-  const [viewingAccount, setViewingAccount] = useState<AccountsPayableItem | undefined>();
   const [deletingAccount, setDeletingAccount] = useState<AccountsPayableItem | undefined>();
   const [loading, setLoading] = useState(false);
   const [accounts, setAccounts] = useState<AccountsPayableItem[]>([
@@ -130,69 +105,6 @@ const AccountsPayable = () => {
     },
   ]);
 
-  const handleCreateAccount = async (data: AccountsPayableFormData) => {
-    setLoading(true);
-    try {
-      // Simular chamada à API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const newAccount: AccountsPayableItem = {
-        id: Math.max(...accounts.map((a) => a.id)) + 1,
-        description: data.description,
-        amount: parseFloat(data.amount),
-        dueDate: data.dueDate,
-        status: 'pending',
-        paymentMethod: data.paymentMethod,
-        category: data.category,
-        supplierName: data.supplierName || undefined,
-        recurrence: data.recurrence,
-        notes: data.notes || undefined,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      setAccounts((prev) => [...prev, newAccount]);
-      setShowForm(false);
-    } catch (error) {
-      console.error('Erro ao criar conta:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdateAccount = async (data: AccountsPayableFormData) => {
-    if (!editingAccount) return;
-
-    setLoading(true);
-    try {
-      // Simular chamada à API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const updatedAccount: AccountsPayableItem = {
-        ...editingAccount,
-        description: data.description,
-        amount: parseFloat(data.amount),
-        dueDate: data.dueDate,
-        paymentMethod: data.paymentMethod,
-        category: data.category,
-        supplierName: data.supplierName || undefined,
-        recurrence: data.recurrence,
-        notes: data.notes || undefined,
-        updatedAt: new Date().toISOString(),
-      };
-
-      setAccounts((prev) =>
-        prev.map((acc) => (acc.id === editingAccount.id ? updatedAccount : acc)),
-      );
-      setShowForm(false);
-      setEditingAccount(undefined);
-    } catch (error) {
-      console.error('Erro ao atualizar conta:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleDeleteAccount = (account: AccountsPayableItem) => {
     setDeletingAccount(account);
   };
@@ -215,26 +127,11 @@ const AccountsPayable = () => {
   };
 
   const handleEdit = (account: AccountsPayableItem) => {
-    setEditingAccount(account);
-    setShowForm(true);
+    navigate(`/admin/contas-pagar/editar/${account.id}`);
   };
 
   const handleView = (account: AccountsPayableItem) => {
-    setViewingAccount(account);
-    setShowView(true);
-  };
-
-  const handleCloseView = () => {
-    setShowView(false);
-    setViewingAccount(undefined);
-  };
-
-  const handleEditFromView = () => {
-    if (viewingAccount) {
-      setEditingAccount(viewingAccount);
-      setShowView(false);
-      setShowForm(true);
-    }
+    navigate(`/admin/contas-pagar/visualizar/${account.id}`);
   };
 
   const getStatusColor = (status: string) => {
@@ -559,26 +456,10 @@ const AccountsPayable = () => {
       </div>
 
       {/* Form Modal */}
-      {showForm && (
-        <AccountsPayableForm
-          account={editingAccount}
-          onSubmit={editingAccount ? handleUpdateAccount : handleCreateAccount}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingAccount(undefined);
-          }}
-          isLoading={loading}
-        />
-      )}
+      {/* Removed as per edit hint */}
 
       {/* View Modal */}
-      {showView && viewingAccount && (
-        <AccountsPayableView
-          account={viewingAccount}
-          onClose={handleCloseView}
-          onEdit={handleEditFromView}
-        />
-      )}
+      {/* Removed as per edit hint */}
 
       {/* Confirm Delete Dialog */}
       <ConfirmDialog
