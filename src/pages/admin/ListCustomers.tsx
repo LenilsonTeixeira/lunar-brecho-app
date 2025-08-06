@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Edit, Trash2, Eye, Plus } from 'lucide-react';
+import { Search, Edit, Trash2, Eye, Plus, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 const ListCustomers = () => {
@@ -13,120 +13,160 @@ const ListCustomers = () => {
       name: 'Maria Silva Santos',
       phone: '(11) 99999-1234',
       address: 'Rua das Flores, 123 - Vila Madalena, São Paulo - SP',
+      totalPurchases: 8,
+      totalSpent: 2450.75,
     },
     {
       id: 2,
       name: 'João Pedro Oliveira',
       phone: '(11) 98888-5678',
       address: 'Av. Paulista, 1000 - Bela Vista, São Paulo - SP',
+      totalPurchases: 3,
+      totalSpent: 890.5,
     },
     {
       id: 3,
       name: 'Ana Costa Ferreira',
       phone: '(11) 97777-9012',
       address: 'Rua Augusta, 500 - Consolação, São Paulo - SP',
+      totalPurchases: 12,
+      totalSpent: 3200.0,
     },
     {
       id: 4,
       name: 'Carlos Eduardo Lima',
       phone: '(11) 96666-3456',
       address: 'Rua Oscar Freire, 200 - Jardins, São Paulo - SP',
+      totalPurchases: 5,
+      totalSpent: 1500.25,
     },
     {
       id: 5,
       name: 'Fernanda Rodrigues Alves',
       phone: '(11) 95555-7890',
       address: 'Rua Teodoro Sampaio, 800 - Pinheiros, São Paulo - SP',
+      totalPurchases: 2,
+      totalSpent: 450.0,
     },
     {
       id: 6,
       name: 'Lucas Mendes Pereira',
       phone: '(11) 94444-1234',
       address: 'Rua Harmonia, 300 - Vila Madalena, São Paulo - SP',
+      totalPurchases: 7,
+      totalSpent: 1800.75,
     },
     {
       id: 7,
       name: 'Juliana Santos Costa',
       phone: '(11) 93333-5678',
       address: 'Rua Cardeal Arcoverde, 150 - Pinheiros, São Paulo - SP',
+      totalPurchases: 4,
+      totalSpent: 950.3,
     },
     {
       id: 8,
       name: 'Roberto Almeida Silva',
       phone: '(11) 92222-9012',
       address: 'Rua Fradique Coutinho, 600 - Vila Madalena, São Paulo - SP',
+      totalPurchases: 1,
+      totalSpent: 200.0,
     },
     {
       id: 9,
       name: 'Patrícia Lima Oliveira',
       phone: '(11) 91111-3456',
       address: 'Rua Aspicuelta, 400 - Vila Madalena, São Paulo - SP',
+      totalPurchases: 6,
+      totalSpent: 1200.0,
     },
     {
       id: 10,
       name: 'Ricardo Ferreira Costa',
       phone: '(11) 90000-7890',
       address: 'Rua Wisard, 250 - Vila Madalena, São Paulo - SP',
+      totalPurchases: 9,
+      totalSpent: 2800.5,
     },
     {
       id: 11,
       name: 'Camila Rodrigues Santos',
       phone: '(11) 89999-1234',
       address: 'Rua Mourato Coelho, 700 - Vila Madalena, São Paulo - SP',
+      totalPurchases: 3,
+      totalSpent: 750.0,
     },
     {
       id: 12,
       name: 'Diego Alves Mendes',
       phone: '(11) 88888-5678',
       address: 'Rua Purpurina, 350 - Vila Madalena, São Paulo - SP',
+      totalPurchases: 0,
+      totalSpent: 0,
     },
     {
       id: 13,
       name: 'Amanda Costa Silva',
       phone: '(11) 87777-9012',
       address: 'Rua Girassol, 450 - Vila Madalena, São Paulo - SP',
+      totalPurchases: 2,
+      totalSpent: 400.0,
     },
     {
       id: 14,
       name: 'Thiago Oliveira Lima',
       phone: '(11) 86666-3456',
       address: 'Rua Corifeu de Azevedo Marques, 550 - Pinheiros, São Paulo - SP',
+      totalPurchases: 5,
+      totalSpent: 1100.75,
     },
     {
       id: 15,
       name: 'Vanessa Santos Pereira',
       phone: '(11) 85555-7890',
       address: 'Rua dos Pinheiros, 750 - Pinheiros, São Paulo - SP',
+      totalPurchases: 4,
+      totalSpent: 900.25,
     },
     {
       id: 16,
       name: 'Marcelo Lima Costa',
       phone: '(11) 84444-1234',
       address: 'Rua Artur de Azevedo, 850 - Pinheiros, São Paulo - SP',
+      totalPurchases: 1,
+      totalSpent: 300.0,
     },
     {
       id: 17,
       name: 'Carolina Ferreira Alves',
       phone: '(11) 83333-5678',
       address: 'Rua Heitor Penteado, 950 - Sumaré, São Paulo - SP',
+      totalPurchases: 6,
+      totalSpent: 1600.0,
     },
     {
       id: 18,
       name: 'Gabriel Mendes Silva',
       phone: '(11) 82222-9012',
       address: 'Rua Simão Álvares, 1050 - Sumaré, São Paulo - SP',
+      totalPurchases: 3,
+      totalSpent: 650.5,
     },
     {
       id: 19,
       name: 'Isabela Rodrigues Costa',
       phone: '(11) 81111-3456',
       address: 'Rua Cônego Eugênio Leite, 1150 - Pinheiros, São Paulo - SP',
+      totalPurchases: 8,
+      totalSpent: 2200.0,
     },
     {
       id: 20,
       name: 'Bruno Almeida Santos',
       phone: '(11) 80000-7890',
       address: 'Rua Butantã, 1250 - Pinheiros, São Paulo - SP',
+      totalPurchases: 2,
+      totalSpent: 500.0,
     },
   ];
 
@@ -138,6 +178,13 @@ const ListCustomers = () => {
 
     return matchesSearch;
   });
+
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(value);
+  };
 
   return (
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
@@ -201,6 +248,9 @@ const ListCustomers = () => {
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Endereço
                   </th>
+                  <th className='px-6 py-4 text-center text-xs sm:text-sm font-semibold text-slate-700'>
+                    Compras
+                  </th>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Ações
                   </th>
@@ -231,8 +281,25 @@ const ListCustomers = () => {
                         {user.address}
                       </p>
                     </td>
+                    <td className='px-6 py-4 text-center'>
+                      <div className='flex flex-col items-center gap-1'>
+                        <span className='text-xs sm:text-sm text-slate-800'>
+                          {user.totalPurchases || 0}
+                        </span>
+                        <div className='text-xs text-slate-500'>
+                          {formatCurrency(user.totalSpent || 0)}
+                        </div>
+                      </div>
+                    </td>
                     <td className='px-6 py-4'>
                       <div className='flex items-center gap-1 sm:gap-2'>
+                        <button
+                          onClick={() => navigate(`/admin/clientes/historico/${user.id}`)}
+                          className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
+                          title='Histórico'
+                        >
+                          <ShoppingBag className='w-3 h-3 sm:w-4 sm:h-4' />
+                        </button>
                         <button
                           onClick={() => navigate(`/admin/clientes/visualizar/${user.id}`)}
                           className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
