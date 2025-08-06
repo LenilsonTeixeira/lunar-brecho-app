@@ -57,6 +57,7 @@ import ListUser from './pages/admin/ListUser';
 import AddUser from './pages/admin/AddUser';
 import ViewUser from './pages/admin/ViewUser';
 import EditUser from './pages/admin/EditUser';
+import ProfitSimulation from './pages/admin/ProfitSimulation';
 
 const App = () => {
   const isAdminPath = useLocation().pathname.includes('admin');
@@ -133,6 +134,7 @@ const App = () => {
             <Route path='usuarios/visualizar/:userId' element={<ViewUser />} />
             <Route path='usuarios/editar/:userId' element={<EditUser />} />
             <Route path='usuarios' element={<ListUser />} />
+            <Route path='simulacao-lucro' element={<ProfitSimulation />} />
           </Route>
         </Routes>
         {!isAdminPath && <Footer />}

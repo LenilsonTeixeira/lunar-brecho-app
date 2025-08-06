@@ -16,6 +16,7 @@ import {
   Building2,
   UserCheck,
   ChevronRight,
+  Calculator,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import { useState } from 'react';
@@ -105,6 +106,11 @@ const sidebarGroups = [
         label: 'Fluxo de Caixa',
         icon: <DollarSign />,
         path: '/admin/fluxo-caixa',
+      },
+      {
+        label: 'Simulação de Lucro',
+        icon: <Calculator />,
+        path: '/admin/simulacao-lucro',
       },
     ],
   },
