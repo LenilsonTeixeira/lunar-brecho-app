@@ -1,4 +1,5 @@
-import { X, Package, TrendingUp, DollarSign, Eye, Edit } from 'lucide-react';
+import { ArrowLeft, Package, TrendingUp, DollarSign, Eye, Edit } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router';
 
 interface ProductHistory {
   id: number;
@@ -15,33 +16,55 @@ interface ProductHistory {
   returnedAt?: string;
 }
 
-interface ConsignorHistoryProps {
-  consignor: {
-    id: number;
-    name: string;
-    cpf: string;
-    email: string;
-    phone: string;
-    paymentMethod: 'pix' | 'money' | 'bank_transfer';
-    pixKey: string;
-    bankAccount: {
-      bank: string;
-      agency: string;
-      account: string;
-      accountType: 'checking' | 'savings';
-    };
-    status: 'active' | 'inactive';
-    createdAt?: string;
-    updatedAt?: string;
-    totalProducts?: number;
-    productsForSale?: number;
-    soldProducts?: number;
-    totalCommission?: number;
+interface ConsignorItem {
+  id: number;
+  name: string;
+  cpf: string;
+  email: string;
+  phone: string;
+  paymentMethod: 'pix' | 'money' | 'bank_transfer';
+  pixKey: string;
+  bankAccount: {
+    bank: string;
+    agency: string;
+    account: string;
+    accountType: 'checking' | 'savings';
   };
-  onClose: () => void;
+  createdAt?: string;
+  updatedAt?: string;
+  totalProducts?: number;
+  productsForSale?: number;
+  soldProducts?: number;
+  totalCommission?: number;
 }
 
-const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
+const ConsignorHistory = () => {
+  const navigate = useNavigate();
+  const { consignorId } = useParams();
+
+  // Mock data - em uma aplicação real, isso viria de uma API
+  const mockConsignor: ConsignorItem = {
+    id: parseInt(consignorId || '1'),
+    name: 'Maria Silva Santos',
+    cpf: '123.456.789-00',
+    email: 'maria.silva@email.com',
+    phone: '(11) 99999-9999',
+    paymentMethod: 'pix',
+    pixKey: 'maria.silva@email.com',
+    bankAccount: {
+      bank: 'Banco do Brasil',
+      agency: '1234',
+      account: '12345-6',
+      accountType: 'checking',
+    },
+    createdAt: '2024-01-15T10:30:00Z',
+    updatedAt: '2024-01-20T14:45:00Z',
+    totalProducts: 45,
+    productsForSale: 32,
+    soldProducts: 13,
+    totalCommission: 1250.0,
+  };
+
   // Dados de exemplo do histórico
   const productHistory: ProductHistory[] = [
     {
@@ -52,8 +75,8 @@ const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
       price: 89.9,
       commission: 26.97,
       status: 'sold',
-      consignorId: consignor.id,
-      consignorName: consignor.name,
+      consignorId: mockConsignor.id,
+      consignorName: mockConsignor.name,
       createdAt: '2024-01-15T10:30:00Z',
       soldAt: '2024-01-20T14:45:00Z',
     },
@@ -66,8 +89,8 @@ const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
       price: 120.0,
       commission: 36.0,
       status: 'for_sale',
-      consignorId: consignor.id,
-      consignorName: consignor.name,
+      consignorId: mockConsignor.id,
+      consignorName: mockConsignor.name,
       createdAt: '2024-01-18T09:15:00Z',
     },
     {
@@ -79,8 +102,8 @@ const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
       price: 150.0,
       commission: 45.0,
       status: 'sold',
-      consignorId: consignor.id,
-      consignorName: consignor.name,
+      consignorId: mockConsignor.id,
+      consignorName: mockConsignor.name,
       createdAt: '2024-01-10T11:20:00Z',
       soldAt: '2024-01-25T16:30:00Z',
     },
@@ -93,8 +116,8 @@ const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
       price: 45.0,
       commission: 13.5,
       status: 'returned',
-      consignorId: consignor.id,
-      consignorName: consignor.name,
+      consignorId: mockConsignor.id,
+      consignorName: mockConsignor.name,
       createdAt: '2024-01-05T08:45:00Z',
       returnedAt: '2024-01-22T10:15:00Z',
     },
@@ -107,8 +130,8 @@ const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
       price: 65.0,
       commission: 19.5,
       status: 'for_sale',
-      consignorId: consignor.id,
-      consignorName: consignor.name,
+      consignorId: mockConsignor.id,
+      consignorName: mockConsignor.name,
       createdAt: '2024-01-12T13:30:00Z',
     },
   ];
@@ -175,40 +198,35 @@ const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
     .reduce((sum, p) => sum + p.commission, 0);
 
   return (
-    <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'>
-      <div className='bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-y-auto'>
-        {/* Header */}
-        <div className='flex items-center justify-between p-6 border-b border-slate-200'>
-          <div className='flex items-center gap-4'>
-            <div className='w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center'>
-              <TrendingUp className='w-6 h-6 text-purple-600' />
-            </div>
-            <div>
-              <h2 className='text-xl sm:text-2xl font-bold text-slate-800'>
-                Histórico de Produtos
-              </h2>
-              <p className='text-sm text-slate-600'>
-                {consignor.name} - #{consignor.id}
-              </p>
-            </div>
+    <div className='py-6 flex flex-col justify-between bg-slate-50'>
+      <div className='w-full max-w-7xl mx-auto'>
+        <div className='mb-8'>
+          <div className='flex items-center gap-4 mb-4'>
+            <button
+              onClick={() => navigate(`/admin/consignantes/visualizar/${consignorId}`)}
+              className='flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all duration-300'
+            >
+              <ArrowLeft className='w-4 h-4' />
+              Voltar
+            </button>
           </div>
-          <button
-            onClick={onClose}
-            className='p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors'
-          >
-            <X className='w-5 h-5' />
-          </button>
+          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
+            Histórico de Produtos
+          </h1>
+          <p className='text-sm sm:text-base text-slate-600'>
+            {mockConsignor.name} - #{mockConsignor.id}
+          </p>
         </div>
 
         {/* Estatísticas */}
-        <div className='p-6 bg-gradient-to-br from-purple-50 to-pink-50'>
+        <div className='bg-white rounded-xl shadow-lg p-6 mb-6'>
           <h3 className='text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2'>
             <TrendingUp className='w-5 h-5 text-purple-600' />
             Resumo do Histórico
           </h3>
 
           <div className='grid grid-cols-2 md:grid-cols-5 gap-4'>
-            <div className='bg-white rounded-lg p-4 text-center shadow-sm'>
+            <div className='bg-slate-50 rounded-lg p-4 text-center'>
               <div className='w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2'>
                 <Package className='w-5 h-5 text-purple-600' />
               </div>
@@ -216,7 +234,7 @@ const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
               <p className='text-xs text-slate-600'>Total de Produtos</p>
             </div>
 
-            <div className='bg-white rounded-lg p-4 text-center shadow-sm'>
+            <div className='bg-slate-50 rounded-lg p-4 text-center'>
               <div className='w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2'>
                 <Package className='w-5 h-5 text-green-600' />
               </div>
@@ -224,7 +242,7 @@ const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
               <p className='text-xs text-slate-600'>À Venda</p>
             </div>
 
-            <div className='bg-white rounded-lg p-4 text-center shadow-sm'>
+            <div className='bg-slate-50 rounded-lg p-4 text-center'>
               <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2'>
                 <Package className='w-5 h-5 text-blue-600' />
               </div>
@@ -232,7 +250,7 @@ const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
               <p className='text-xs text-slate-600'>Vendidos</p>
             </div>
 
-            <div className='bg-white rounded-lg p-4 text-center shadow-sm'>
+            <div className='bg-slate-50 rounded-lg p-4 text-center'>
               <div className='w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2'>
                 <Package className='w-5 h-5 text-red-600' />
               </div>
@@ -240,7 +258,7 @@ const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
               <p className='text-xs text-slate-600'>Devolvidos</p>
             </div>
 
-            <div className='bg-white rounded-lg p-4 text-center shadow-sm'>
+            <div className='bg-slate-50 rounded-lg p-4 text-center'>
               <div className='w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2'>
                 <DollarSign className='w-5 h-5 text-green-600' />
               </div>
@@ -251,7 +269,7 @@ const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
         </div>
 
         {/* Lista de Produtos */}
-        <div className='p-6'>
+        <div className='bg-white rounded-xl shadow-lg p-6'>
           <h3 className='text-lg font-semibold text-slate-800 mb-4'>
             Produtos ({productHistory.length})
           </h3>
@@ -260,7 +278,7 @@ const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
             {productHistory.map((product) => (
               <div
                 key={product.id}
-                className='bg-white border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow'
+                className='bg-slate-50 border border-slate-200 rounded-lg p-4 hover:shadow-md transition-shadow'
               >
                 <div className='flex items-start gap-4'>
                   {/* Imagem do Produto */}
@@ -327,16 +345,6 @@ const ConsignorHistory = ({ consignor, onClose }: ConsignorHistoryProps) => {
               </p>
             </div>
           )}
-        </div>
-
-        {/* Footer */}
-        <div className='flex items-center justify-end gap-4 p-6 border-t border-slate-200'>
-          <button
-            onClick={onClose}
-            className='px-6 py-3 text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-all duration-300'
-          >
-            Fechar
-          </button>
         </div>
       </div>
     </div>

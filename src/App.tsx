@@ -34,6 +34,7 @@ import Consignor from './pages/admin/Consignor';
 import AddConsignor from './pages/admin/AddConsignor';
 import ViewConsignor from './pages/admin/ViewConsignor';
 import EditConsignor from './pages/admin/EditConsignor';
+import ConsignorHistory from './pages/admin/ConsignorHistory';
 import Configuration from './pages/admin/Configuration';
 import Notification from './pages/admin/Notification';
 import NotificationList from './pages/admin/NotificationList';
@@ -102,6 +103,7 @@ const App = () => {
             <Route path='consignantes/adicionar' element={<AddConsignor />} />
             <Route path='consignantes/visualizar/:consignorId' element={<ViewConsignor />} />
             <Route path='consignantes/editar/:consignorId' element={<EditConsignor />} />
+            <Route path='consignantes/historico/:consignorId' element={<ConsignorHistory />} />
             <Route path='contas-receber/adicionar' element={<AddAccountsReceivable />} />
             <Route
               path='contas-receber/visualizar/:accountId'

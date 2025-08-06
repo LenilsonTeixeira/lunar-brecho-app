@@ -82,6 +82,9 @@ const AddConsignor = () => {
 
     // Implementar lógica de envio do formulário
     console.log('Consignante a ser adicionado:', formData);
+
+    // Navegar de volta para a lista de consignantes
+    navigate('/admin/consignantes');
   };
 
   return (

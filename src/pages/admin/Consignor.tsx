@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import ConsignorForm from '../../components/admin/ConsignorForm';
-import ConsignorHistory from '../../components/admin/ConsignorHistory';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 
 interface ConsignorItem {
@@ -19,7 +17,6 @@ interface ConsignorItem {
     account: string;
     accountType: 'checking' | 'savings';
   };
-  status: 'active' | 'inactive';
   createdAt?: string;
   updatedAt?: string;
   totalProducts?: number;
@@ -28,29 +25,9 @@ interface ConsignorItem {
   totalCommission?: number;
 }
 
-interface ConsignorFormData {
-  name: string;
-  cpf: string;
-  email: string;
-  phone: string;
-  paymentMethod: 'pix' | 'money' | 'bank_transfer';
-  pixKey: string;
-  bankAccount: {
-    bank: string;
-    agency: string;
-    account: string;
-    accountType: 'checking' | 'savings';
-  };
-  status: 'active' | 'inactive';
-}
-
 const Consignor = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
-  const [editingConsignor, setEditingConsignor] = useState<ConsignorItem | undefined>();
-  const [historyConsignor, setHistoryConsignor] = useState<ConsignorItem | undefined>();
   const [deletingConsignor, setDeletingConsignor] = useState<ConsignorItem | undefined>();
   const [loading, setLoading] = useState(false);
   const [consignors, setConsignors] = useState<ConsignorItem[]>([
@@ -68,7 +45,6 @@ const Consignor = () => {
         account: '12345-6',
         accountType: 'checking',
       },
-      status: 'active',
       createdAt: '2024-01-15T10:30:00Z',
       updatedAt: '2024-01-20T14:45:00Z',
       totalProducts: 45,
@@ -90,7 +66,6 @@ const Consignor = () => {
         account: '98765-4',
         accountType: 'savings',
       },
-      status: 'active',
       createdAt: '2024-01-10T09:15:00Z',
       updatedAt: '2024-01-18T16:20:00Z',
       totalProducts: 78,
@@ -112,7 +87,6 @@ const Consignor = () => {
         account: '54321-0',
         accountType: 'checking',
       },
-      status: 'active',
       createdAt: '2024-01-12T11:00:00Z',
       updatedAt: '2024-01-19T13:30:00Z',
       totalProducts: 32,
@@ -134,7 +108,6 @@ const Consignor = () => {
         account: '67890-1',
         accountType: 'savings',
       },
-      status: 'inactive',
       createdAt: '2024-01-08T08:45:00Z',
       updatedAt: '2024-01-17T15:10:00Z',
       totalProducts: 18,
@@ -156,7 +129,6 @@ const Consignor = () => {
         account: '23456-7',
         accountType: 'checking',
       },
-      status: 'active',
       createdAt: '2024-01-05T12:20:00Z',
       updatedAt: '2024-01-16T10:55:00Z',
       totalProducts: 56,
@@ -178,7 +150,6 @@ const Consignor = () => {
         account: '12345678-9',
         accountType: 'checking',
       },
-      status: 'active',
       createdAt: '2024-01-03T14:30:00Z',
       updatedAt: '2024-01-15T11:25:00Z',
       totalProducts: 89,
@@ -200,7 +171,6 @@ const Consignor = () => {
         account: '87654321-0',
         accountType: 'checking',
       },
-      status: 'active',
       createdAt: '2024-01-01T16:00:00Z',
       updatedAt: '2024-01-14T09:40:00Z',
       totalProducts: 23,
@@ -222,7 +192,6 @@ const Consignor = () => {
         account: '98765-4',
         accountType: 'savings',
       },
-      status: 'active',
       createdAt: '2024-01-07T13:45:00Z',
       updatedAt: '2024-01-13T17:15:00Z',
       totalProducts: 67,
@@ -231,72 +200,6 @@ const Consignor = () => {
       totalCommission: 1780.3,
     },
   ]);
-
-  const handleCreateConsignor = async (data: ConsignorFormData) => {
-    setLoading(true);
-    try {
-      // Simular chamada à API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const newConsignor: ConsignorItem = {
-        id: Math.max(...consignors.map((c) => c.id)) + 1,
-        name: data.name,
-        cpf: data.cpf,
-        email: data.email,
-        phone: data.phone,
-        paymentMethod: data.paymentMethod,
-        pixKey: data.pixKey,
-        bankAccount: data.bankAccount,
-        status: data.status,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        totalProducts: 0,
-        productsForSale: 0,
-        soldProducts: 0,
-        totalCommission: 0,
-      };
-
-      setConsignors((prev) => [...prev, newConsignor]);
-      setShowForm(false);
-    } catch (error) {
-      console.error('Erro ao criar consignante:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdateConsignor = async (data: ConsignorFormData) => {
-    if (!editingConsignor) return;
-
-    setLoading(true);
-    try {
-      // Simular chamada à API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const updatedConsignor: ConsignorItem = {
-        ...editingConsignor,
-        name: data.name,
-        cpf: data.cpf,
-        email: data.email,
-        phone: data.phone,
-        paymentMethod: data.paymentMethod,
-        pixKey: data.pixKey,
-        bankAccount: data.bankAccount,
-        status: data.status,
-        updatedAt: new Date().toISOString(),
-      };
-
-      setConsignors((prev) =>
-        prev.map((cons) => (cons.id === editingConsignor.id ? updatedConsignor : cons)),
-      );
-      setShowForm(false);
-      setEditingConsignor(undefined);
-    } catch (error) {
-      console.error('Erro ao atualizar consignante:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDeleteConsignor = (consignor: ConsignorItem) => {
     setDeletingConsignor(consignor);
@@ -328,13 +231,7 @@ const Consignor = () => {
   };
 
   const handleViewHistory = (consignor: ConsignorItem) => {
-    setHistoryConsignor(consignor);
-    setShowHistory(true);
-  };
-
-  const handleCloseHistory = () => {
-    setShowHistory(false);
-    setHistoryConsignor(undefined);
+    navigate(`/admin/consignantes/historico/${consignor.id}`);
   };
 
   const filteredConsignors = consignors.filter(
@@ -534,24 +431,6 @@ const Consignor = () => {
           )}
         </div>
       </div>
-
-      {/* Form Modal */}
-      {showForm && (
-        <ConsignorForm
-          consignor={editingConsignor}
-          onSubmit={editingConsignor ? handleUpdateConsignor : handleCreateConsignor}
-          onCancel={() => {
-            setShowForm(false);
-            setEditingConsignor(undefined);
-          }}
-          isLoading={loading}
-        />
-      )}
-
-      {/* History Modal */}
-      {showHistory && historyConsignor && (
-        <ConsignorHistory consignor={historyConsignor} onClose={handleCloseHistory} />
-      )}
 
       {/* Confirm Delete Dialog */}
       <ConfirmDialog
