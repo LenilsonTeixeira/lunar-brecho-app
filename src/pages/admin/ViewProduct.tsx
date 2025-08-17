@@ -11,10 +11,16 @@ interface ProductItem {
   price: number;
   offerPrice: number;
   totalQuantity: number;
+  initialStock: number;
+  soldQuantity: number;
+  reservedQuantity: number;
   status: 'ativo' | 'inativo';
   sizes: Array<{
     size: string;
     quantity: number;
+    initialQuantity: number;
+    soldQuantity: number;
+    reservedQuantity: number;
   }>;
   images: string[];
   description?: string;
@@ -37,11 +43,14 @@ const ViewProduct = () => {
     price: 89.9,
     offerPrice: 59.9,
     totalQuantity: 12,
+    initialStock: 25,
+    soldQuantity: 8,
+    reservedQuantity: 5,
     status: 'ativo',
     sizes: [
-      { size: 'P', quantity: 3 },
-      { size: 'M', quantity: 5 },
-      { size: 'G', quantity: 4 },
+      { size: 'P', quantity: 3, initialQuantity: 8, soldQuantity: 3, reservedQuantity: 2 },
+      { size: 'M', quantity: 5, initialQuantity: 10, soldQuantity: 3, reservedQuantity: 2 },
+      { size: 'G', quantity: 4, initialQuantity: 7, soldQuantity: 2, reservedQuantity: 1 },
     ],
     images: [
       'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
@@ -246,38 +255,127 @@ const ViewProduct = () => {
           </div>
 
           {/* Estoque */}
-          <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
-            <div className='flex items-center gap-3 mb-4'>
+          <div className='p-4 sm:p-6 bg-slate-50 rounded-lg border border-slate-200'>
+            <div className='flex items-center gap-3 mb-6'>
               <BarChart3 className='w-5 h-5 text-purple-600' />
               <h3 className='text-lg font-semibold text-slate-800'>Estoque</h3>
             </div>
 
+            {/* Resumo Geral do Estoque */}
+            <div className='mb-6 p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200'>
+              <h4 className='text-base sm:text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2'>
+                Resumo Geral
+              </h4>
+              <div className='grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4'>
+                <div className='text-center'>
+                  <div className='text-xl sm:text-2xl font-bold text-purple-600 mb-1'>
+                    {mockProduct.initialStock}
+                  </div>
+                  <div className='text-xs sm:text-sm text-slate-600'>Estoque Inicial</div>
+                </div>
+                <div className='text-center'>
+                  <div className='text-xl sm:text-2xl font-bold text-blue-600 mb-1'>
+                    {mockProduct.totalQuantity}
+                  </div>
+                  <div className='text-xs sm:text-sm text-slate-600'>Estoque Atual</div>
+                </div>
+                <div className='text-center'>
+                  <div className='text-xl sm:text-2xl font-bold text-green-600 mb-1'>
+                    {mockProduct.soldQuantity}
+                  </div>
+                  <div className='text-xs sm:text-sm text-slate-600'>Vendidos</div>
+                </div>
+                <div className='text-center'>
+                  <div className='text-xl sm:text-2xl font-bold text-orange-600 mb-1'>
+                    {mockProduct.reservedQuantity}
+                  </div>
+                  <div className='text-xs sm:text-sm text-slate-600'>Reservados</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Detalhamento por Tamanho */}
             <div className='space-y-3'>
+              <h4 className='text-base sm:text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2'>
+                Detalhamento por Tamanho
+              </h4>
+
               {mockProduct.sizes.map((sizeItem, index) => (
-                <div key={index} className='p-4 bg-white rounded-lg border border-slate-200'>
-                  <div className='flex items-center justify-between'>
+                <div
+                  key={index}
+                  className='p-3 sm:p-4 bg-white rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 group'
+                >
+                  {/* Cabeçalho do Tamanho */}
+                  <div className='flex items-center justify-between gap-3 mb-3'>
                     <div className='flex items-center gap-3'>
-                      <span className='text-sm font-medium text-slate-600 bg-slate-200 px-3 py-1 rounded'>
-                        Tamanho: {sizeItem.size}
-                      </span>
+                      <div className='relative'>
+                        <div className='flex items-center gap-2'>
+                          <div className='w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center shadow-md'>
+                            <span className='text-sm font-bold text-white'>{sizeItem.size}</span>
+                          </div>
+                          <div className='hidden sm:block'>
+                            <div className='text-sm font-medium text-slate-700'>
+                              Tamanho {sizeItem.size}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
+
+                    {/* Quantidade Disponível */}
                     <div className='text-right'>
-                      <span className='text-sm font-semibold text-white bg-gradient-to-br from-purple-500 to-pink-500 w-8 h-8 rounded-full flex items-center justify-center shadow-lg'>
-                        {sizeItem.quantity}
-                      </span>
+                      <div className='inline-flex items-center gap-2  px-3 py-2'>
+                        <div className='text-lg sm:text-xl font-bold text-purple-600'>
+                          {sizeItem.quantity}
+                        </div>
+                        <div className='text-xs text-slate-500'>Disponível</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Métricas do Tamanho */}
+                  <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
+                    {/* Estoque Inicial */}
+                    <div className='relative p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:shadow-sm transition-all duration-300'>
+                      <div className='flex items-center gap-2 mb-1'>
+                        <span className='text-xs font-semibold text-blue-700 uppercase tracking-wide'>
+                          Inicial
+                        </span>
+                      </div>
+                      <div className='text-lg sm:text-xl font-bold text-blue-700 mb-1'>
+                        {sizeItem.initialQuantity}
+                      </div>
+                      <div className='text-xs text-blue-600'>Unidades cadastradas</div>
+                    </div>
+
+                    {/* Quantidade Vendida */}
+                    <div className='relative p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200 hover:shadow-sm transition-all duration-300'>
+                      <div className='flex items-center gap-2 mb-1'>
+                        <span className='text-xs font-semibold text-green-700 uppercase tracking-wide'>
+                          Vendidos
+                        </span>
+                      </div>
+                      <div className='text-lg sm:text-xl font-bold text-green-700 mb-1'>
+                        {sizeItem.soldQuantity}
+                      </div>
+                      <div className='text-xs text-blue-600'>Unidades vendidas</div>
+                    </div>
+
+                    {/* Quantidade Reservada */}
+                    <div className='relative p-3 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200 hover:shadow-sm transition-all duration-300'>
+                      <div className='flex items-center gap-2 mb-1'>
+                        <span className='text-xs font-semibold text-orange-700 uppercase tracking-wide'>
+                          Reservados
+                        </span>
+                      </div>
+                      <div className='text-lg sm:text-xl font-bold text-orange-700 mb-1'>
+                        {sizeItem.reservedQuantity}
+                      </div>
+                      <div className='text-xs text-orange-600'>Unidades reservadas</div>
                     </div>
                   </div>
                 </div>
               ))}
-            </div>
-
-            <div className='mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200'>
-              <div className='flex justify-between items-center'>
-                <span className='text-lg font-semibold text-slate-800'>Total em Estoque</span>
-                <span className='text-xl font-bold text-purple-600'>
-                  {mockProduct.totalQuantity}
-                </span>
-              </div>
             </div>
           </div>
 
