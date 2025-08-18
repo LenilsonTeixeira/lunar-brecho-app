@@ -3,6 +3,9 @@ import { Plus, X } from 'lucide-react';
 
 const AddProduct = () => {
   const [sizes, setSizes] = useState([{ id: 1, size: '', quantity: 1 }]);
+  const [productPrice, setProductPrice] = useState<number | ''>('');
+  const [discountType, setDiscountType] = useState<'percentage' | 'fixed' | 'none'>('percentage');
+  const [discountValue, setDiscountValue] = useState<number | ''>('');
 
   const availableSizes = [
     'PP',
@@ -37,6 +40,72 @@ const AddProduct = () => {
 
   const updateSize = (id: number, field: 'size' | 'quantity', value: string | number) => {
     setSizes(sizes.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
+  };
+
+  const calculateFinalPrice = () => {
+    if (discountType === 'none' || Number(discountValue) === 0) {
+      return Number(productPrice) || 0;
+    }
+
+    if (discountType === 'percentage') {
+      return (
+        (Number(productPrice) || 0) -
+        ((Number(productPrice) || 0) * (Number(discountValue) || 0)) / 100
+      );
+    }
+
+    if (discountType === 'fixed') {
+      return Math.max(0, (Number(productPrice) || 0) - (Number(discountValue) || 0));
+    }
+
+    return Number(productPrice) || 0;
+  };
+
+  const getDiscountSymbol = () => {
+    switch (discountType) {
+      case 'percentage':
+        return '%';
+      case 'fixed':
+        return 'R$';
+      case 'none':
+        return '';
+      default:
+        return '%';
+    }
+  };
+
+  const handleDiscountTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newType = e.target.value as 'percentage' | 'fixed' | 'none';
+    setDiscountType(newType);
+
+    // Reset discount value when changing type
+    if (newType === 'none') {
+      setDiscountValue('');
+    }
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '') {
+      setProductPrice('');
+    } else {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue) && numValue >= 0) {
+        setProductPrice(numValue);
+      }
+    }
+  };
+
+  const handleDiscountValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value === '') {
+      setDiscountValue('');
+    } else {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue) && numValue >= 0) {
+        setDiscountValue(numValue);
+      }
+    }
   };
 
   return (
@@ -306,46 +375,121 @@ const AddProduct = () => {
             ></textarea>
           </div>
 
-          {/* Prices - Side by side on larger screens */}
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6'>
-            <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm sm:text-base font-semibold text-slate-700'
-                htmlFor='product-price'
-              >
-                Preço Original
-              </label>
-              <div className='relative'>
-                <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-sm sm:text-base'>
-                  R$
-                </span>
-                <input
-                  id='product-price'
-                  type='number'
-                  placeholder='0,00'
-                  className='outline-none py-2 sm:py-3 pl-10 pr-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full'
-                  required
-                />
+          {/* Prices and Discount - Professional Section */}
+          <div className='p-4 sm:p-6 bg-gradient-to-br from-slate-50 to-purple-50 rounded-xl border border-slate-200 shadow-sm'>
+            <div className='mb-6'>
+              <h3 className='text-lg sm:text-xl font-bold text-slate-800 mb-2'>
+                Preços e Descontos
+              </h3>
+              <p className='text-sm text-slate-600'>
+                Configure o preço base e as opções de desconto
+              </p>
+            </div>
+
+            <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6'>
+              {/* Preço Original */}
+              <div className='flex flex-col gap-3'>
+                <label
+                  className='text-sm font-semibold text-slate-700 flex items-center gap-2'
+                  htmlFor='product-price'
+                >
+                  <div className='w-2 h-2 bg-green-500 rounded-full'></div>
+                  Preço Original
+                  <span className='text-red-500 ml-1'>*</span>
+                </label>
+                <div className='relative group'>
+                  <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-sm font-medium group-focus-within:text-purple-600 transition-colors'>
+                    R$
+                  </span>
+                  <input
+                    id='product-price'
+                    type='number'
+                    min='0'
+                    step='0.01'
+                    value={productPrice}
+                    onChange={handlePriceChange}
+                    placeholder='0,00'
+                    className='outline-none py-3 pl-10 pr-4 text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full group-hover:border-purple-300'
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Tipo de Desconto */}
+              <div className='flex flex-col gap-3'>
+                <label
+                  className='text-sm font-semibold text-slate-700 flex items-center gap-2'
+                  htmlFor='discount-type'
+                >
+                  <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
+                  Tipo de Desconto
+                </label>
+                <select
+                  id='discount-type'
+                  value={discountType}
+                  onChange={handleDiscountTypeChange}
+                  className='outline-none py-3 px-4 text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white cursor-pointer hover:border-purple-300'
+                >
+                  <option value='percentage'>Porcentagem (%)</option>
+                  <option value='fixed'>Valor Fixo (R$)</option>
+                  <option value='none'>Sem Desconto</option>
+                </select>
+              </div>
+
+              {/* Valor do Desconto */}
+              <div className='flex flex-col gap-3 sm:col-span-2 xl:col-span-1'>
+                <label
+                  className='text-sm font-semibold text-slate-700 flex items-center gap-2'
+                  htmlFor='discount-value'
+                >
+                  <div className='w-2 h-2 bg-red-500 rounded-full'></div>
+                  Valor do Desconto
+                </label>
+                <div className='relative group'>
+                  {discountType !== 'none' && (
+                    <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-sm font-medium group-focus-within:text-purple-600 transition-colors'>
+                      {getDiscountSymbol()}
+                    </span>
+                  )}
+                  <input
+                    id='discount-value'
+                    type='number'
+                    min='0'
+                    step={discountType === 'percentage' ? '0.01' : '0.01'}
+                    value={discountType === 'none' ? 0 : discountValue}
+                    onChange={handleDiscountValueChange}
+                    placeholder='0'
+                    disabled={discountType === 'none'}
+                    className={`outline-none py-3 pr-4 text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full group-hover:border-purple-300 ${
+                      discountType === 'none' ? 'pl-4 bg-slate-100 cursor-not-allowed' : 'pl-10'
+                    }`}
+                  />
+                </div>
               </div>
             </div>
-            <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm sm:text-base font-semibold text-slate-700'
-                htmlFor='offer-price'
-              >
-                Preço com Desconto
-              </label>
-              <div className='relative'>
-                <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-sm sm:text-base'>
-                  R$
+
+            {/* Preview do Preço Final */}
+            <div className='mt-6 p-4 bg-gradient-to-r from-purple-50 via-pink-50 to-purple-50 rounded-lg border border-purple-200'>
+              <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
+                <div className='flex items-center gap-2'>
+                  <svg
+                    className='w-5 h-5 text-purple-600'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+                    />
+                  </svg>
+                  <span className='text-sm font-medium text-purple-700'>Preço Final Estimado:</span>
+                </div>
+                <span className='text-lg sm:text-xl font-bold text-purple-800'>
+                  R$ {calculateFinalPrice().toFixed(2)}
                 </span>
-                <input
-                  id='offer-price'
-                  type='number'
-                  placeholder='0,00'
-                  className='outline-none py-2 sm:py-3 pl-10 pr-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full'
-                  required
-                />
               </div>
             </div>
           </div>
