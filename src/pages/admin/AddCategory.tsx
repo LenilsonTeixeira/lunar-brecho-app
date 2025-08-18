@@ -203,28 +203,6 @@ const AddCategory = () => {
             </select>
           </div>
 
-          {/* Category Priority */}
-          <div className='flex flex-col gap-2'>
-            <label
-              className='text-sm sm:text-base font-semibold text-slate-700'
-              htmlFor='category-priority'
-            >
-              Prioridade de Exibição
-            </label>
-            <input
-              id='category-priority'
-              name='categoryPriority'
-              type='number'
-              min='1'
-              max='100'
-              placeholder='1'
-              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-            />
-            <span className='text-xs text-slate-500'>
-              Número de 1 a 100 para definir a ordem de exibição (1 = maior prioridade)
-            </span>
-          </div>
-
           {/* Submit Button */}
           <div className='pt-4'>
             <button

@@ -36,7 +36,6 @@ const EditCategory = () => {
   const [categoryColor, setCategoryColor] = useState(mockCategory.color);
   const [categoryDescription, setCategoryDescription] = useState(mockCategory.description);
   const [categoryStatus, setCategoryStatus] = useState<'ativo' | 'inativo'>(mockCategory.status);
-  const [categoryPriority, setCategoryPriority] = useState(mockCategory.priority);
   const [categoryImage, setCategoryImage] = useState(mockCategory.image || '');
 
   useEffect(() => {
@@ -74,11 +73,6 @@ const EditCategory = () => {
       return;
     }
 
-    if (categoryPriority < 1) {
-      alert('Por favor, defina uma prioridade válida.');
-      return;
-    }
-
     // Simular atualização da categoria
     const updatedCategory = {
       ...category,
@@ -86,7 +80,6 @@ const EditCategory = () => {
       color: categoryColor,
       description: categoryDescription,
       status: categoryStatus,
-      priority: categoryPriority,
       image: categoryImage,
     };
 
@@ -159,22 +152,6 @@ const EditCategory = () => {
                   <option value='ativo'>Ativa</option>
                   <option value='inativo'>Inativa</option>
                 </select>
-              </div>
-
-              <div className='flex flex-col gap-2'>
-                <label className='text-sm font-semibold text-slate-700' htmlFor='category-priority'>
-                  Prioridade *
-                </label>
-                <input
-                  id='category-priority'
-                  type='number'
-                  min='1'
-                  max='10'
-                  value={categoryPriority}
-                  onChange={(e) => setCategoryPriority(parseInt(e.target.value) || 1)}
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                  required
-                />
               </div>
             </div>
           </div>

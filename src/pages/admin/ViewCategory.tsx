@@ -1,4 +1,4 @@
-import { ArrowLeft, Tag, Palette, FileText, Star, Image } from 'lucide-react';
+import { ArrowLeft, Tag, Palette, FileText, Image } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 
 interface Category {
@@ -94,25 +94,13 @@ const ViewCategory = () => {
               <h3 className='text-lg font-semibold text-slate-800'>Informações Básicas</h3>
             </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <div className='grid grid-cols-1 gap-4'>
               <div>
                 <label className='text-sm font-semibold text-slate-700 mb-2 block'>
                   Nome da Categoria
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
                   <span className='text-slate-800'>{mockCategory.name}</span>
-                </div>
-              </div>
-
-              <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>
-                  Prioridade
-                </label>
-                <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <div className='flex items-center gap-2'>
-                    <Star className='w-4 h-4 text-yellow-500' />
-                    <span className='text-slate-800'>{mockCategory.priority}</span>
-                  </div>
                 </div>
               </div>
             </div>
