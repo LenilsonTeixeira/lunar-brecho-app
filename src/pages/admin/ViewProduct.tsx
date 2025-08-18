@@ -1,4 +1,4 @@
-import { ArrowLeft, Package, Tag, DollarSign, BarChart3, Image } from 'lucide-react';
+import { ArrowLeft, Package, Tag, BarChart3, Image } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import ProductTypeBadge from '../../components/product/ProductTypeBadge';
 
@@ -9,7 +9,8 @@ interface ProductItem {
   brand: string;
   type: 'novo' | 'bazar';
   price: number;
-  offerPrice: number;
+  discountType: 'percentage' | 'fixed' | 'none';
+  discountValue: number;
   totalQuantity: number;
   initialStock: number;
   soldQuantity: number;
@@ -41,7 +42,8 @@ const ViewProduct = () => {
     brand: 'Zara',
     type: 'bazar',
     price: 89.9,
-    offerPrice: 59.9,
+    discountType: 'percentage',
+    discountValue: 33.5,
     totalQuantity: 12,
     initialStock: 25,
     soldQuantity: 8,
@@ -93,6 +95,48 @@ const ViewProduct = () => {
         return 'bg-red-300 text-slate-950';
       default:
         return 'bg-slate-300 text-slate-950';
+    }
+  };
+
+  const calculateFinalPrice = () => {
+    if (mockProduct.discountType === 'none' || mockProduct.discountValue === 0) {
+      return mockProduct.price;
+    }
+
+    if (mockProduct.discountType === 'percentage') {
+      return mockProduct.price - (mockProduct.price * mockProduct.discountValue) / 100;
+    }
+
+    if (mockProduct.discountType === 'fixed') {
+      return Math.max(0, mockProduct.price - mockProduct.discountValue);
+    }
+
+    return mockProduct.price;
+  };
+
+  const getDiscountSymbol = () => {
+    switch (mockProduct.discountType) {
+      case 'percentage':
+        return '%';
+      case 'fixed':
+        return 'R$';
+      case 'none':
+        return '';
+      default:
+        return '%';
+    }
+  };
+
+  const getDiscountLabel = () => {
+    switch (mockProduct.discountType) {
+      case 'percentage':
+        return 'Porcentagem';
+      case 'fixed':
+        return 'Valor Fixo';
+      case 'none':
+        return 'Sem Desconto';
+      default:
+        return 'Porcentagem';
     }
   };
 
@@ -222,34 +266,87 @@ const ViewProduct = () => {
             )}
           </div>
 
-          {/* Preços */}
-          <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
-            <div className='flex items-center gap-3 mb-4'>
-              <DollarSign className='w-5 h-5 text-purple-600' />
-              <h3 className='text-lg font-semibold text-slate-800'>Preços</h3>
+          {/* Preços e Descontos */}
+          <div className='p-4 sm:p-6 bg-gradient-to-br from-slate-50 to-purple-50 rounded-xl border border-slate-200 shadow-sm'>
+            <div className='mb-6'>
+              <h3 className='text-lg sm:text-xl font-bold text-slate-800 mb-2'>
+                Preços e Descontos
+              </h3>
+              <p className='text-sm text-slate-600'>
+                Informações sobre preços e descontos aplicados
+              </p>
             </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6'>
+              {/* Preço Original */}
+              <div className='flex flex-col gap-3'>
+                <label className='text-sm font-semibold text-slate-700 flex items-center gap-2'>
+                  <div className='w-2 h-2 bg-green-500 rounded-full'></div>
                   Preço Original
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-500 line-through'>
+                  <span className='text-lg font-bold text-slate-800'>
                     {formatPrice(mockProduct.price)}
                   </span>
                 </div>
               </div>
 
-              <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>
-                  Preço de Oferta
+              {/* Tipo de Desconto */}
+              <div className='flex flex-col gap-3'>
+                <label className='text-sm font-semibold text-slate-700 flex items-center gap-2'>
+                  <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
+                  Tipo de Desconto
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800 font-semibold'>
-                    {formatPrice(mockProduct.offerPrice)}
-                  </span>
+                  <span className='text-sm font-medium text-slate-800'>{getDiscountLabel()}</span>
                 </div>
+              </div>
+
+              {/* Valor do Desconto */}
+              <div className='flex flex-col gap-3 sm:col-span-2 xl:col-span-1'>
+                <label className='text-sm font-semibold text-slate-700 flex items-center gap-2'>
+                  <div className='w-2 h-2 bg-red-500 rounded-full'></div>
+                  Valor do Desconto
+                </label>
+                <div className='p-3 bg-white rounded-lg border border-slate-200'>
+                  {mockProduct.discountType !== 'none' ? (
+                    <div className='flex items-center gap-2'>
+                      <span className='text-sm font-medium text-slate-600'>
+                        {getDiscountSymbol()}
+                      </span>
+                      <span className='text-lg font-bold text-slate-800'>
+                        {mockProduct.discountValue}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className='text-sm text-slate-500'>Não aplicado</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Preview do Preço Final */}
+            <div className='mt-6 p-4 bg-gradient-to-r from-purple-50 via-pink-50 to-purple-50 rounded-lg border border-purple-200'>
+              <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2'>
+                <div className='flex items-center gap-2'>
+                  <svg
+                    className='w-5 h-5 text-purple-600'
+                    fill='none'
+                    stroke='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+                    />
+                  </svg>
+                  <span className='text-sm font-medium text-purple-700'>Preço Final:</span>
+                </div>
+                <span className='text-lg sm:text-xl font-bold text-purple-800'>
+                  {formatPrice(calculateFinalPrice())}
+                </span>
               </div>
             </div>
           </div>

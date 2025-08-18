@@ -627,11 +627,8 @@ const ListProduct = () => {
                     </td>
                     <td className='px-6 py-4'>
                       <div className='space-y-1'>
-                        <p className='text-xs sm:text-sm text-slate-500 line-through'>
-                          {formatPrice(product.price)}
-                        </p>
                         <p className='text-xs sm:text-sm font-semibold text-slate-800'>
-                          {formatPrice(product.offerPrice)}
+                          {formatPrice(product.price)}
                         </p>
                       </div>
                     </td>
