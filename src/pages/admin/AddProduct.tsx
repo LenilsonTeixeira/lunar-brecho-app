@@ -1,11 +1,21 @@
 import { useState } from 'react';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 
 const AddProduct = () => {
+  const [currentStep, setCurrentStep] = useState(1);
   const [sizes, setSizes] = useState([{ id: 1, size: '', quantity: 1 }]);
   const [productPrice, setProductPrice] = useState<number | ''>('');
   const [discountType, setDiscountType] = useState<'percentage' | 'fixed' | 'none'>('percentage');
   const [discountValue, setDiscountValue] = useState<number | ''>('');
+
+  const steps = [
+    { id: 1, title: 'Imagens', description: 'Adicione as fotos do produto' },
+    { id: 2, title: 'Informações Básicas', description: 'Nome, categoria e marca' },
+    { id: 3, title: 'Tamanhos', description: 'Configure tamanhos e quantidades' },
+    { id: 4, title: 'Descrição', description: 'Detalhes e observações' },
+    { id: 5, title: 'Preços', description: 'Preço e descontos' },
+    { id: 6, title: 'Revisão', description: 'Confirme os dados' },
+  ];
 
   const availableSizes = [
     'PP',
@@ -108,18 +118,26 @@ const AddProduct = () => {
     }
   };
 
-  return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
-        <div className='mb-8'>
-          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Adicionar Produto</h1>
-          <p className='text-sm sm:text-base text-slate-600'>
-            Preencha as informações do produto abaixo
-          </p>
-        </div>
+  const nextStep = () => {
+    if (currentStep < steps.length) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
 
-        <form className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'>
-          {/* Product Images */}
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const goToStep = (step: number) => {
+    setCurrentStep(step);
+  };
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
           <div>
             <label className='text-sm sm:text-base font-semibold text-slate-700 mb-3 block'>
               Imagens do Produto
@@ -185,82 +203,92 @@ const AddProduct = () => {
                 ))}
             </div>
           </div>
+        );
 
-          {/* Product Name and Category - Side by side on larger screens */}
-          <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-            <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm sm:text-base font-semibold text-slate-700'
-                htmlFor='product-name'
-              >
-                Nome do Produto
-              </label>
-              <input
-                id='product-name'
-                type='text'
-                placeholder='Digite o nome do produto'
-                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                required
-              />
+      case 2:
+        return (
+          <div className='space-y-6'>
+            {/* Product Name and Category - Side by side on larger screens */}
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='product-name'
+                >
+                  Nome do Produto
+                </label>
+                <input
+                  id='product-name'
+                  type='text'
+                  placeholder='Digite o nome do produto'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  required
+                />
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='category'
+                >
+                  Categoria
+                </label>
+                <select
+                  id='category'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                >
+                  <option value=''>Selecione uma categoria</option>
+                  {[
+                    { name: 'Roupas Femininas' },
+                    { name: 'Acessórios' },
+                    { name: 'Sapatos' },
+                    { name: 'Bolsas' },
+                    { name: 'Bijuterias' },
+                  ].map((item, index) => (
+                    <option key={index} value={item.name}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm sm:text-base font-semibold text-slate-700'
-                htmlFor='category'
-              >
-                Categoria
-              </label>
-              <select
-                id='category'
-                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-              >
-                <option value=''>Selecione uma categoria</option>
-                {[
-                  { name: 'Roupas Femininas' },
-                  { name: 'Acessórios' },
-                  { name: 'Sapatos' },
-                  { name: 'Bolsas' },
-                  { name: 'Bijuterias' },
-                ].map((item, index) => (
-                  <option key={index} value={item.name}>
-                    {item.name}
-                  </option>
-                ))}
-              </select>
+            {/* Brand and Type - Side by side on larger screens */}
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='brand'
+                >
+                  Marca
+                </label>
+                <input
+                  id='brand'
+                  type='text'
+                  placeholder='Digite a marca do produto'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='type'>
+                  Tipo
+                </label>
+                <select
+                  id='type'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                >
+                  <option value=''>Selecione o tipo</option>
+                  <option value='novo'>Novo</option>
+                  <option value='bazar'>Bazar</option>
+                </select>
+              </div>
             </div>
           </div>
+        );
 
-          {/* Brand and Type - Side by side on larger screens */}
-          <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-            <div className='flex flex-col gap-2'>
-              <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='brand'>
-                Marca
-              </label>
-              <input
-                id='brand'
-                type='text'
-                placeholder='Digite a marca do produto'
-                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-              />
-            </div>
-
-            <div className='flex flex-col gap-2'>
-              <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='type'>
-                Tipo
-              </label>
-              <select
-                id='type'
-                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-              >
-                <option value=''>Selecione o tipo</option>
-                <option value='novo'>Novo</option>
-                <option value='bazar'>Bazar</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Sizes and Quantities - Dynamic Management */}
+      case 3:
+        return (
           <div>
             <div className='flex items-center justify-between mb-4'>
               <label className='text-sm sm:text-base font-semibold text-slate-700'>
@@ -342,40 +370,47 @@ const AddProduct = () => {
               </div>
             </div>
           </div>
+        );
 
-          {/* Product Description */}
-          <div className='flex flex-col gap-2'>
-            <label
-              className='text-sm sm:text-base font-semibold text-slate-700'
-              htmlFor='product-description'
-            >
-              Descrição do Produto
-            </label>
-            <textarea
-              id='product-description'
-              rows={4}
-              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
-              placeholder='Digite a descrição do produto'
-            ></textarea>
+      case 4:
+        return (
+          <div className='space-y-6'>
+            {/* Product Description */}
+            <div className='flex flex-col gap-2'>
+              <label
+                className='text-sm sm:text-base font-semibold text-slate-700'
+                htmlFor='product-description'
+              >
+                Descrição do Produto
+              </label>
+              <textarea
+                id='product-description'
+                rows={4}
+                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
+                placeholder='Digite a descrição do produto'
+              ></textarea>
+            </div>
+
+            {/* Observations */}
+            <div className='flex flex-col gap-2'>
+              <label
+                className='text-sm sm:text-base font-semibold text-slate-700'
+                htmlFor='observations'
+              >
+                Observações
+              </label>
+              <textarea
+                id='observations'
+                rows={3}
+                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
+                placeholder='Informações adicionais, detalhes especiais, etc.'
+              ></textarea>
+            </div>
           </div>
+        );
 
-          {/* Observations */}
-          <div className='flex flex-col gap-2'>
-            <label
-              className='text-sm sm:text-base font-semibold text-slate-700'
-              htmlFor='observations'
-            >
-              Observações
-            </label>
-            <textarea
-              id='observations'
-              rows={3}
-              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
-              placeholder='Informações adicionais, detalhes especiais, etc.'
-            ></textarea>
-          </div>
-
-          {/* Prices and Discount - Professional Section */}
+      case 5:
+        return (
           <div className='p-4 sm:p-6 bg-gradient-to-br from-slate-50 to-purple-50 rounded-xl border border-slate-200 shadow-sm'>
             <div className='mb-6'>
               <h3 className='text-lg sm:text-xl font-bold text-slate-800 mb-2'>
@@ -493,15 +528,270 @@ const AddProduct = () => {
               </div>
             </div>
           </div>
+        );
 
-          {/* Submit Button */}
-          <div className='pt-4'>
+      case 6:
+        return (
+          <div className='space-y-6'>
+            <div className='p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200'>
+              <div className='flex items-center gap-3 mb-4'>
+                <div className='w-12 h-12 bg-green-100 rounded-full flex items-center justify-center'>
+                  <Check className='w-6 h-6 text-green-600' />
+                </div>
+                <div>
+                  <h3 className='text-lg font-bold text-green-800'>Revisão Final</h3>
+                  <p className='text-sm text-green-600'>
+                    Confirme todas as informações antes de salvar
+                  </p>
+                </div>
+              </div>
+
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div className='space-y-3'>
+                  <h4 className='font-semibold text-green-700'>Informações Básicas</h4>
+                  <div className='text-sm text-green-600'>
+                    <p>
+                      <strong>Nome:</strong> [Nome do produto]
+                    </p>
+                    <p>
+                      <strong>Categoria:</strong> [Categoria selecionada]
+                    </p>
+                    <p>
+                      <strong>Marca:</strong> [Marca do produto]
+                    </p>
+                    <p>
+                      <strong>Tipo:</strong> [Novo/Bazar]
+                    </p>
+                  </div>
+                </div>
+
+                <div className='space-y-3'>
+                  <h4 className='font-semibold text-green-700'>Preços</h4>
+                  <div className='text-sm text-green-600'>
+                    <p>
+                      <strong>Preço Original:</strong> R$ {productPrice || '0,00'}
+                    </p>
+                    <p>
+                      <strong>Desconto:</strong>{' '}
+                      {discountType === 'none'
+                        ? 'Sem desconto'
+                        : `${discountValue}${getDiscountSymbol()}`}
+                    </p>
+                    <p>
+                      <strong>Preço Final:</strong> R$ {calculateFinalPrice().toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className='mt-4 p-3 bg-white rounded-lg border border-green-200'>
+                <p className='text-sm text-green-700'>
+                  <strong>Quantidade Total:</strong>{' '}
+                  {sizes.reduce((total, item) => total + item.quantity, 0)} unidades
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className='py-6 flex flex-col justify-between bg-slate-50'>
+      <div className='w-full max-w-7xl mx-auto'>
+        <div className='mb-8'>
+          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Adicionar Produto</h1>
+          <p className='text-sm sm:text-base text-slate-600'>
+            Preencha as informações do produto abaixo
+          </p>
+        </div>
+
+        {/* Stepper Header */}
+        <div className='mb-8'>
+          <div className='bg-white rounded-xl shadow-lg p-4 sm:p-6'>
+            <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3'>
+              <h2 className='text-base sm:text-lg font-semibold text-slate-800 text-center sm:text-left'>
+                Passo {currentStep} de {steps.length}: {steps[currentStep - 1].title}
+              </h2>
+              <div className='text-sm text-slate-500 text-center sm:text-right'>
+                {Math.round((currentStep / steps.length) * 100)}% completo
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className='w-full bg-slate-200 rounded-full h-2 mb-6'>
+              <div
+                className='bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500 ease-out'
+                style={{ width: `${(currentStep / steps.length) * 100}%` }}
+              ></div>
+            </div>
+
+            {/* Steps - Mobile Responsive */}
+            <div className='hidden sm:flex items-center justify-between'>
+              {steps.map((step, index) => (
+                <div key={step.id} className='flex items-center'>
+                  <button
+                    onClick={() => goToStep(step.id)}
+                    className={`flex flex-col items-center transition-all duration-300 ${
+                      step.id <= currentStep ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+                    }`}
+                    disabled={step.id > currentStep}
+                  >
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-all duration-300 ${
+                        step.id < currentStep
+                          ? 'bg-green-500 text-white'
+                          : step.id === currentStep
+                            ? 'bg-purple-500 text-white'
+                            : 'bg-slate-200 text-slate-500'
+                      }`}
+                    >
+                      {step.id < currentStep ? (
+                        <Check className='w-5 h-5' />
+                      ) : (
+                        <span className='text-sm font-semibold'>{step.id}</span>
+                      )}
+                    </div>
+                    <div className='text-center'>
+                      <div
+                        className={`text-xs font-medium transition-colors duration-300 ${
+                          step.id <= currentStep ? 'text-slate-800' : 'text-slate-500'
+                        }`}
+                      >
+                        {step.title}
+                      </div>
+                      <div
+                        className={`text-xs transition-colors duration-300 ${
+                          step.id <= currentStep ? 'text-slate-600' : 'text-slate-400'
+                        }`}
+                      >
+                        {step.description}
+                      </div>
+                    </div>
+                  </button>
+
+                  {index < steps.length - 1 && (
+                    <div
+                      className={`w-16 h-0.5 mx-4 transition-all duration-300 ${
+                        step.id < currentStep ? 'bg-green-500' : 'bg-slate-200'
+                      }`}
+                    ></div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Mobile Steps - Horizontal Scrollable */}
+            <div className='sm:hidden'>
+              <div
+                className='flex items-center gap-3 overflow-x-auto pb-2'
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                }}
+              >
+                {steps.map((step, index) => (
+                  <div key={step.id} className='flex items-center flex-shrink-0'>
+                    <button
+                      onClick={() => goToStep(step.id)}
+                      className={`flex flex-col items-center transition-all duration-300 min-w-[80px] ${
+                        step.id <= currentStep ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'
+                      }`}
+                      disabled={step.id > currentStep}
+                    >
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 transition-all duration-300 ${
+                          step.id < currentStep
+                            ? 'bg-green-500 text-white'
+                            : step.id === currentStep
+                              ? 'bg-purple-500 text-white'
+                              : 'bg-slate-200 text-slate-500'
+                        }`}
+                      >
+                        {step.id < currentStep ? (
+                          <Check className='w-4 h-4' />
+                        ) : (
+                          <span className='text-xs font-semibold'>{step.id}</span>
+                        )}
+                      </div>
+                      <div className='text-center'>
+                        <div
+                          className={`text-xs font-medium transition-colors duration-300 ${
+                            step.id <= currentStep ? 'text-slate-800' : 'text-slate-500'
+                          }`}
+                        >
+                          {step.title}
+                        </div>
+                      </div>
+                    </button>
+
+                    {index < steps.length - 1 && (
+                      <div
+                        className={`w-8 h-0.5 mx-2 transition-all duration-300 ${
+                          step.id < currentStep ? 'bg-green-500' : 'bg-slate-200'
+                        }`}
+                      ></div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Mobile Step Indicator */}
+              <div className='mt-3 text-center'>
+                <div className='inline-flex items-center gap-2 px-3 py-1 bg-purple-50 rounded-full'>
+                  <div className='w-2 h-2 bg-purple-500 rounded-full'></div>
+                  <span className='text-xs font-medium text-purple-700'>
+                    {steps[currentStep - 1].description}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Form Content */}
+        <form className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'>
+          {renderStepContent()}
+
+          {/* Navigation Buttons - Mobile Responsive */}
+          <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6 border-t border-slate-200'>
             <button
-              type='submit'
-              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              type='button'
+              onClick={prevStep}
+              disabled={currentStep === 1}
+              className={`flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-300 w-full sm:w-auto ${
+                currentStep === 1
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:scale-105'
+              }`}
             >
-              Adicionar Produto
+              <ChevronLeft className='w-4 h-4' />
+              Anterior
             </button>
+
+            <div className='flex flex-col sm:flex-row gap-3 w-full sm:w-auto'>
+              {currentStep < steps.length ? (
+                <button
+                  type='button'
+                  onClick={nextStep}
+                  className='flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl w-full sm:w-auto'
+                >
+                  Próximo
+                  <ChevronRight className='w-4 h-4' />
+                </button>
+              ) : (
+                <button
+                  type='submit'
+                  className='flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-500 text-white text-sm font-medium rounded-lg hover:from-green-700 hover:to-emerald-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl w-full sm:w-auto'
+                >
+                  <Check className='w-4 h-4' />
+                  Finalizar Cadastro
+                </button>
+              )}
+            </div>
           </div>
         </form>
       </div>
