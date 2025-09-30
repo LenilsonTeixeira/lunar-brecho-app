@@ -17,13 +17,17 @@ import {
   UserCheck,
   ChevronRight,
   Calculator,
+  Flag,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
 import { useState } from 'react';
 import MoonIcon from '../../icon/MoonIcon';
+import { useFeatureFlagsContext } from '@/contexts/FeatureFlagsContext';
 
-// Grouped sidebar items following admin panel best practices
-const sidebarGroups = [
+// Definição dos grupos do sidebar com mapeamento para feature flags
+const getSidebarGroups = (
+  isFeatureEnabled: (flag: keyof import('@/hooks/useFeatureFlags').FeatureFlags) => boolean,
+) => [
   {
     id: 'overview',
     label: 'Visão Geral',
@@ -32,6 +36,13 @@ const sidebarGroups = [
         label: 'Dashboard',
         icon: <LayoutDashboard />,
         path: '/admin',
+        enabled: isFeatureEnabled('dashboard'),
+      },
+      {
+        label: 'Feature Flags',
+        icon: <Flag />,
+        path: '/admin/feature-flags',
+        enabled: true, // Feature Flags sempre habilitado
       },
     ],
   },
@@ -43,11 +54,13 @@ const sidebarGroups = [
         label: 'Produtos',
         icon: <Package />,
         path: '/admin/produtos',
+        enabled: isFeatureEnabled('products'),
       },
       {
         label: 'Categorias',
         icon: <FolderOpen />,
         path: '/admin/categorias',
+        enabled: isFeatureEnabled('categories'),
       },
     ],
   },
@@ -59,11 +72,13 @@ const sidebarGroups = [
         label: 'Consignantes',
         icon: <UserCheck />,
         path: '/admin/consignantes',
+        enabled: isFeatureEnabled('consignors'),
       },
       {
         label: 'Fornecedores',
         icon: <Building2 />,
         path: '/admin/fornecedores',
+        enabled: isFeatureEnabled('suppliers'),
       },
     ],
   },
@@ -75,16 +90,19 @@ const sidebarGroups = [
         label: 'Clientes',
         icon: <Users />,
         path: '/admin/clientes',
+        enabled: isFeatureEnabled('customers'),
       },
       {
         label: 'Pedidos',
         icon: <ShoppingCart />,
         path: '/admin/pedidos',
+        enabled: isFeatureEnabled('orders'),
       },
       {
         label: 'Cupons',
         icon: <Tag />,
         path: '/admin/cupons',
+        enabled: isFeatureEnabled('coupons'),
       },
     ],
   },
@@ -96,21 +114,25 @@ const sidebarGroups = [
         label: 'Contas a Receber',
         icon: <TrendingUp />,
         path: '/admin/contas-receber',
+        enabled: isFeatureEnabled('accountsReceivable'),
       },
       {
         label: 'Contas a Pagar',
         icon: <TrendingDown />,
         path: '/admin/contas-pagar',
+        enabled: isFeatureEnabled('accountsPayable'),
       },
       {
         label: 'Fluxo de Caixa',
         icon: <DollarSign />,
         path: '/admin/fluxo-caixa',
+        enabled: isFeatureEnabled('cashFlow'),
       },
       {
         label: 'Simulação de Lucro',
         icon: <Calculator />,
         path: '/admin/simulacao-lucro',
+        enabled: isFeatureEnabled('profitSimulation'),
       },
     ],
   },
@@ -122,16 +144,19 @@ const sidebarGroups = [
         label: 'Usuários',
         icon: <Users />,
         path: '/admin/usuarios',
+        enabled: isFeatureEnabled('users'),
       },
       {
         label: 'Notificações',
         icon: <Bell />,
         path: '/admin/notificacoes',
+        enabled: isFeatureEnabled('notifications'),
       },
       {
         label: 'Configurações',
         icon: <Settings />,
         path: '/admin/configuracoes',
+        enabled: isFeatureEnabled('configurations'),
       },
     ],
   },
@@ -141,6 +166,10 @@ const Sidebar = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
+  const { isFeatureEnabled } = useFeatureFlagsContext();
+
+  // Obtém os grupos do sidebar com base nas feature flags
+  const sidebarGroups = getSidebarGroups(isFeatureEnabled);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
   const closeSidebar = () => setIsOpen(false);
@@ -157,7 +186,7 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     // Implementar lógica de logout aqui
-    console.log('Logout clicked');
+    // console.log('Logout clicked');
   };
 
   // Function to check if a menu item is active
@@ -175,6 +204,11 @@ const Sidebar = () => {
   // Check if any item in a group is active
   const isGroupActive = (group: (typeof sidebarGroups)[0]) => {
     return group.items.some((item) => isMenuItemActive(item.path));
+  };
+
+  // Check if a group has any enabled items
+  const hasEnabledItems = (group: (typeof sidebarGroups)[0]) => {
+    return group.items.some((item) => item.enabled);
   };
 
   return (
@@ -223,6 +257,12 @@ const Sidebar = () => {
           {sidebarGroups.map((group) => {
             const isGroupCollapsed = collapsedGroups.has(group.id);
             const hasActiveItem = isGroupActive(group);
+            const groupHasEnabledItems = hasEnabledItems(group);
+
+            // Não renderiza o grupo se não tiver itens habilitados
+            if (!groupHasEnabledItems) {
+              return null;
+            }
 
             return (
               <div key={group.id} className='mb-2'>
@@ -254,6 +294,29 @@ const Sidebar = () => {
                   <div className='ml-2'>
                     {group.items.map((item, index) => {
                       const isActive = isMenuItemActive(item.path);
+
+                      // Se o item não estiver habilitado, renderiza como desabilitado
+                      if (!item.enabled) {
+                        return (
+                          <div
+                            key={index}
+                            className='flex items-center py-2.5 px-4 gap-3 transition-all duration-300 relative group rounded-r-lg mx-2 opacity-50 cursor-not-allowed'
+                          >
+                            <div className='flex items-center gap-3 w-full'>
+                              <div className='transition-all duration-300 flex-shrink-0'>
+                                {item.icon}
+                              </div>
+                              <p className='font-medium transition-all duration-300 flex-1 text-sm text-slate-400'>
+                                {item.label}
+                              </p>
+                              <span className='text-xs text-slate-500 bg-slate-700 px-2 py-1 rounded'>
+                                Em breve
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      }
+
                       return (
                         <Link
                           to={item.path}

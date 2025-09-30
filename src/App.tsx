@@ -8,6 +8,7 @@ import Footer from './components/footer/Footer';
 import { ProductProvider } from './contexts/ProductContext';
 import { CartProvider } from './contexts/CartContext';
 import Layout from './pages/admin/Layout';
+import ProtectedRoute from './components/admin/ProtectedRoute';
 import Dashboard from './pages/admin/Dashboard';
 import Banner from './components/banner/Banner';
 import AddProduct from './pages/admin/AddProduct';
@@ -60,6 +61,7 @@ import AddUser from './pages/admin/AddUser';
 import ViewUser from './pages/admin/ViewUser';
 import EditUser from './pages/admin/EditUser';
 import ProfitSimulation from './pages/admin/ProfitSimulation';
+import FeatureFlags from './pages/admin/FeatureFlags';
 
 const App = () => {
   const isAdminPath = useLocation().pathname.includes('admin');
@@ -85,60 +87,441 @@ const App = () => {
           <Route path='/produtos/:productId' element={<ProductDetail />} />
           <Route path='/carrinho' element={<Cart />} />
           <Route path='/admin' element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path='produtos/adicionar' element={<AddProduct />} />
-            <Route path='produtos/visualizar/:productId' element={<ViewProduct />} />
-            <Route path='produtos/editar/:productId' element={<EditProduct />} />
-            <Route path='clientes/adicionar' element={<AddCustomer />} />
-            <Route path='clientes/visualizar/:customerId' element={<ViewCustomer />} />
-            <Route path='clientes/editar/:customerId' element={<EditCustomer />} />
-            <Route path='clientes/historico/:customerId' element={<CustomerHistory />} />
-            <Route path='pedidos/adicionar' element={<AddOrder />} />
-            <Route path='pedidos/editar/:orderId' element={<EditOrder />} />
-            <Route path='pedidos/visualizar/:orderId' element={<ViewOrder />} />
-            <Route path='categorias/adicionar' element={<AddCategory />} />
-            <Route path='categorias/visualizar/:categoryId' element={<ViewCategory />} />
-            <Route path='categorias/editar/:categoryId' element={<EditCategory />} />
-            <Route path='fornecedores/adicionar' element={<AddSupplier />} />
-            <Route path='fornecedores/visualizar/:supplierId' element={<ViewSupplier />} />
-            <Route path='fornecedores/editar/:supplierId' element={<EditSupplier />} />
-            <Route path='consignantes/adicionar' element={<AddConsignor />} />
-            <Route path='consignantes/visualizar/:consignorId' element={<ViewConsignor />} />
-            <Route path='consignantes/editar/:consignorId' element={<EditConsignor />} />
-            <Route path='consignantes/historico/:consignorId' element={<ConsignorHistory />} />
-            <Route path='contas-receber/adicionar' element={<AddAccountsReceivable />} />
+            <Route
+              index
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas de Produtos - Habilitadas */}
+            <Route
+              path='produtos'
+              element={
+                <ProtectedRoute>
+                  <ListProduct />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='produtos/adicionar'
+              element={
+                <ProtectedRoute>
+                  <AddProduct />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='produtos/visualizar/:productId'
+              element={
+                <ProtectedRoute>
+                  <ViewProduct />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='produtos/editar/:productId'
+              element={
+                <ProtectedRoute>
+                  <EditProduct />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas de Categorias - Habilitadas */}
+            <Route
+              path='categorias'
+              element={
+                <ProtectedRoute>
+                  <Category />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='categorias/adicionar'
+              element={
+                <ProtectedRoute>
+                  <AddCategory />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='categorias/visualizar/:categoryId'
+              element={
+                <ProtectedRoute>
+                  <ViewCategory />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='categorias/editar/:categoryId'
+              element={
+                <ProtectedRoute>
+                  <EditCategory />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas de Clientes - Desabilitadas */}
+            <Route
+              path='clientes'
+              element={
+                <ProtectedRoute>
+                  <ListCustomers />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='clientes/adicionar'
+              element={
+                <ProtectedRoute>
+                  <AddCustomer />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='clientes/visualizar/:customerId'
+              element={
+                <ProtectedRoute>
+                  <ViewCustomer />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='clientes/editar/:customerId'
+              element={
+                <ProtectedRoute>
+                  <EditCustomer />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='clientes/historico/:customerId'
+              element={
+                <ProtectedRoute>
+                  <CustomerHistory />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas de Pedidos - Desabilitadas */}
+            <Route
+              path='pedidos'
+              element={
+                <ProtectedRoute>
+                  <OrderPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='pedidos/adicionar'
+              element={
+                <ProtectedRoute>
+                  <AddOrder />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='pedidos/editar/:orderId'
+              element={
+                <ProtectedRoute>
+                  <EditOrder />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='pedidos/visualizar/:orderId'
+              element={
+                <ProtectedRoute>
+                  <ViewOrder />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas de Fornecedores - Desabilitadas */}
+            <Route
+              path='fornecedores'
+              element={
+                <ProtectedRoute>
+                  <Supplier />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='fornecedores/adicionar'
+              element={
+                <ProtectedRoute>
+                  <AddSupplier />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='fornecedores/visualizar/:supplierId'
+              element={
+                <ProtectedRoute>
+                  <ViewSupplier />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='fornecedores/editar/:supplierId'
+              element={
+                <ProtectedRoute>
+                  <EditSupplier />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas de Consignantes - Desabilitadas */}
+            <Route
+              path='consignantes'
+              element={
+                <ProtectedRoute>
+                  <Consignor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='consignantes/adicionar'
+              element={
+                <ProtectedRoute>
+                  <AddConsignor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='consignantes/visualizar/:consignorId'
+              element={
+                <ProtectedRoute>
+                  <ViewConsignor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='consignantes/editar/:consignorId'
+              element={
+                <ProtectedRoute>
+                  <EditConsignor />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='consignantes/historico/:consignorId'
+              element={
+                <ProtectedRoute>
+                  <ConsignorHistory />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas de Contas a Receber - Desabilitadas */}
+            <Route
+              path='contas-receber'
+              element={
+                <ProtectedRoute>
+                  <AccountsReceivable />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='contas-receber/adicionar'
+              element={
+                <ProtectedRoute>
+                  <AddAccountsReceivable />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path='contas-receber/visualizar/:accountId'
-              element={<ViewAccountsReceivable />}
+              element={
+                <ProtectedRoute>
+                  <ViewAccountsReceivable />
+                </ProtectedRoute>
+              }
             />
-            <Route path='contas-receber/editar/:accountId' element={<EditAccountsReceivable />} />
-            <Route path='contas-pagar/adicionar' element={<AddAccountsPayable />} />
-            <Route path='contas-pagar/visualizar/:accountId' element={<ViewAccountsPayable />} />
-            <Route path='contas-pagar/editar/:accountId' element={<EditAccountsPayable />} />
-            <Route path='fluxo-caixa/abrir' element={<OpenCashBox />} />
-            <Route path='fluxo-caixa/fechar/:sessionId' element={<CloseCashBox />} />
-            <Route path='fluxo-caixa/movimentacao/adicionar' element={<AddCashMovement />} />
-            <Route path='clientes' element={<ListCustomers />} />
-            <Route path='configuracoes' element={<Configuration />} />
-            <Route path='notificacoes' element={<Notification />} />
-            <Route path='notificacoes/lista' element={<NotificationList />} />
-            <Route path='produtos' element={<ListProduct />} />
-            <Route path='pedidos' element={<OrderPage />} />
-            <Route path='categorias' element={<Category />} />
-            <Route path='consignantes' element={<Consignor />} />
-            <Route path='fornecedores' element={<Supplier />} />
-            <Route path='contas-receber' element={<AccountsReceivable />} />
-            <Route path='contas-pagar' element={<AccountsPayable />} />
-            <Route path='fluxo-caixa' element={<CashFlow />} />
-            <Route path='cupons' element={<Coupons />} />
-            <Route path='cupons/adicionar' element={<AddCoupon />} />
-            <Route path='cupons/visualizar/:couponId' element={<ViewCoupon />} />
-            <Route path='cupons/editar/:couponId' element={<EditCoupon />} />
-            <Route path='usuarios/adicionar' element={<AddUser />} />
-            <Route path='usuarios/visualizar/:userId' element={<ViewUser />} />
-            <Route path='usuarios/editar/:userId' element={<EditUser />} />
-            <Route path='usuarios' element={<ListUser />} />
-            <Route path='simulacao-lucro' element={<ProfitSimulation />} />
+            <Route
+              path='contas-receber/editar/:accountId'
+              element={
+                <ProtectedRoute>
+                  <EditAccountsReceivable />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas de Contas a Pagar - Desabilitadas */}
+            <Route
+              path='contas-pagar'
+              element={
+                <ProtectedRoute>
+                  <AccountsPayable />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='contas-pagar/adicionar'
+              element={
+                <ProtectedRoute>
+                  <AddAccountsPayable />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='contas-pagar/visualizar/:accountId'
+              element={
+                <ProtectedRoute>
+                  <ViewAccountsPayable />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='contas-pagar/editar/:accountId'
+              element={
+                <ProtectedRoute>
+                  <EditAccountsPayable />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas de Fluxo de Caixa - Desabilitadas */}
+            <Route
+              path='fluxo-caixa'
+              element={
+                <ProtectedRoute>
+                  <CashFlow />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='fluxo-caixa/abrir'
+              element={
+                <ProtectedRoute>
+                  <OpenCashBox />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='fluxo-caixa/fechar/:sessionId'
+              element={
+                <ProtectedRoute>
+                  <CloseCashBox />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='fluxo-caixa/movimentacao/adicionar'
+              element={
+                <ProtectedRoute>
+                  <AddCashMovement />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas de Cupons - Desabilitadas */}
+            <Route
+              path='cupons'
+              element={
+                <ProtectedRoute>
+                  <Coupons />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='cupons/adicionar'
+              element={
+                <ProtectedRoute>
+                  <AddCoupon />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='cupons/visualizar/:couponId'
+              element={
+                <ProtectedRoute>
+                  <ViewCoupon />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='cupons/editar/:couponId'
+              element={
+                <ProtectedRoute>
+                  <EditCoupon />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas de Usuários - Desabilitadas */}
+            <Route
+              path='usuarios'
+              element={
+                <ProtectedRoute>
+                  <ListUser />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='usuarios/adicionar'
+              element={
+                <ProtectedRoute>
+                  <AddUser />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='usuarios/visualizar/:userId'
+              element={
+                <ProtectedRoute>
+                  <ViewUser />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='usuarios/editar/:userId'
+              element={
+                <ProtectedRoute>
+                  <EditUser />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Rotas de Sistema - Desabilitadas */}
+            <Route
+              path='configuracoes'
+              element={
+                <ProtectedRoute>
+                  <Configuration />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='notificacoes'
+              element={
+                <ProtectedRoute>
+                  <Notification />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='notificacoes/lista'
+              element={
+                <ProtectedRoute>
+                  <NotificationList />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path='simulacao-lucro'
+              element={
+                <ProtectedRoute>
+                  <ProfitSimulation />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Feature Flags - Sempre acessível para administradores */}
+            <Route path='feature-flags' element={<FeatureFlags />} />
           </Route>
         </Routes>
         {!isAdminPath && <Footer />}
