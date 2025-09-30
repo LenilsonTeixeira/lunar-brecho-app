@@ -41,7 +41,6 @@ const EditCategory = () => {
   useEffect(() => {
     // Em uma aplicação real, aqui você faria uma chamada para a API
     // para buscar os dados da categoria pelo categoryId
-    console.log('Carregando categoria:', categoryId);
   }, [categoryId]);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,7 +48,10 @@ const EditCategory = () => {
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
-        setCategoryImage(e.target?.result as string);
+        const result = e.target?.result as string;
+        if (result) {
+          setCategoryImage(result);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -73,20 +75,6 @@ const EditCategory = () => {
       return;
     }
 
-    // Simular atualização da categoria
-    const updatedCategory = {
-      ...category,
-      name: categoryName,
-      color: categoryColor,
-      description: categoryDescription,
-      status: categoryStatus,
-      image: categoryImage,
-    };
-
-    console.log('Categoria atualizada:', updatedCategory);
-    alert('Categoria atualizada com sucesso!');
-
-    // Navegar de volta para a lista de categorias
     navigate('/admin/categorias');
   };
 
@@ -222,8 +210,13 @@ const EditCategory = () => {
                         src={categoryImage}
                         alt='Imagem da Categoria'
                         className='w-full h-full object-cover'
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src =
+                            'https://via.placeholder.com/150x150/8b5cf6/ffffff?text=Erro+Imagem';
+                        }}
                       />
-                      <div className='absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center'>
+                      <div className='absolute inset-0 bg-transparent group-hover:bg-black group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center'>
                         <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
                           <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center'>
                             <Image className='w-4 h-4 text-purple-600' />

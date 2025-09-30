@@ -7,6 +7,7 @@ import { apiService, ApiError, CategoryResponse } from '../../services/api';
 
 interface CategoryItem {
   id: number;
+  externalId: string;
   name: string;
   image: string;
   createdAt?: string;
@@ -43,8 +44,9 @@ const Category = () => {
       const response = await apiService.getCategories();
       const formattedCategories: CategoryItem[] = response.map((cat: CategoryResponse) => ({
         id: cat.id,
+        externalId: cat.externalId,
         name: cat.name,
-        image: cat.imageUrl || 'https://via.placeholder.com/150',
+        image: cat.imageUrl || 'https://via.placeholder.com/150x150/8b5cf6/ffffff?text=Sem+Imagem',
         createdAt: cat.createdAt,
         updatedAt: cat.updatedAt,
         productCount: cat.productCount || 0,
@@ -289,7 +291,7 @@ const Category = () => {
                     >
                       <td className='px-6 py-4'>
                         <span className='text-xs sm:text-sm font-medium text-slate-800'>
-                          #{category.id}
+                          #{category.externalId}
                         </span>
                       </td>
                       <td className='px-6 py-4'>

@@ -37,6 +37,7 @@ interface CategoryRequest {
 
 interface CategoryResponse {
   id: number;
+  externalId: string;
   name: string;
   description?: string;
   imageUrl?: string;
@@ -58,7 +59,7 @@ class ApiService {
     const config: any = {
       headers: {
         'Content-Type': 'application/json',
-        'store-id': '08d38d1a-b5d2-439c-ae84-d6118fd3bb94',
+        'store-id': '378b7419-a92a-4adc-a274-cd612951997e',
         ...options.headers,
       },
       ...options,
@@ -152,7 +153,7 @@ class ApiService {
     const config: any = {
       method: 'POST',
       headers: {
-        'store-id': '08d38d1a-b5d2-439c-ae84-d6118fd3bb94',
+        'store-id': '378b7419-a92a-4adc-a274-cd612951997e',
         ...(token && { Authorization: `Bearer ${token}` }),
       },
       body: formData,
