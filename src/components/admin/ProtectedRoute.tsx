@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { useLocation, Navigate } from 'react-router';
 import { useFeatureFlagsContext } from '@/contexts/FeatureFlagsContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -13,6 +14,21 @@ const ProtectedRoute = ({
 }: ProtectedRouteProps) => {
   const location = useLocation();
   const { isFeatureEnabled } = useFeatureFlagsContext();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Se ainda está carregando, mostra loading
+  if (isLoading) {
+    return (
+      <div className='flex items-center justify-center h-screen'>
+        <div className='animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-500'></div>
+      </div>
+    );
+  }
+
+  // Se não está autenticado, redireciona para login
+  if (!isAuthenticated) {
+    return <Navigate to='/admin/login' replace />;
+  }
 
   // Mapeamento de rotas para feature flags
   const routeToFlagMap: Record<string, keyof import('@/hooks/useFeatureFlags').FeatureFlags> = {
@@ -40,8 +56,11 @@ const ProtectedRoute = ({
   if (flagName) {
     isEnabled = isFeatureEnabled(flagName);
   } else {
-    // Para sub-rotas, verifica a rota pai
-    for (const [route, flag] of Object.entries(routeToFlagMap)) {
+    // Para sub-rotas, verifica a rota pai mais específica
+    // Ordena as rotas por comprimento (mais específicas primeiro)
+    const sortedRoutes = Object.entries(routeToFlagMap).sort(([a], [b]) => b.length - a.length);
+
+    for (const [route, flag] of sortedRoutes) {
       if (location.pathname.startsWith(route) && location.pathname !== route) {
         isEnabled = isFeatureEnabled(flag);
         break;

@@ -1,10 +1,17 @@
-import { Bell, BellRing } from 'lucide-react';
+import { Bell, BellRing, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
+import { useAuth } from '@/contexts/AuthContext';
 
 const UserHeader = () => {
   const navigate = useNavigate();
   const [hasNotifications] = useState(true);
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/admin/login');
+  };
 
   return (
     <div className='flex items-center justify-end bg-white h-20 px-6'>
@@ -37,9 +44,21 @@ const UserHeader = () => {
             <div className='absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 border-2 border-white rounded-full shadow-sm'></div>
           </div>
           <div className='hidden sm:block'>
-            <p className='text-sm font-semibold text-slate-800'>Admin</p>
-            <p className='text-xs text-slate-500'>Administradora</p>
+            <p className='text-sm font-semibold text-slate-800'>
+              {user ? `${user.firstName} ${user.lastName}` : 'Admin'}
+            </p>
+            <p className='text-xs text-slate-500'>{user?.email || 'Administradora'}</p>
           </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className='p-2 rounded-lg hover:bg-red-50 transition-all duration-300 group'
+            aria-label='Sair'
+            title='Sair'
+          >
+            <LogOut className='w-5 h-5 text-slate-600 group-hover:text-red-600 transition-colors' />
+          </button>
         </div>
       </div>
     </div>

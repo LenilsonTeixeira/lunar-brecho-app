@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, FolderOpen } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import CategoryForm from '../../components/admin/CategoryForm';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
+import { apiService, ApiError, CategoryResponse } from '../../services/api';
 
 interface CategoryItem {
   id: number;
@@ -27,136 +28,68 @@ const Category = () => {
   const [editingCategory, setEditingCategory] = useState<CategoryItem | undefined>(undefined);
   const [deletingCategory, setDeletingCategory] = useState<CategoryItem | undefined>(undefined);
   const [loading, setLoading] = useState(false);
-  const [categories, setCategories] = useState<CategoryItem[]>([
-    {
-      id: 1,
-      name: 'Body',
-      image:
-        'https://acdn-us.mitiendanube.com/stores/004/414/596/products/86c1af187bed52a509db2649e0144039-424f199920b186aca517177081243046-1024-1024.webp',
-      createdAt: '2024-01-15T10:30:00Z',
-      updatedAt: '2024-01-20T14:45:00Z',
-      productCount: 25,
-      description: 'Roupas íntimas femininas confortáveis e elegantes',
-    },
-    {
-      id: 2,
-      name: 'Calças',
-      image:
-        'https://acdn-us.mitiendanube.com/stores/004/414/596/products/imagem-whatsapp-2025-01-27-as-17-05-21_981ec453-811c39988cd9bd47c317380867063164-1024-1024.webp',
-      createdAt: '2024-01-10T09:15:00Z',
-      updatedAt: '2024-01-18T16:20:00Z',
-      productCount: 42,
-      description: 'Calças femininas para todos os estilos e ocasiões',
-    },
-    {
-      id: 3,
-      name: 'Blusas',
-      image: 'https://cdn.awsli.com.br/1538/1538522/produto/340598723/img_2977-24c9s0rovs.jpeg',
-      createdAt: '2024-01-12T11:00:00Z',
-      updatedAt: '2024-01-19T13:30:00Z',
-      productCount: 38,
-      description: 'Blusas femininas elegantes e versáteis',
-    },
-    {
-      id: 4,
-      name: 'Macaquinhos',
-      image: 'https://cdn.awsli.com.br/1538/1538522/produto/338746166/img_1715-zdjy3qfnl6.jpeg',
-      createdAt: '2024-01-08T08:45:00Z',
-      updatedAt: '2024-01-17T15:10:00Z',
-      productCount: 15,
-      description: 'Macaquinhos femininos para um visual único',
-    },
-    {
-      id: 5,
-      name: 'Vestidos',
-      image:
-        'https://cdn.awsli.com.br/1538/1538522/produto/335928056/3d0ae793-6d64-4785-9eea-7638f716b531-rc61dwiw7t.jpeg',
-      createdAt: '2024-01-05T12:20:00Z',
-      updatedAt: '2024-01-16T10:55:00Z',
-      productCount: 31,
-      description: 'Vestidos femininos para ocasiões especiais',
-    },
-    {
-      id: 6,
-      name: 'Jeans',
-      image:
-        'https://acdn-us.mitiendanube.com/stores/004/414/596/products/img_6792-ref-24637-5afcdc908780ab980017283342510339-1024-1024.webp',
-      createdAt: '2024-01-03T14:30:00Z',
-      updatedAt: '2024-01-15T11:25:00Z',
-      productCount: 28,
-      description: 'Jeans femininos com diferentes lavagens e cortes',
-    },
-    {
-      id: 7,
-      name: 'Chinelos',
-      image:
-        'https://cdn.awsli.com.br/1538/1538522/produto/246582579/f7c2f065-cd4d-4eb4-bb35-284c857de334-oxj4tjwkcp.jpeg',
-      createdAt: '2024-01-01T16:00:00Z',
-      updatedAt: '2024-01-14T09:40:00Z',
-      productCount: 12,
-      description: 'Chinelos confortáveis para o dia a dia',
-    },
-    {
-      id: 8,
-      name: 'Croppeds',
-      image:
-        'https://cdn.awsli.com.br/1538/1538522/produto/210614200/whatsapp-image-2023-03-30-at-15-23-39-rhjycw.jpg',
-      createdAt: '2024-01-07T13:45:00Z',
-      updatedAt: '2024-01-13T17:15:00Z',
-      productCount: 19,
-      description: 'Croppeds femininos para um visual moderno',
-    },
-    {
-      id: 9,
-      name: 'Conjuntos',
-      image: 'https://cdn.awsli.com.br/1538/1538522/produto/338700026/img_1646-vnkljmtjrp.jpeg',
-      createdAt: '2024-01-09T10:10:00Z',
-      updatedAt: '2024-01-12T14:50:00Z',
-      productCount: 22,
-      description: 'Conjuntos femininos coordenados e elegantes',
-    },
-    {
-      id: 10,
-      name: 'Macacão',
-      image:
-        'https://cdn.awsli.com.br/1538/1538522/produto/299448951/71601444-a299-4587-ad99-bf170e7f9760-9ikj2wsrqb.jpeg',
-      createdAt: '2024-01-06T11:35:00Z',
-      updatedAt: '2024-01-11T16:05:00Z',
-      productCount: 8,
-      description: 'Macacões femininos para um visual único',
-    },
-    {
-      id: 11,
-      name: 'Shorts',
-      image:
-        'https://cdn.awsli.com.br/1538/1538522/produto/217419654/whatsapp-image-2023-05-17-at-13-40-07-65w1r2wpb9.jpeg',
-      createdAt: '2024-01-04T15:20:00Z',
-      updatedAt: '2024-01-10T12:30:00Z',
-      productCount: 16,
-      description: 'Shorts femininos para o verão',
-    },
-  ]);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load categories on component mount
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await apiService.getCategories();
+      const formattedCategories: CategoryItem[] = response.map((cat: CategoryResponse) => ({
+        id: cat.id,
+        name: cat.name,
+        image: cat.imageUrl || 'https://via.placeholder.com/150',
+        createdAt: cat.createdAt,
+        updatedAt: cat.updatedAt,
+        productCount: cat.productCount || 0,
+        description: cat.description || '',
+      }));
+      setCategories(formattedCategories);
+    } catch (error) {
+      console.error('Erro ao carregar categorias:', error);
+      if (error instanceof ApiError) {
+        setError(`Erro ao carregar categorias: ${error.message}`);
+      } else {
+        setError('Erro de conexão. Tente novamente.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCreateCategory = async (data: CategoryFormData) => {
     setLoading(true);
+    setError(null);
     try {
-      // Simular chamada à API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const newCategory: CategoryItem = {
-        id: Math.max(...categories.map((c) => c.id)) + 1,
+      // Create category
+      const categoryData = {
         name: data.name,
-        image: data.previewImage || 'https://via.placeholder.com/150',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        productCount: 0,
         description: '',
       };
 
-      setCategories((prev) => [...prev, newCategory]);
+      const response = await apiService.createCategory(categoryData);
+
+      // Upload image if provided
+      if (data.image) {
+        await apiService.uploadCategoryImage(response.id, data.image);
+      }
+
+      // Reload categories to get updated data
+      await loadCategories();
       setShowForm(false);
     } catch (error) {
       console.error('Erro ao criar categoria:', error);
+      if (error instanceof ApiError) {
+        setError(`Erro ao criar categoria: ${error.message}`);
+      } else {
+        setError('Erro de conexão. Tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
@@ -166,24 +99,32 @@ const Category = () => {
     if (!editingCategory) return;
 
     setLoading(true);
+    setError(null);
     try {
-      // Simular chamada à API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const updatedCategory: CategoryItem = {
-        ...editingCategory,
+      // Update category
+      const categoryData = {
         name: data.name,
-        image: data.previewImage || editingCategory.image,
-        updatedAt: new Date().toISOString(),
+        description: editingCategory.description || '',
       };
 
-      setCategories((prev) =>
-        prev.map((cat) => (cat.id === editingCategory.id ? updatedCategory : cat)),
-      );
+      await apiService.updateCategory(editingCategory.id, categoryData);
+
+      // Upload new image if provided
+      if (data.image) {
+        await apiService.uploadCategoryImage(editingCategory.id, data.image);
+      }
+
+      // Reload categories to get updated data
+      await loadCategories();
       setShowForm(false);
       setEditingCategory(undefined);
     } catch (error) {
       console.error('Erro ao atualizar categoria:', error);
+      if (error instanceof ApiError) {
+        setError(`Erro ao atualizar categoria: ${error.message}`);
+      } else {
+        setError('Erro de conexão. Tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
@@ -205,14 +146,20 @@ const Category = () => {
     if (!deletingCategory) return;
 
     setLoading(true);
+    setError(null);
     try {
-      // Simular chamada à API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await apiService.deleteCategory(deletingCategory.id);
 
-      setCategories((prev) => prev.filter((cat) => cat.id !== deletingCategory.id));
+      // Reload categories to get updated data
+      await loadCategories();
       setDeletingCategory(undefined);
     } catch (error) {
       console.error('Erro ao excluir categoria:', error);
+      if (error instanceof ApiError) {
+        setError(`Erro ao excluir categoria: ${error.message}`);
+      } else {
+        setError('Erro de conexão. Tente novamente.');
+      }
     } finally {
       setLoading(false);
     }
@@ -243,6 +190,38 @@ const Category = () => {
             </button>
           </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className='bg-red-50 border border-red-200 rounded-lg p-4 mb-6'>
+            <div className='flex items-center'>
+              <div className='flex-shrink-0'>
+                <svg className='h-5 w-5 text-red-400' viewBox='0 0 20 20' fill='currentColor'>
+                  <path
+                    fillRule='evenodd'
+                    d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
+                    clipRule='evenodd'
+                  />
+                </svg>
+              </div>
+              <div className='ml-3'>
+                <p className='text-sm text-red-800'>{error}</p>
+              </div>
+              <div className='ml-auto pl-3'>
+                <button onClick={() => setError(null)} className='text-red-400 hover:text-red-600'>
+                  <span className='sr-only'>Fechar</span>
+                  <svg className='h-5 w-5' viewBox='0 0 20 20' fill='currentColor'>
+                    <path
+                      fillRule='evenodd'
+                      d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filters and Search */}
         <div className='bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6'>

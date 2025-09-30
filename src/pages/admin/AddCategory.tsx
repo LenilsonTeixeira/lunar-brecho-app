@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import { X, ArrowLeft, Image } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { apiService, ApiError } from '../../services/api';
 
 const AddCategory = () => {
   const navigate = useNavigate();
   const [categoryImage, setCategoryImage] = useState<string>('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setCategoryImage(e.target?.result as string);
@@ -19,17 +24,41 @@ const AddCategory = () => {
 
   const removeImage = () => {
     setCategoryImage('');
+    setSelectedFile(null);
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    // Implementar lógica de envio do formulário
-    console.log('Categoria a ser adicionada:', {
-      name: (event.target as HTMLFormElement).categoryName.value,
-      image: categoryImage,
-      color: (event.target as HTMLFormElement).categoryColor.value,
-      description: (event.target as HTMLFormElement).categoryDescription.value,
-    });
+    setLoading(true);
+    setError(null);
+
+    try {
+      const formData = event.target as HTMLFormElement;
+      const categoryData = {
+        name: formData.categoryName.value,
+        description: formData.categoryDescription.value || '',
+      };
+
+      // Criar a categoria
+      const response = await apiService.createCategory(categoryData);
+
+      // Upload da imagem se foi selecionada
+      if (selectedFile) {
+        await apiService.uploadCategoryImage(response.id, selectedFile);
+      }
+
+      // Redirecionar para a lista de categorias
+      navigate('/admin/categorias');
+    } catch (error) {
+      console.error('Erro ao criar categoria:', error);
+      if (error instanceof ApiError) {
+        setError(`Erro ao criar categoria: ${error.message}`);
+      } else {
+        setError('Erro de conexão. Tente novamente.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,6 +81,38 @@ const AddCategory = () => {
             Preencha as informações da categoria abaixo
           </p>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className='bg-red-50 border border-red-200 rounded-lg p-4 mb-6'>
+            <div className='flex items-center'>
+              <div className='flex-shrink-0'>
+                <svg className='h-5 w-5 text-red-400' viewBox='0 0 20 20' fill='currentColor'>
+                  <path
+                    fillRule='evenodd'
+                    d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
+                    clipRule='evenodd'
+                  />
+                </svg>
+              </div>
+              <div className='ml-3'>
+                <p className='text-sm text-red-800'>{error}</p>
+              </div>
+              <div className='ml-auto pl-3'>
+                <button onClick={() => setError(null)} className='text-red-400 hover:text-red-600'>
+                  <span className='sr-only'>Fechar</span>
+                  <svg className='h-5 w-5' viewBox='0 0 20 20' fill='currentColor'>
+                    <path
+                      fillRule='evenodd'
+                      d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <form
           onSubmit={handleSubmit}
@@ -207,9 +268,17 @@ const AddCategory = () => {
           <div className='pt-4'>
             <button
               type='submit'
-              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              disabled={loading}
+              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
             >
-              Adicionar Categoria
+              {loading ? (
+                <div className='flex items-center justify-center gap-2'>
+                  <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+                  Criando Categoria...
+                </div>
+              ) : (
+                'Adicionar Categoria'
+              )}
             </button>
           </div>
         </form>
