@@ -3,12 +3,13 @@ import { Search, Edit, Trash2, Eye, Plus, FolderOpen } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import CategoryForm from '../../components/admin/CategoryForm';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
-import { apiService, ApiError, CategoryResponse } from '../../services/api';
+import { categoryService, ApiError, CategoryResponse } from '@/services';
 
 interface CategoryItem {
-  id: number;
+  id: string;
   externalId: string;
   name: string;
+  color?: string;
   image: string;
   createdAt?: string;
   updatedAt?: string;
@@ -18,7 +19,9 @@ interface CategoryItem {
 
 interface CategoryFormData {
   name: string;
+  color: string;
   image: File | null;
+  description: string;
   previewImage: string;
 }
 
@@ -41,11 +44,12 @@ const Category = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await apiService.getCategories();
+      const response = await categoryService.getCategories();
       const formattedCategories: CategoryItem[] = response.map((cat: CategoryResponse) => ({
         id: cat.id,
         externalId: cat.externalId,
         name: cat.name,
+        color: cat.color || '#8B5CF6',
         image: cat.imageUrl || 'https://via.placeholder.com/150x150/8b5cf6/ffffff?text=Sem+Imagem',
         createdAt: cat.createdAt,
         updatedAt: cat.updatedAt,
@@ -69,20 +73,20 @@ const Category = () => {
     setLoading(true);
     setError(null);
     try {
-      // Create category
       const categoryData = {
         name: data.name,
-        description: '',
+        color: data.color,
+        description: data.description || '',
       };
 
-      const response = await apiService.createCategory(categoryData);
+      const response = await categoryService.createCategory(categoryData);
 
-      // Upload image if provided
+      // 2. Upload image if provided (synchronously after creation)
       if (data.image) {
-        await apiService.uploadCategoryImage(response.id, data.image);
+        await categoryService.uploadCategoryImage(response.id, data.image);
       }
 
-      // Reload categories to get updated data
+      // 3. Reload categories to get updated data
       await loadCategories();
       setShowForm(false);
     } catch (error) {
@@ -103,20 +107,20 @@ const Category = () => {
     setLoading(true);
     setError(null);
     try {
-      // Update category
       const categoryData = {
         name: data.name,
+        color: data.color,
         description: editingCategory.description || '',
       };
 
-      await apiService.updateCategory(editingCategory.id, categoryData);
+      await categoryService.updateCategory(editingCategory.id, categoryData);
 
-      // Upload new image if provided
+      // 2. Upload new image if provided (synchronously after update)
       if (data.image) {
-        await apiService.uploadCategoryImage(editingCategory.id, data.image);
+        await categoryService.uploadCategoryImage(editingCategory.id, data.image);
       }
 
-      // Reload categories to get updated data
+      // 3. Reload categories to get updated data
       await loadCategories();
       setShowForm(false);
       setEditingCategory(undefined);
@@ -150,7 +154,7 @@ const Category = () => {
     setLoading(true);
     setError(null);
     try {
-      await apiService.deleteCategory(deletingCategory.id);
+      await categoryService.deleteCategory(deletingCategory.id);
 
       // Reload categories to get updated data
       await loadCategories();

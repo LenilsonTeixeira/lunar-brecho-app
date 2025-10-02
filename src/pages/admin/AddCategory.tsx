@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X, ArrowLeft, Image } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { apiService, ApiError } from '../../services/api';
+import { categoryService, ApiError } from '@/services';
 
 const AddCategory = () => {
   const navigate = useNavigate();
@@ -43,11 +43,11 @@ const AddCategory = () => {
       };
 
       // Criar a categoria
-      const response = await apiService.createCategory(categoryData);
+      const response = await categoryService.createCategory(categoryData);
 
       // Upload da imagem se foi selecionada
       if (selectedFile) {
-        await apiService.uploadCategoryImage(response.id, selectedFile);
+        await categoryService.uploadCategoryImage(response.id, selectedFile);
       }
 
       // Redirecionar para a lista de categorias

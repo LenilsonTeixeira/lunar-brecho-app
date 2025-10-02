@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface CategoryItem {
-  id: number;
+  id: string;
   name: string;
+  color?: string;
+  description?: string;
   image: string;
 }
 
 interface CategoryFormData {
   name: string;
+  color: string;
+  description: string;
   image: File | null;
   previewImage: string;
 }
@@ -23,6 +27,8 @@ interface CategoryFormProps {
 const CategoryForm = ({ category, onSubmit, onCancel, isLoading = false }: CategoryFormProps) => {
   const [formData, setFormData] = useState<CategoryFormData>({
     name: '',
+    color: '#8B5CF6',
+    description: '',
     image: null,
     previewImage: '',
   });
@@ -33,6 +39,8 @@ const CategoryForm = ({ category, onSubmit, onCancel, isLoading = false }: Categ
     if (category) {
       setFormData({
         name: category.name,
+        color: category.color || '#8B5CF6',
+        description: category.description || '',
         image: null,
         previewImage: category.image,
       });

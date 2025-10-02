@@ -1,7 +1,7 @@
 import { X, Tag } from 'lucide-react';
 
 interface CategoryItem {
-  id: number;
+  id: string;
   name: string;
   image: string;
   createdAt?: string;

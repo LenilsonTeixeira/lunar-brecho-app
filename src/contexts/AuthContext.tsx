@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { apiService, ApiError } from '@/services/api';
+import { authService, ApiError } from '@/services';
 
 interface User {
   id: string;
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     password: string,
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await apiService.login({ email, password });
+      const response = await authService.login({ email, password });
 
       // Salva o token
       localStorage.setItem('authToken', response.token);
@@ -103,7 +103,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const register = async (data: RegisterData): Promise<{ success: boolean; error?: string }> => {
     try {
-      await apiService.register(data);
+      await authService.register(data);
 
       return { success: true };
     } catch (error) {

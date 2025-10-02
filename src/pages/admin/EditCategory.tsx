@@ -1,47 +1,59 @@
 import { useState, useEffect } from 'react';
-import { Tag, Palette, FileText, Image, ArrowLeft, X } from 'lucide-react';
+import { Tag, Palette, FileText, Image, ArrowLeft, X, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
-
-interface Category {
-  id: number;
-  name: string;
-  color: string;
-  description: string;
-  status: 'ativo' | 'inativo';
-  priority: number;
-  image?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { categoryService, CategoryResponse, ApiError } from '@/services';
 
 const EditCategory = () => {
   const navigate = useNavigate();
   const { categoryId } = useParams();
 
-  // Mock data - em uma aplicação real, isso viria de uma API
-  const mockCategory: Category = {
-    id: parseInt(categoryId || '1'),
-    name: 'Vestidos',
-    color: '#8B5CF6',
-    description: 'Categoria para todos os tipos de vestidos, desde casuais até formais.',
-    status: 'ativo',
-    priority: 1,
-    image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
-    createdAt: '2024-01-15T10:30:00Z',
-    updatedAt: '2024-03-20T14:45:00Z',
-  };
-
-  const [category] = useState<Category>(mockCategory);
-  const [categoryName, setCategoryName] = useState(mockCategory.name);
-  const [categoryColor, setCategoryColor] = useState(mockCategory.color);
-  const [categoryDescription, setCategoryDescription] = useState(mockCategory.description);
-  const [categoryStatus, setCategoryStatus] = useState<'ativo' | 'inativo'>(mockCategory.status);
-  const [categoryImage, setCategoryImage] = useState(mockCategory.image || '');
+  const [category, setCategory] = useState<CategoryResponse | null>(null);
+  const [categoryName, setCategoryName] = useState('');
+  const [categoryColor, setCategoryColor] = useState('#8B5CF6');
+  const [categoryDescription, setCategoryDescription] = useState('');
+  const [categoryStatus, setCategoryStatus] = useState<'ativo' | 'inativo'>('ativo');
+  const [categoryImage, setCategoryImage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Em uma aplicação real, aqui você faria uma chamada para a API
-    // para buscar os dados da categoria pelo categoryId
-  }, [categoryId]);
+    const fetchCategory = async () => {
+      if (!categoryId) {
+        setError('ID da categoria não fornecido');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        const categoryData = await categoryService.getCategory(categoryId);
+        setCategory(categoryData);
+        setCategoryName(categoryData.name);
+        setCategoryColor(categoryData.color || '#8B5CF6');
+        setCategoryDescription(categoryData.description || '');
+        setCategoryImage(categoryData.imageUrl || '');
+      } catch (err) {
+        if (err instanceof ApiError) {
+          if (err.status === 404) {
+            setError('Categoria não encontrada');
+          } else if (err.status === 401) {
+            setError('Não autorizado. Faça login novamente.');
+            navigate('/admin/login');
+          } else {
+            setError(err.message || 'Erro ao carregar categoria');
+          }
+        } else {
+          setError('Erro inesperado ao carregar categoria');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategory();
+  }, [categoryId, navigate]);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -61,22 +73,103 @@ const EditCategory = () => {
     setCategoryImage('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!categoryId) {
+      setError('ID da categoria não fornecido');
+      return;
+    }
 
     // Validar se todos os campos obrigatórios estão preenchidos
     if (!categoryName.trim()) {
-      alert('Por favor, preencha o nome da categoria.');
+      setError('Por favor, preencha o nome da categoria.');
       return;
     }
 
-    if (!categoryColor.trim()) {
-      alert('Por favor, selecione uma cor para a categoria.');
-      return;
-    }
+    try {
+      setSaving(true);
+      setError(null);
 
-    navigate('/admin/categorias');
+      // 1. Update category first
+      const updateData = {
+        name: categoryName.trim(),
+        description: categoryDescription.trim() || undefined,
+        color: categoryColor.trim() || undefined,
+      };
+
+      await categoryService.updateCategory(categoryId, updateData);
+
+      // 2. Upload new image if provided (synchronously after update)
+      if (categoryImage && categoryImage.startsWith('data:')) {
+        // Converter data URL para File
+        const response = await fetch(categoryImage);
+        const blob = await response.blob();
+        const file = new File([blob], 'category-image.jpg', { type: 'image/jpeg' });
+        await categoryService.uploadCategoryImage(categoryId, file);
+      }
+
+      navigate('/admin/categorias');
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 401) {
+          setError('Não autorizado. Faça login novamente.');
+          navigate('/admin/login');
+        } else if (err.status === 404) {
+          setError('Categoria não encontrada');
+        } else if (err.status === 400) {
+          setError('Dados inválidos. Verifique os campos preenchidos.');
+        } else {
+          setError(err.message || 'Erro ao atualizar categoria');
+        }
+      } else {
+        setError('Erro inesperado ao atualizar categoria');
+      }
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className='py-6 flex flex-col justify-center items-center bg-slate-50 min-h-screen'>
+        <div className='flex items-center gap-3'>
+          <Loader2 className='w-6 h-6 animate-spin text-purple-600' />
+          <span className='text-lg text-slate-600'>Carregando categoria...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className='py-6 flex flex-col justify-center items-center bg-slate-50 min-h-screen'>
+        <div className='bg-white rounded-xl shadow-lg p-8 max-w-md w-full mx-4'>
+          <div className='text-center'>
+            <div className='w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+              <X className='w-8 h-8 text-red-600' />
+            </div>
+            <h2 className='text-xl font-bold text-slate-800 mb-2'>Erro</h2>
+            <p className='text-slate-600 mb-6'>{error}</p>
+            <div className='flex gap-3'>
+              <button
+                onClick={() => navigate('/admin/categorias')}
+                className='flex-1 px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors'
+              >
+                Voltar
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className='flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors'
+              >
+                Tentar Novamente
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
@@ -92,7 +185,7 @@ const EditCategory = () => {
             </button>
           </div>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
-            Editar Categoria #{category.id}
+            Editar Categoria {category?.externalId ? `#${category.externalId}` : ''}
           </h1>
           <p className='text-sm sm:text-base text-slate-600'>
             Modifique as informações da categoria abaixo
@@ -103,6 +196,15 @@ const EditCategory = () => {
           onSubmit={handleSubmit}
           className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'
         >
+          {error && (
+            <div className='bg-red-50 border border-red-200 rounded-lg p-4'>
+              <div className='flex items-center gap-2'>
+                <X className='w-5 h-5 text-red-600' />
+                <span className='text-red-800 font-medium'>Erro</span>
+              </div>
+              <p className='text-red-700 mt-1'>{error}</p>
+            </div>
+          )}
           {/* Informações Básicas */}
           <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
             <div className='flex items-center gap-3 mb-4'>
@@ -291,9 +393,17 @@ const EditCategory = () => {
           <div className='pt-4'>
             <button
               type='submit'
-              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              disabled={saving}
+              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2'
             >
-              Atualizar Categoria
+              {saving ? (
+                <>
+                  <Loader2 className='w-4 h-4 animate-spin' />
+                  Atualizando...
+                </>
+              ) : (
+                'Atualizar Categoria'
+              )}
             </button>
           </div>
         </form>
