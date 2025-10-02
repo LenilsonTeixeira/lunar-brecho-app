@@ -10,9 +10,7 @@ interface CategoryItem {
   externalId: string;
   name: string;
   image: string;
-  createdAt?: string;
-  updatedAt?: string;
-  productCount?: number;
+  totalProducts?: number;
   description?: string;
 }
 
@@ -48,9 +46,7 @@ const Category = () => {
         externalId: cat.externalId,
         name: cat.name,
         image: cat.imageUrl || 'https://via.placeholder.com/150x150/8b5cf6/ffffff?text=Sem+Imagem',
-        createdAt: cat.createdAt,
-        updatedAt: cat.updatedAt,
-        productCount: cat.productCount || 0,
+        totalProducts: cat.totalProducts || 0,
         description: cat.description || '',
       }));
       setCategories(formattedCategories);
@@ -309,7 +305,7 @@ const Category = () => {
                       <td className='px-6 py-4 text-center'>
                         <div className='flex items-center justify-center'>
                           <span className='text-sm font-semibold text-white bg-gradient-to-br from-purple-500 to-pink-500 w-8 h-8 rounded-full flex items-center justify-center shadow-lg'>
-                            {category.productCount || 0}
+                            {category.totalProducts || 0}
                           </span>
                         </div>
                       </td>

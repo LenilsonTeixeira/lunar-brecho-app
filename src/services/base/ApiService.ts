@@ -1,4 +1,5 @@
 import { ApiError } from '../types';
+import { ENV } from '../../config/env';
 
 const API_BASE_URL = 'http://localhost:8080';
 
@@ -25,7 +26,7 @@ export class BaseApiService {
     const config: any = {
       headers: {
         'Content-Type': 'application/json',
-        'store-id': '15a60849-3b2a-480a-9fb3-3348f53f00fe',
+        'store-id': ENV.STORE_ID,
         ...options.headers,
       },
       ...options,
@@ -145,7 +146,7 @@ export class BaseApiService {
     const config: any = {
       method: 'POST',
       headers: {
-        'store-id': '15a60849-3b2a-480a-9fb3-3348f53f00fe',
+        'store-id': ENV.STORE_ID,
         ...(token && { Authorization: `Bearer ${token}` }),
       },
       body: formData,

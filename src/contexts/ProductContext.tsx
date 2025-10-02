@@ -51,7 +51,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const filteredProducts = products.filter((product) => {
-    const matchesCategory = !selectedCategory || product.category === selectedCategory;
+    const matchesCategory = !selectedCategory || product.category.name === selectedCategory;
     const matchesSearch =
       !searchQuery ||
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

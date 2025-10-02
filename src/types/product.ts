@@ -7,7 +7,7 @@ export interface Product {
   description: string;
   sizes: string[];
   type: 'Novo' | 'Bazar';
-  category: 'Blusas' | 'Vestidos' | 'Conjuntinhos';
+  category: string;
   amount: number;
   observations: string;
 }

@@ -4,10 +4,10 @@ import ProductSizeSelector from './ProductSizeSelector';
 import ProductObservations from './ProductObservations';
 import ProductActions from './ProductActions';
 import ProductStoreInfo from './ProductStoreInfo';
-import { Product } from '../../types/product';
+import { ProductResponse } from '../../services/types';
 
 type Props = {
-  product: Product;
+  product: ProductResponse & { sizes: string[] };
   selectedSize: string;
   onSelectSize: (size: string) => void;
 };
@@ -19,7 +19,7 @@ const ProductInfoSection = ({ product, selectedSize, onSelectSize }: Props) => {
         <Breadcrumb
           items={[
             { label: 'Início', to: '/' },
-            { label: product.category, to: `/categorias/${product.category}` },
+            { label: product.category.name, to: `/categorias/${product.category.name}` },
             { label: product.name },
           ]}
         />

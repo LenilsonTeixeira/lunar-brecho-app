@@ -13,7 +13,9 @@ import {
 const AddProduct = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const [sizes, setSizes] = useState([{ id: 1, size: '', quantity: 1 }]);
+  const [sizes, setSizes] = useState<{ id: number; size: string; quantity: number | '' }[]>([
+    { id: 1, size: '', quantity: 1 },
+  ]);
   const [productPrice, setProductPrice] = useState<number | ''>('');
   const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED' | 'NONE'>('PERCENTAGE');
   const [discountValue, setDiscountValue] = useState<number | ''>('');
@@ -95,7 +97,7 @@ const AddProduct = () => {
     }
   };
 
-  const updateSize = (id: number, field: 'size' | 'quantity', value: string | number) => {
+  const updateSize = (id: number, field: 'size' | 'quantity', value: string | number | '') => {
     setSizes(sizes.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
   };
 
@@ -250,7 +252,9 @@ const AddProduct = () => {
       }
 
       // Validar tamanhos
-      const invalidSizes = sizes.filter((s) => !s.size.trim() || s.quantity < 1);
+      const invalidSizes = sizes.filter(
+        (s) => !s.size.trim() || s.quantity === '' || Number(s.quantity) < 1,
+      );
       if (invalidSizes.length > 0) {
         setError('Por favor, preencha corretamente todos os tamanhos.');
         return;
@@ -273,7 +277,7 @@ const AddProduct = () => {
         observations: productObservations.trim() || undefined,
         variants: sizes.map((size) => ({
           size: size.size.trim(),
-          initialStock: size.quantity,
+          stockAvailable: Number(size.quantity),
         })),
       };
 
@@ -627,9 +631,14 @@ const AddProduct = () => {
                       type='number'
                       min='1'
                       value={sizeItem.quantity}
-                      onChange={(e) =>
-                        updateSize(sizeItem.id, 'quantity', parseInt(e.target.value) || 1)
-                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        updateSize(
+                          sizeItem.id,
+                          'quantity',
+                          value === '' ? '' : parseInt(value) || 1,
+                        );
+                      }}
                       placeholder='Qtd'
                       className='w-full outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                     />
@@ -656,7 +665,7 @@ const AddProduct = () => {
                   Quantidade Total:
                 </span>
                 <span className='text-sm sm:text-lg font-bold text-purple-800'>
-                  {sizes.reduce((total, item) => total + item.quantity, 0)} unidades
+                  {sizes.reduce((total, item) => total + (Number(item.quantity) || 0), 0)} unidades
                 </span>
               </div>
             </div>
@@ -882,7 +891,7 @@ const AddProduct = () => {
               <div className='mt-4 p-3 bg-white rounded-lg border border-green-200'>
                 <p className='text-sm text-green-700'>
                   <strong>Quantidade Total:</strong>{' '}
-                  {sizes.reduce((total, item) => total + item.quantity, 0)} unidades
+                  {sizes.reduce((total, item) => total + (Number(item.quantity) || 0), 0)} unidades
                 </p>
               </div>
             </div>

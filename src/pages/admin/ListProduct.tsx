@@ -48,13 +48,13 @@ const ListProduct = () => {
         id: product.id,
         externalId: product.externalId,
         name: product.name,
-        category: product.category,
+        category: product.category.name,
         brand: product.brand || '',
         type: product.type,
         basePrice: product.basePrice,
         discountType: product.discountType,
         discountValue: product.discountValue,
-        totalCurrentStock: product.totalCurrentStock,
+        totalCurrentStock: product.totalCurrentStock || 0,
         status: product.status,
         mainImageUrl:
           product.mainImageUrl && product.mainImageUrl.trim() !== ''

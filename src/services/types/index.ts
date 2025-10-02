@@ -57,19 +57,15 @@ export interface CategoryResponse {
   color?: string;
   imageUrl?: string;
   thumbnailUrl?: string;
-  createdAt?: string;
-  updatedAt?: string;
   productCount?: number;
+  totalProducts?: number;
 }
 
 // Product types
 export interface ProductVariant {
   id?: string;
   size: string;
-  initialStock: number;
   stockAvailable?: number;
-  reservedQuantity?: number;
-  soldQuantity?: number;
 }
 
 export interface ProductImage {
@@ -105,16 +101,12 @@ export interface ProductResponse {
   description?: string;
   brand?: string;
   observations?: string;
-  category: string;
+  category: CategoryResponse;
   type: 'NEW' | 'BAZAAR';
   basePrice: number;
   discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
   discountValue?: number;
   status: 'ACTIVE' | 'INACTIVE';
-  totalInitialStock: number;
-  totalCurrentStock: number;
-  totalSoldQuantity: number;
-  totalReservedQuantity: number;
   variants: ProductVariant[];
   images: ProductImage[];
   createdAt?: string;

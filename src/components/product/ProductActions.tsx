@@ -1,10 +1,10 @@
 import { ShoppingCart } from 'lucide-react';
 import WhatsappIcon from '../icon/WhatsappIcon';
-import { Product } from '../../types/product';
+import { ProductResponse } from '../../services/types';
 import { useCart } from '../../contexts/CartContext';
 
 type Props = {
-  product: Product;
+  product: ProductResponse;
   selectedSize: string;
 };
 
@@ -17,15 +17,19 @@ const ProductActions = ({ product, selectedSize }: Props) => {
       return;
     }
 
+    // Busca o estoque disponível para o tamanho selecionado
+    const selectedVariant = product.variants?.find((v) => v.size === selectedSize);
+    const stockAvailable = selectedVariant?.stockAvailable || 0;
+
     const currentQuantity = getItemQuantity(product.id, selectedSize);
-    const availableQuantity = product.amount - currentQuantity;
+    const availableQuantity = stockAvailable - currentQuantity;
 
     if (availableQuantity <= 0) {
       alert('Este produto/tamanho não está mais disponível no estoque.');
       return;
     }
 
-    addToCart(product, 1, selectedSize);
+    addToCart(product as any, 1, selectedSize);
     alert('Produto adicionado ao carrinho!');
   };
 
@@ -35,8 +39,12 @@ const ProductActions = ({ product, selectedSize }: Props) => {
 
   const whatsappLink = `https://api.whatsapp.com/send?phone=${import.meta.env.VITE_PHONE_NUMBER}&text=${whatsappMessage}`;
 
+  // Busca o estoque disponível para o tamanho selecionado
+  const selectedVariant = product.variants?.find((v) => v.size === selectedSize);
+  const stockAvailable = selectedVariant?.stockAvailable || 0;
+
   const currentQuantity = getItemQuantity(product.id, selectedSize);
-  const isOutOfStock = selectedSize ? currentQuantity >= product.amount : false;
+  const isOutOfStock = selectedSize ? currentQuantity >= stockAvailable : false;
 
   return (
     <div className='flex flex-col space-y-3 sm:space-y-4'>

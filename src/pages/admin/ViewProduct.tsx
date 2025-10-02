@@ -7,8 +7,6 @@ import {
   AlertCircle,
   FileText,
   BadgePercent,
-  Calendar,
-  Clock,
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { useState, useEffect } from 'react';
@@ -24,18 +22,11 @@ interface ProductItem {
   basePrice: number;
   discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
   discountValue?: number;
-  totalCurrentStock: number;
-  totalInitialStock: number;
-  totalSoldQuantity: number;
-  totalReservedQuantity: number;
   status: 'ACTIVE' | 'INACTIVE';
   variants: Array<{
     id?: string;
     size: string;
-    initialStock: number;
     stockAvailable: number;
-    soldQuantity: number;
-    reservedQuantity: number;
   }>;
   images: Array<{
     id?: string;
@@ -46,8 +37,6 @@ interface ProductItem {
   }>;
   description?: string;
   observations?: string;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 const ViewProduct = () => {
@@ -75,24 +64,17 @@ const ViewProduct = () => {
           id: productData.id,
           externalId: productData.externalId,
           name: productData.name,
-          category: productData.category,
+          category: productData.category.name,
           brand: productData.brand || '',
           type: productData.type === 'NEW' ? 'SIMPLE' : 'VARIANT',
           basePrice: productData.basePrice,
           discountType: productData.discountType,
           discountValue: productData.discountValue,
-          totalCurrentStock: productData.totalCurrentStock,
-          totalInitialStock: productData.totalInitialStock,
-          totalSoldQuantity: productData.totalSoldQuantity,
-          totalReservedQuantity: productData.totalReservedQuantity,
           status: productData.status,
           variants: (productData.variants || []).map((v) => ({
             id: v.id,
             size: v.size,
-            initialStock: v.initialStock || 0,
             stockAvailable: v.stockAvailable || 0,
-            soldQuantity: v.soldQuantity || 0,
-            reservedQuantity: v.reservedQuantity || 0,
           })),
           images: (productData.images || []).map((img) => ({
             id: img.id,
@@ -103,8 +85,6 @@ const ViewProduct = () => {
           })),
           description: productData.description || '',
           observations: productData.observations || '',
-          createdAt: productData.createdAt,
-          updatedAt: productData.updatedAt,
         };
 
         setProduct(normalized);
@@ -137,17 +117,6 @@ const ViewProduct = () => {
       style: 'currency',
       currency: 'BRL',
     }).format(price);
-  };
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Não informado';
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
   };
 
   if (isLoading) {
@@ -526,30 +495,6 @@ const ViewProduct = () => {
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-
-          {/* Datas */}
-          <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-              <div className='p-4 bg-white rounded-lg border border-slate-200 flex items-center gap-3'>
-                <Calendar className='w-5 h-5 text-purple-600' />
-                <div>
-                  <div className='text-sm text-slate-600'>Criado em</div>
-                  <div className='text-base font-medium text-slate-900'>
-                    {formatDate(product.createdAt)}
-                  </div>
-                </div>
-              </div>
-              <div className='p-4 bg-white rounded-lg border border-slate-200 flex items-center gap-3'>
-                <Clock className='w-5 h-5 text-purple-600' />
-                <div>
-                  <div className='text-sm text-slate-600'>Atualizado em</div>
-                  <div className='text-base font-medium text-slate-900'>
-                    {formatDate(product.updatedAt)}
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 

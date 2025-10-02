@@ -44,7 +44,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
       description: product.description || '',
       sizes,
       type: product.type === 'NEW' ? 'Novo' : 'Bazar',
-      category: product.category as any,
+      category: product.category.name as any,
       amount: product.totalCurrentStock || 0,
       observations: product.observations || '',
     };

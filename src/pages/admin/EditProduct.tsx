@@ -13,11 +13,7 @@ import {
 interface ProductSize {
   id?: string;
   size: string;
-  quantity: number;
-  initialStock: number;
-  stockAvailable: number;
-  soldQuantity: number;
-  reservedQuantity: number;
+  quantity: number | '';
 }
 
 interface ProductItem {
@@ -30,7 +26,6 @@ interface ProductItem {
   basePrice: number;
   discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
   discountValue?: number;
-  totalCurrentStock: number;
   status: 'ACTIVE' | 'INACTIVE';
   sizes: ProductSize[];
   images: Array<{
@@ -93,19 +88,16 @@ const EditProduct = () => {
         setProduct({
           ...productData,
           brand: productData.brand || '',
+          category: productData.category.name,
           sizes: productData.variants.map((v) => ({
             id: v.id,
             size: v.size,
             quantity: v.stockAvailable || 0,
-            initialStock: v.initialStock || 0,
-            stockAvailable: v.stockAvailable || 0,
-            soldQuantity: v.soldQuantity || 0,
-            reservedQuantity: v.reservedQuantity || 0,
           })),
         });
         setProductName(productData.name);
         setProductBrand(productData.brand || '');
-        setProductCategory(productData.category);
+        setProductCategory(productData.category.name);
         setProductType(productData.type);
         setProductStatus(productData.status);
         setProductPrice(productData.basePrice);
@@ -117,10 +109,6 @@ const EditProduct = () => {
             id: v.id,
             size: v.size,
             quantity: v.stockAvailable || 0,
-            initialStock: v.initialStock || 0,
-            stockAvailable: v.stockAvailable || 0,
-            soldQuantity: v.soldQuantity || 0,
-            reservedQuantity: v.reservedQuantity || 0,
           })),
         );
         setDiscountType(productData.discountType);
@@ -177,10 +165,6 @@ const EditProduct = () => {
         id: newId.toString(),
         size: '',
         quantity: 1,
-        initialStock: 1,
-        stockAvailable: 1,
-        soldQuantity: 0,
-        reservedQuantity: 0,
       },
     ]);
   };
@@ -191,7 +175,7 @@ const EditProduct = () => {
     }
   };
 
-  const updateSize = (id: string, field: 'size' | 'quantity', value: string | number) => {
+  const updateSize = (id: string, field: 'size' | 'quantity', value: string | number | '') => {
     setSizes(sizes.map((s) => (s.id === id ? { ...s, [field]: value } : s)));
   };
 
@@ -228,7 +212,7 @@ const EditProduct = () => {
   };
 
   const calculateTotalQuantity = () => {
-    return sizes.reduce((total, size) => total + size.quantity, 0);
+    return sizes.reduce((total, size) => total + (Number(size.quantity) || 0), 0);
   };
 
   const calculateFinalPrice = () => {
@@ -313,7 +297,9 @@ const EditProduct = () => {
       }
 
       // Validar tamanhos
-      const invalidSizes = sizes.filter((s) => !s.size.trim() || s.quantity < 0);
+      const invalidSizes = sizes.filter(
+        (s) => !s.size.trim() || s.quantity === '' || Number(s.quantity) < 0,
+      );
       if (invalidSizes.length > 0) {
         // debug: validation failed - invalid sizes
         setError('Por favor, preencha corretamente todos os tamanhos.');
@@ -336,10 +322,7 @@ const EditProduct = () => {
         variants: sizes.map((size) => ({
           id: size.id,
           size: size.size.trim(),
-          initialStock: size.initialStock,
-          stockAvailable: size.quantity,
-          soldQuantity: size.soldQuantity,
-          reservedQuantity: size.reservedQuantity,
+          stockAvailable: Number(size.quantity),
         })),
       };
 
@@ -834,10 +817,15 @@ const EditProduct = () => {
                       <input
                         type='number'
                         min='0'
-                        value={size.quantity === 0 ? '' : size.quantity}
-                        onChange={(e) =>
-                          updateSize(size.id!, 'quantity', parseInt(e.target.value) || 0)
-                        }
+                        value={size.quantity}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          updateSize(
+                            size.id!,
+                            'quantity',
+                            value === '' ? '' : parseInt(value) || 0,
+                          );
+                        }}
                         placeholder='0'
                         className='outline-none py-2 px-3 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                         required

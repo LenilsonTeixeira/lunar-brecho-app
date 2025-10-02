@@ -1,7 +1,7 @@
-import { Product } from '../../types/product';
+import { ProductResponse } from '../../services/types';
 
 type Props = {
-  product: Product;
+  product: ProductResponse;
 };
 
 const ProductObservations = ({ product }: Props) => {

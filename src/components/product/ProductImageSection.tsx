@@ -1,14 +1,12 @@
-import { Product } from '../../types/product';
 import ProductImageGallery from './ProductImageGallery';
 
 type Props = {
-  images: Product['images'];
+  images: string[];
   alt: string;
-  isReserved: boolean;
 };
 
-const ProductImageSection = ({ images, alt, isReserved }: Props) => {
-  return <ProductImageGallery images={images} alt={alt} isReserved={isReserved} />;
+const ProductImageSection = ({ images, alt }: Props) => {
+  return <ProductImageGallery images={images} alt={alt} />;
 };
 
 export default ProductImageSection;

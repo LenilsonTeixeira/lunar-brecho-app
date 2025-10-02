@@ -5,6 +5,7 @@ import {
   ProductListResponse,
   ProductImageMetadataRequest,
 } from '../types';
+import { ENV } from '../../config/env';
 
 export class ProductService extends BaseApiService {
   async getProducts(page: number = 0, size: number = 10): Promise<ProductListResponse> {
@@ -54,7 +55,7 @@ export class ProductService extends BaseApiService {
     const config: any = {
       method: 'POST',
       headers: {
-        'store-id': '15a60849-3b2a-480a-9fb3-3348f53f00fe',
+        'store-id': ENV.STORE_ID,
         ...(token && { Authorization: `Bearer ${token}` }),
       },
       body: formData,
@@ -93,7 +94,7 @@ export class ProductService extends BaseApiService {
     const config: any = {
       method: 'PATCH',
       headers: {
-        'store-id': '15a60849-3b2a-480a-9fb3-3348f53f00fe',
+        'store-id': ENV.STORE_ID,
         ...(token && { Authorization: `Bearer ${token}` }),
       },
       body: formData,
