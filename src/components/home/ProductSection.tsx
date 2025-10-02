@@ -11,7 +11,10 @@ type Props = {
 };
 
 const ProductSection = ({ products, title, searchQuery, selectedCategory }: Props) => {
-  if (products.length === 0) {
+  // Filtra apenas produtos com status ACTIVE
+  const activeProducts = products.filter((product) => product.status === 'ACTIVE');
+
+  if (activeProducts.length === 0) {
     return <NoProductsFound searchQuery={searchQuery} selectedCategory={selectedCategory} />;
   }
 
@@ -19,7 +22,7 @@ const ProductSection = ({ products, title, searchQuery, selectedCategory }: Prop
     <section className='flex flex-col items-start w-full mt-6'>
       <Title name={title} />
       <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 w-full gap-4 mt-4'>
-        {products.map((item) => (
+        {activeProducts.map((item) => (
           <ProductItem key={item.id} product={item} />
         ))}
       </div>
