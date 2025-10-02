@@ -10,7 +10,7 @@ interface ProductItem {
   name: string;
   category: string;
   brand: string;
-  type: 'SIMPLE' | 'VARIANT';
+  type: 'NEW' | 'BAZAAR';
   basePrice: number;
   discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
   discountValue?: number;
@@ -108,8 +108,8 @@ const ListProduct = () => {
     const matchesType =
       selectedType === '' ||
       selectedType === 'Todos os Tipos' ||
-      (selectedType === 'Novo' && product.type === 'SIMPLE') ||
-      (selectedType === 'Bazar' && product.type === 'VARIANT');
+      (selectedType === 'Novo' && product.type === 'NEW') ||
+      (selectedType === 'Bazar' && product.type === 'BAZAAR');
 
     return matchesSearch && matchesCategory && matchesType;
   });
@@ -335,7 +335,7 @@ const ListProduct = () => {
                       </td>
                       <td className='px-6 py-4'>
                         <ProductTypeBadge
-                          type={product.type === 'SIMPLE' ? 'Novo' : 'Bazar'}
+                          type={product.type === 'NEW' ? 'Novo' : 'Bazar'}
                           variant='compact'
                         />
                       </td>
