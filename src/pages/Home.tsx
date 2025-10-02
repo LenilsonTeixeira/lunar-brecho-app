@@ -16,7 +16,6 @@ const Home = () => {
     refreshProducts,
   } = useProducts();
 
-  // Polling inteligente: atualiza a cada 60s apenas na Home quando aba está ativa
   useProductPolling(refreshProducts, 60000);
 
   useEffect(() => {
