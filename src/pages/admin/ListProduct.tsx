@@ -1,23 +1,22 @@
-import { useState } from 'react';
-import { Search, Edit, Trash2, Eye, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Edit, Trash2, Eye, Plus, FolderOpen } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import ProductTypeBadge from '../../components/product/ProductTypeBadge';
+import { productService, ApiError, ProductResponse } from '@/services';
 
 interface ProductItem {
-  id: number;
+  id: string;
+  externalId: string;
   name: string;
   category: string;
   brand: string;
-  type: 'novo' | 'bazar';
-  price: number;
-  offerPrice: number;
-  totalQuantity: number;
-  status: 'ativo' | 'inativo';
-  sizes: Array<{
-    size: string;
-    quantity: number;
-  }>;
-  mainImage: string;
+  type: 'SIMPLE' | 'VARIANT';
+  basePrice: number;
+  discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
+  discountValue?: number;
+  totalCurrentStock: number;
+  status: 'ACTIVE' | 'INACTIVE';
+  mainImageUrl?: string;
   description?: string;
   observations?: string;
   createdAt?: string;
@@ -29,402 +28,57 @@ const ListProduct = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedType, setSelectedType] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState<ProductItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
-  // Mock data - substitua por dados reais da sua API
-  const products: ProductItem[] = [
-    {
-      id: 1,
-      name: 'Vestido Floral Vintage',
-      category: 'Vestidos',
-      brand: 'Zara',
-      type: 'bazar',
-      price: 89.9,
-      offerPrice: 59.9,
-      totalQuantity: 12,
-      status: 'ativo',
-      sizes: [
-        { size: 'P', quantity: 3 },
-        { size: 'M', quantity: 5 },
-        { size: 'G', quantity: 4 },
-      ],
-      mainImage:
-        'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
-      description:
-        'Vestido floral vintage com tecido leve e confortável. Ideal para eventos casuais e festas.',
-      observations: 'Produto em excelente estado, apenas uma pequena marca na parte inferior.',
-      createdAt: '2024-01-15T10:30:00Z',
-      updatedAt: '2024-03-20T14:45:00Z',
-    },
-    {
-      id: 2,
-      name: 'Blazer Clássico',
-      category: 'Blazer',
-      brand: 'H&M',
-      type: 'novo',
-      price: 120.0,
-      offerPrice: 95.0,
-      totalQuantity: 5,
-      status: 'ativo',
-      sizes: [
-        { size: 'M', quantity: 2 },
-        { size: 'G', quantity: 3 },
-      ],
-      mainImage:
-        'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=100&h=100&fit=crop',
-      description: 'Blazer clássico em tecido premium, perfeito para o ambiente corporativo.',
-      createdAt: '2024-02-08T09:15:00Z',
-      updatedAt: '2024-03-18T16:20:00Z',
-    },
-    {
-      id: 3,
-      name: 'Bolsa de Couro',
-      category: 'Bolsas',
-      brand: 'Marca Local',
-      type: 'bazar',
-      price: 150.0,
-      offerPrice: 89.9,
-      totalQuantity: 3,
-      status: 'inativo',
-      sizes: [{ size: 'Único', quantity: 3 }],
-      mainImage: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop',
-      description: 'Bolsa de couro genuíno com acabamento artesanal.',
-      observations: 'Produto temporariamente indisponível para venda.',
-      createdAt: '2024-01-22T11:45:00Z',
-      updatedAt: '2024-02-28T13:30:00Z',
-    },
-    {
-      id: 4,
-      name: 'Sapatos de Salto',
-      category: 'Sapatos',
-      brand: 'Renner',
-      type: 'novo',
-      price: 180.0,
-      offerPrice: 140.0,
-      totalQuantity: 8,
-      status: 'ativo',
-      sizes: [
-        { size: '36', quantity: 2 },
-        { size: '37', quantity: 3 },
-        { size: '38', quantity: 3 },
-      ],
-      mainImage: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?w=100&h=100&fit=crop',
-      description: 'Sapatos de salto alto elegantes, ideais para eventos especiais.',
-      createdAt: '2024-02-12T08:20:00Z',
-      updatedAt: '2024-03-22T10:15:00Z',
-    },
-    {
-      id: 5,
-      name: 'Blusa Básica Algodão',
-      category: 'Blusas',
-      brand: 'C&A',
-      type: 'novo',
-      price: 45.0,
-      offerPrice: 35.0,
-      totalQuantity: 15,
-      status: 'ativo',
-      sizes: [
-        { size: 'P', quantity: 4 },
-        { size: 'M', quantity: 6 },
-        { size: 'G', quantity: 5 },
-      ],
-      mainImage:
-        'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100&h=100&fit=crop',
-      description: 'Blusa básica em 100% algodão, confortável e versátil para o dia a dia.',
-      createdAt: '2024-01-30T14:10:00Z',
-      updatedAt: '2024-03-25T09:45:00Z',
-    },
-    {
-      id: 6,
-      name: 'Body Rendado',
-      category: 'Body',
-      brand: 'Fashion Nova',
-      type: 'bazar',
-      price: 65.0,
-      offerPrice: 45.0,
-      totalQuantity: 7,
-      status: 'ativo',
-      sizes: [
-        { size: 'P', quantity: 2 },
-        { size: 'M', quantity: 3 },
-        { size: 'G', quantity: 2 },
-      ],
-      mainImage: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=100&h=100&fit=crop',
-      createdAt: '2024-02-05T12:30:00Z',
-      updatedAt: '2024-03-19T15:20:00Z',
-    },
-    {
-      id: 7,
-      name: 'Calça Jeans Skinny',
-      category: 'Calças',
-      brand: "Levi's",
-      type: 'bazar',
-      price: 120.0,
-      offerPrice: 85.0,
-      totalQuantity: 10,
-      status: 'ativo',
-      sizes: [
-        { size: '36', quantity: 3 },
-        { size: '38', quantity: 4 },
-        { size: '40', quantity: 3 },
-      ],
-      mainImage: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=100&h=100&fit=crop',
-      createdAt: '2024-01-18T16:45:00Z',
-      updatedAt: '2024-03-21T11:30:00Z',
-    },
-    {
-      id: 8,
-      name: 'Vestido Longo Elegante',
-      category: 'Vestidos',
-      brand: 'Shein',
-      type: 'novo',
-      price: 95.0,
-      offerPrice: 75.0,
-      totalQuantity: 6,
-      status: 'ativo',
-      sizes: [
-        { size: 'P', quantity: 2 },
-        { size: 'M', quantity: 2 },
-        { size: 'G', quantity: 2 },
-      ],
-      mainImage:
-        'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=100&h=100&fit=crop',
-      createdAt: '2024-02-15T10:00:00Z',
-      updatedAt: '2024-03-23T14:15:00Z',
-    },
-    {
-      id: 9,
-      name: 'Jeans Mom Fit',
-      category: 'Jeans',
-      brand: 'Calvin Klein',
-      type: 'bazar',
-      price: 180.0,
-      offerPrice: 120.0,
-      totalQuantity: 8,
-      status: 'ativo',
-      sizes: [
-        { size: '36', quantity: 2 },
-        { size: '38', quantity: 3 },
-        { size: '40', quantity: 3 },
-      ],
-      mainImage: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=100&h=100&fit=crop',
-      createdAt: '2024-01-25T13:20:00Z',
-      updatedAt: '2024-03-17T16:40:00Z',
-    },
-    {
-      id: 10,
-      name: 'Cropped Top Estampado',
-      category: 'Croppeds',
-      brand: 'Forever 21',
-      type: 'novo',
-      price: 55.0,
-      offerPrice: 40.0,
-      totalQuantity: 12,
-      status: 'ativo',
-      sizes: [
-        { size: 'P', quantity: 4 },
-        { size: 'M', quantity: 5 },
-        { size: 'G', quantity: 3 },
-      ],
-      mainImage:
-        'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100&h=100&fit=crop',
-      createdAt: '2024-02-20T09:30:00Z',
-      updatedAt: '2024-03-24T12:50:00Z',
-    },
-    {
-      id: 11,
-      name: 'Conjunto Shorts + Top',
-      category: 'Conjuntos',
-      brand: 'Zara',
-      type: 'novo',
-      price: 110.0,
-      offerPrice: 85.0,
-      totalQuantity: 9,
-      status: 'ativo',
-      sizes: [
-        { size: 'P', quantity: 3 },
-        { size: 'M', quantity: 4 },
-        { size: 'G', quantity: 2 },
-      ],
-      mainImage: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=100&h=100&fit=crop',
-      createdAt: '2024-02-10T15:45:00Z',
-      updatedAt: '2024-03-26T08:30:00Z',
-    },
-    {
-      id: 12,
-      name: 'Blusa Transparente',
-      category: 'Blusas',
-      brand: 'H&M',
-      type: 'bazar',
-      price: 75.0,
-      offerPrice: 55.0,
-      totalQuantity: 6,
-      status: 'ativo',
-      sizes: [
-        { size: 'P', quantity: 2 },
-        { size: 'M', quantity: 2 },
-        { size: 'G', quantity: 2 },
-      ],
-      mainImage:
-        'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100&h=100&fit=crop',
-      createdAt: '2024-01-28T11:15:00Z',
-      updatedAt: '2024-03-20T13:25:00Z',
-    },
-    {
-      id: 13,
-      name: 'Body Esportivo',
-      category: 'Body',
-      brand: 'Nike',
-      type: 'novo',
-      price: 85.0,
-      offerPrice: 65.0,
-      totalQuantity: 11,
-      status: 'ativo',
-      sizes: [
-        { size: 'P', quantity: 3 },
-        { size: 'M', quantity: 4 },
-        { size: 'G', quantity: 4 },
-      ],
-      mainImage: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=100&h=100&fit=crop',
-      createdAt: '2024-02-25T14:20:00Z',
-      updatedAt: '2024-03-27T10:45:00Z',
-    },
-    {
-      id: 14,
-      name: 'Calça Palazzo',
-      category: 'Calças',
-      brand: 'Mango',
-      type: 'bazar',
-      price: 130.0,
-      offerPrice: 95.0,
-      totalQuantity: 7,
-      status: 'ativo',
-      sizes: [
-        { size: '36', quantity: 2 },
-        { size: '38', quantity: 3 },
-        { size: '40', quantity: 2 },
-      ],
-      mainImage: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=100&h=100&fit=crop',
-      createdAt: '2024-01-20T10:50:00Z',
-      updatedAt: '2024-03-18T15:10:00Z',
-    },
-    {
-      id: 15,
-      name: 'Vestido Midi Floral',
-      category: 'Vestidos',
-      brand: 'Forever 21',
-      type: 'novo',
-      price: 85.0,
-      offerPrice: 65.0,
-      totalQuantity: 8,
-      status: 'ativo',
-      sizes: [
-        { size: 'P', quantity: 3 },
-        { size: 'M', quantity: 3 },
-        { size: 'G', quantity: 2 },
-      ],
-      mainImage:
-        'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=100&h=100&fit=crop',
-      createdAt: '2024-02-18T12:40:00Z',
-      updatedAt: '2024-03-25T16:55:00Z',
-    },
-    {
-      id: 16,
-      name: 'Jeans Boyfriend',
-      category: 'Jeans',
-      brand: "Levi's",
-      type: 'bazar',
-      price: 160.0,
-      offerPrice: 110.0,
-      totalQuantity: 6,
-      status: 'ativo',
-      sizes: [
-        { size: '36', quantity: 2 },
-        { size: '38', quantity: 2 },
-        { size: '40', quantity: 2 },
-      ],
-      mainImage: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=100&h=100&fit=crop',
-      createdAt: '2024-01-12T09:25:00Z',
-      updatedAt: '2024-03-19T14:20:00Z',
-    },
-    {
-      id: 17,
-      name: 'Cropped Cardigan',
-      category: 'Croppeds',
-      brand: 'Zara',
-      type: 'novo',
-      price: 95.0,
-      offerPrice: 75.0,
-      totalQuantity: 10,
-      status: 'ativo',
-      sizes: [
-        { size: 'P', quantity: 3 },
-        { size: 'M', quantity: 4 },
-        { size: 'G', quantity: 3 },
-      ],
-      mainImage:
-        'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100&h=100&fit=crop',
-      createdAt: '2024-02-22T16:30:00Z',
-      updatedAt: '2024-03-28T11:15:00Z',
-    },
-    {
-      id: 18,
-      name: 'Conjunto Pijama',
-      category: 'Conjuntos',
-      brand: 'H&M',
-      type: 'bazar',
-      price: 120.0,
-      offerPrice: 85.0,
-      totalQuantity: 5,
-      status: 'ativo',
-      sizes: [
-        { size: 'P', quantity: 2 },
-        { size: 'M', quantity: 2 },
-        { size: 'G', quantity: 1 },
-      ],
-      mainImage: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=100&h=100&fit=crop',
-      createdAt: '2024-01-15T13:45:00Z',
-      updatedAt: '2024-03-21T09:40:00Z',
-    },
-    {
-      id: 19,
-      name: 'Blusa de Seda',
-      category: 'Blusas',
-      brand: 'Mango',
-      type: 'novo',
-      price: 110.0,
-      offerPrice: 85.0,
-      totalQuantity: 9,
-      status: 'ativo',
-      sizes: [
-        { size: 'P', quantity: 3 },
-        { size: 'M', quantity: 3 },
-        { size: 'G', quantity: 3 },
-      ],
-      mainImage:
-        'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=100&h=100&fit=crop',
-      createdAt: '2024-02-28T10:15:00Z',
-      updatedAt: '2024-03-29T14:30:00Z',
-    },
-    {
-      id: 20,
-      name: 'Body Lace',
-      category: 'Body',
-      brand: "Victoria's Secret",
-      type: 'bazar',
-      price: 95.0,
-      offerPrice: 65.0,
-      totalQuantity: 4,
-      status: 'ativo',
-      sizes: [
-        { size: 'P', quantity: 1 },
-        { size: 'M', quantity: 2 },
-        { size: 'G', quantity: 1 },
-      ],
-      mainImage: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=100&h=100&fit=crop',
-      createdAt: '2024-01-30T15:20:00Z',
-      updatedAt: '2024-03-22T12:45:00Z',
-    },
-  ];
+  // Load products on component mount
+  useEffect(() => {
+    loadProducts();
+  }, [currentPage]);
+
+  const loadProducts = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await productService.getProducts(currentPage, 10);
+      const formattedProducts: ProductItem[] = response.content.map((product: ProductResponse) => ({
+        id: product.id,
+        externalId: product.externalId,
+        name: product.name,
+        category: product.category,
+        brand: product.brand || '',
+        type: product.type,
+        basePrice: product.basePrice,
+        discountType: product.discountType,
+        discountValue: product.discountValue,
+        totalCurrentStock: product.totalCurrentStock,
+        status: product.status,
+        mainImageUrl:
+          product.mainImageUrl ||
+          'https://via.placeholder.com/150x150/8b5cf6/ffffff?text=Sem+Imagem',
+        description: product.description || '',
+        observations: product.observations || '',
+        createdAt: product.createdAt,
+        updatedAt: product.updatedAt,
+      }));
+      setProducts(formattedProducts);
+      setTotalPages(response.totalPages);
+      setTotalElements(response.totalElements);
+    } catch (error) {
+      console.error('Erro ao carregar produtos:', error);
+      if (error instanceof ApiError) {
+        setError(`Erro ao carregar produtos: ${error.message}`);
+      } else {
+        setError('Erro de conexão. Tente novamente.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const categories = [
     'Todas as Categorias',
@@ -446,7 +100,7 @@ const ListProduct = () => {
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.brand.toLowerCase().includes(searchTerm.toLowerCase());
+      (product.brand && product.brand.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCategory =
       selectedCategory === '' ||
       selectedCategory === 'Todas as Categorias' ||
@@ -454,7 +108,8 @@ const ListProduct = () => {
     const matchesType =
       selectedType === '' ||
       selectedType === 'Todos os Tipos' ||
-      product.type === selectedType.toLowerCase();
+      (selectedType === 'Novo' && product.type === 'SIMPLE') ||
+      (selectedType === 'Bazar' && product.type === 'VARIANT');
 
     return matchesSearch && matchesCategory && matchesType;
   });
@@ -474,9 +129,24 @@ const ListProduct = () => {
     navigate(`/admin/produtos/editar/${product.id}`);
   };
 
-  const handleDeleteProduct = (product: ProductItem) => {
-    // Implementar lógica de exclusão
-    console.log('Excluir produto:', product);
+  const handleDeleteProduct = async (product: ProductItem) => {
+    if (window.confirm(`Tem certeza que deseja excluir o produto "${product.name}"?`)) {
+      setLoading(true);
+      setError(null);
+      try {
+        await productService.deleteProduct(product.id);
+        await loadProducts();
+      } catch (error) {
+        console.error('Erro ao excluir produto:', error);
+        if (error instanceof ApiError) {
+          setError(`Erro ao excluir produto: ${error.message}`);
+        } else {
+          setError('Erro de conexão. Tente novamente.');
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return (
@@ -500,6 +170,38 @@ const ListProduct = () => {
             </button>
           </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className='bg-red-50 border border-red-200 rounded-lg p-4 mb-6'>
+            <div className='flex items-center'>
+              <div className='flex-shrink-0'>
+                <svg className='h-5 w-5 text-red-400' viewBox='0 0 20 20' fill='currentColor'>
+                  <path
+                    fillRule='evenodd'
+                    d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
+                    clipRule='evenodd'
+                  />
+                </svg>
+              </div>
+              <div className='ml-3'>
+                <p className='text-sm text-red-800'>{error}</p>
+              </div>
+              <div className='ml-auto pl-3'>
+                <button onClick={() => setError(null)} className='text-red-400 hover:text-red-600'>
+                  <span className='sr-only'>Fechar</span>
+                  <svg className='h-5 w-5' viewBox='0 0 20 20' fill='currentColor'>
+                    <path
+                      fillRule='evenodd'
+                      d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filters and Search */}
         <div className='bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6'>
@@ -593,134 +295,157 @@ const ListProduct = () => {
                 </tr>
               </thead>
               <tbody className='divide-y divide-slate-200'>
-                {filteredProducts.map((product) => (
-                  <tr
-                    key={product.id}
-                    className='hover:bg-slate-50 transition-colors duration-200 shadow-sm'
-                  >
-                    <td className='px-6 py-4'>
-                      <div className='flex items-center gap-3'>
-                        <img
-                          src={product.mainImage}
-                          alt={product.name}
-                          className='w-12 h-12 rounded-lg object-cover'
-                        />
-                        <div>
-                          <p className='text-xs sm:text-sm font-medium text-slate-800'>
-                            {product.name}
-                          </p>
-                          <p className='text-xs text-slate-500'>ID: {product.id}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <span className='px-3 py-1 bg-purple-300 text-slate-950 rounded-sm text-xs sm:text-sm font-medium'>
-                        {product.category}
-                      </span>
-                    </td>
-                    <td className='px-6 py-4 text-xs sm:text-sm text-slate-700'>{product.brand}</td>
-                    <td className='px-6 py-4'>
-                      <ProductTypeBadge
-                        type={product.type === 'novo' ? 'Novo' : 'Bazar'}
-                        variant='compact'
-                      />
-                    </td>
-                    <td className='px-6 py-4'>
-                      <div className='space-y-1'>
-                        <p className='text-xs sm:text-sm font-semibold text-slate-800'>
-                          {formatPrice(product.price)}
-                        </p>
-                      </div>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <div className='space-y-1'>
-                        {product.sizes.map((sizeItem, index) => (
-                          <div
-                            key={index}
-                            className='flex items-center justify-between min-w-[80px]'
-                          >
-                            <span className='text-xs font-medium text-slate-600 bg-slate-200 px-2 py-1 rounded'>
-                              {sizeItem.size}
-                            </span>
-                            <span className='text-xs sm:text-sm font-medium text-white bg-gradient-to-br from-purple-500 to-pink-500 w-6 h-6 rounded-full flex items-center justify-center shadow-lg'>
-                              {sizeItem.quantity}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <span
-                        className={`px-3 py-1 rounded-sm text-xs sm:text-sm font-medium ${
-                          product.status === 'ativo'
-                            ? 'bg-green-300 text-slate-950'
-                            : 'bg-red-300 text-slate-950'
-                        }`}
-                      >
-                        {product.status === 'ativo' ? 'Ativo' : 'Inativo'}
-                      </span>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <div className='flex items-center gap-1 sm:gap-2'>
-                        <button
-                          onClick={() => handleViewProduct(product)}
-                          className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
-                          title='Visualizar'
-                        >
-                          <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
-                        </button>
-                        <button
-                          onClick={() => handleEditProduct(product)}
-                          className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
-                          title='Editar'
-                        >
-                          <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteProduct(product)}
-                          className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
-                          title='Excluir'
-                        >
-                          <Trash2 className='w-3 h-3 sm:w-4 sm:h-4' />
-                        </button>
+                {loading ? (
+                  <tr>
+                    <td colSpan={8} className='py-12 text-center text-slate-500'>
+                      <div className='flex flex-col items-center gap-2'>
+                        <div className='w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin'></div>
+                        <p className='font-medium'>Carregando produtos...</p>
                       </div>
                     </td>
                   </tr>
-                ))}
+                ) : filteredProducts.length > 0 ? (
+                  filteredProducts.map((product) => (
+                    <tr
+                      key={product.id}
+                      className='hover:bg-slate-50 transition-colors duration-200 shadow-sm'
+                    >
+                      <td className='px-6 py-4'>
+                        <div className='flex items-center gap-3'>
+                          <img
+                            src={product.mainImageUrl}
+                            alt={product.name}
+                            className='w-12 h-12 rounded-lg object-cover'
+                          />
+                          <div>
+                            <p className='text-xs sm:text-sm font-medium text-slate-800'>
+                              {product.name}
+                            </p>
+                            <p className='text-xs text-slate-500'>ID: {product.externalId}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <span className='px-3 py-1 bg-purple-300 text-slate-950 rounded-sm text-xs sm:text-sm font-medium'>
+                          {product.category}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4 text-xs sm:text-sm text-slate-700'>
+                        {product.brand}
+                      </td>
+                      <td className='px-6 py-4'>
+                        <ProductTypeBadge
+                          type={product.type === 'SIMPLE' ? 'Novo' : 'Bazar'}
+                          variant='compact'
+                        />
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='space-y-1'>
+                          <p className='text-xs sm:text-sm font-semibold text-slate-800'>
+                            {formatPrice(product.basePrice)}
+                          </p>
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='text-center'>
+                          <span className='text-xs sm:text-sm font-semibold text-white bg-gradient-to-br from-purple-500 to-pink-500 w-8 h-8 rounded-full flex items-center justify-center shadow-lg mx-auto'>
+                            {product.totalCurrentStock}
+                          </span>
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <span
+                          className={`px-3 py-1 rounded-sm text-xs sm:text-sm font-medium ${
+                            product.status === 'ACTIVE'
+                              ? 'bg-green-300 text-slate-950'
+                              : 'bg-red-300 text-slate-950'
+                          }`}
+                        >
+                          {product.status === 'ACTIVE' ? 'Ativo' : 'Inativo'}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='flex items-center gap-1 sm:gap-2'>
+                          <button
+                            onClick={() => handleViewProduct(product)}
+                            className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
+                            title='Visualizar'
+                          >
+                            <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
+                          </button>
+                          <button
+                            onClick={() => handleEditProduct(product)}
+                            className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
+                            title='Editar'
+                          >
+                            <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProduct(product)}
+                            className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
+                            title='Excluir'
+                          >
+                            <Trash2 className='w-3 h-3 sm:w-4 sm:h-4' />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={8} className='py-12 text-center text-slate-500'>
+                      <div className='flex flex-col items-center gap-2'>
+                        <div className='w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center'>
+                          <FolderOpen className='w-8 h-8 text-slate-400' />
+                        </div>
+                        <h3 className='text-base sm:text-lg font-medium text-slate-800 mb-2'>
+                          Nenhum produto encontrado
+                        </h3>
+                        <p className='text-sm sm:text-base text-slate-600'>
+                          Tente ajustar os filtros ou criar um novo produto.
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
 
-          {/* Empty State */}
-          {filteredProducts.length === 0 && (
-            <div className='text-center py-12'>
-              <div className='w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center'>
-                <Search className='w-8 h-8 text-slate-400' />
+          {/* Table Footer */}
+          {filteredProducts.length > 0 && (
+            <div className='px-6 py-4 border-t border-slate-200 bg-slate-50'>
+              <div className='flex items-center justify-between text-sm text-slate-600'>
+                <span>
+                  Mostrando {filteredProducts.length} de {totalElements} produtos
+                </span>
               </div>
-              <h3 className='text-base sm:text-lg font-medium text-slate-800 mb-2'>
-                Nenhum produto encontrado
-              </h3>
-              <p className='text-sm sm:text-base text-slate-600'>
-                Tente ajustar os filtros ou adicionar um novo produto.
-              </p>
             </div>
           )}
         </div>
 
         {/* Pagination */}
-        {filteredProducts.length > 0 && (
+        {totalPages > 1 && (
           <div className='mt-6 flex items-center justify-between bg-white rounded-xl shadow-lg p-4'>
             <div className='text-xs sm:text-sm text-slate-600'>
-              Mostrando {filteredProducts.length} de {products.length} produtos
+              Página {currentPage + 1} de {totalPages} ({totalElements} produtos)
             </div>
             <div className='flex items-center gap-2'>
-              <button className='px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200'>
+              <button
+                onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                disabled={currentPage === 0}
+                className='px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
+              >
                 Anterior
               </button>
               <span className='px-2 sm:px-3 py-2 bg-purple-600 text-white text-xs sm:text-sm rounded-lg'>
-                1
+                {currentPage + 1}
               </span>
-              <button className='px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200'>
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+                disabled={currentPage >= totalPages - 1}
+                className='px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
+              >
                 Próximo
               </button>
             </div>

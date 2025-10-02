@@ -6,8 +6,22 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string;
+  refreshToken: string;
   type: string;
   expiresIn: number;
+  refreshExpiresIn: number;
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+  token: string;
+  refreshToken: string;
+  type: string;
+  expiresIn: number;
+  refreshExpiresIn: number;
 }
 
 export interface RegisterRequest {
@@ -46,6 +60,79 @@ export interface CategoryResponse {
   createdAt?: string;
   updatedAt?: string;
   productCount?: number;
+}
+
+// Product types
+export interface ProductVariant {
+  id?: string;
+  size: string;
+  initialStock: number;
+  stockAvailable?: number;
+  reservedQuantity?: number;
+  soldQuantity?: number;
+}
+
+export interface ProductImage {
+  id?: string;
+  originalUrl?: string;
+  thumbnailUrl?: string;
+  position: number;
+  isMain: boolean;
+}
+
+export interface ProductRequest {
+  mainImageUrl?: string;
+  mainThumbnailUrl?: string;
+  name: string;
+  description?: string;
+  brand?: string;
+  observations?: string;
+  category: string;
+  type: 'NEW' | 'BAZAAR';
+  basePrice: number;
+  discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
+  discountValue?: number;
+  status: 'ACTIVE' | 'INACTIVE';
+  variants: ProductVariant[];
+}
+
+export interface ProductResponse {
+  id: string;
+  externalId: string;
+  mainImageUrl?: string;
+  mainThumbnailUrl?: string;
+  name: string;
+  description?: string;
+  brand?: string;
+  observations?: string;
+  category: string;
+  type: 'NEW' | 'BAZAAR';
+  basePrice: number;
+  discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
+  discountValue?: number;
+  status: 'ACTIVE' | 'INACTIVE';
+  totalInitialStock: number;
+  totalCurrentStock: number;
+  totalSoldQuantity: number;
+  totalReservedQuantity: number;
+  variants: ProductVariant[];
+  images: ProductImage[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ProductImageMetadataRequest {
+  position: number;
+  isMain: boolean;
+  operationType: 'ADD' | 'UPDATE';
+}
+
+export interface ProductListResponse {
+  content: ProductResponse[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
 }
 
 // Common types

@@ -1,12 +1,59 @@
-import { useState } from 'react';
-import { Plus, X, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, X, ChevronLeft, ChevronRight, Check, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router';
+import {
+  productService,
+  ApiError,
+  ProductRequest,
+  ProductImageMetadataRequest,
+  categoryService,
+  CategoryResponse,
+} from '@/services';
 
 const AddProduct = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [sizes, setSizes] = useState([{ id: 1, size: '', quantity: 1 }]);
   const [productPrice, setProductPrice] = useState<number | ''>('');
-  const [discountType, setDiscountType] = useState<'percentage' | 'fixed' | 'none'>('percentage');
+  const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED' | 'NONE'>('PERCENTAGE');
   const [discountValue, setDiscountValue] = useState<number | ''>('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [productImages, setProductImages] = useState<(File | undefined)[]>(
+    new Array(6).fill(undefined),
+  );
+  const [imagePreviews, setImagePreviews] = useState<string[]>(new Array(6).fill(''));
+  const [productName, setProductName] = useState('');
+  const [productBrand, setProductBrand] = useState('');
+  const [productCategory, setProductCategory] = useState('');
+  const [productType, setProductType] = useState<'NEW' | 'BAZAAR'>('NEW');
+  const [productDescription, setProductDescription] = useState('');
+  const [productObservations, setProductObservations] = useState('');
+  const [categories, setCategories] = useState<CategoryResponse[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categoriesError, setCategoriesError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setCategoriesLoading(true);
+      setCategoriesError(null);
+      try {
+        const response = await categoryService.getCategories(); // Fetch all categories
+        setCategories(response);
+      } catch (error) {
+        console.error('Erro ao carregar categorias:', error);
+        if (error instanceof ApiError) {
+          setCategoriesError(`Erro ao carregar categorias: ${error.message}`);
+        } else {
+          setCategoriesError('Erro de conexão ao carregar categorias.');
+        }
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []); // Empty dependency array to run once on mount
 
   const steps = [
     { id: 1, title: 'Imagens', description: 'Adicione as fotos do produto' },
@@ -53,18 +100,18 @@ const AddProduct = () => {
   };
 
   const calculateFinalPrice = () => {
-    if (discountType === 'none' || Number(discountValue) === 0) {
+    if (discountType === 'NONE' || Number(discountValue) === 0) {
       return Number(productPrice) || 0;
     }
 
-    if (discountType === 'percentage') {
+    if (discountType === 'PERCENTAGE') {
       return (
         (Number(productPrice) || 0) -
         ((Number(productPrice) || 0) * (Number(discountValue) || 0)) / 100
       );
     }
 
-    if (discountType === 'fixed') {
+    if (discountType === 'FIXED') {
       return Math.max(0, (Number(productPrice) || 0) - (Number(discountValue) || 0));
     }
 
@@ -73,11 +120,11 @@ const AddProduct = () => {
 
   const getDiscountSymbol = () => {
     switch (discountType) {
-      case 'percentage':
+      case 'PERCENTAGE':
         return '%';
-      case 'fixed':
+      case 'FIXED':
         return 'R$';
-      case 'none':
+      case 'NONE':
         return '';
       default:
         return '%';
@@ -85,11 +132,11 @@ const AddProduct = () => {
   };
 
   const handleDiscountTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newType = e.target.value as 'percentage' | 'fixed' | 'none';
+    const newType = e.target.value as 'PERCENTAGE' | 'FIXED' | 'NONE';
     setDiscountType(newType);
 
     // Reset discount value when changing type
-    if (newType === 'none') {
+    if (newType === 'NONE') {
       setDiscountValue('');
     }
   };
@@ -134,6 +181,132 @@ const AddProduct = () => {
     setCurrentStep(step);
   };
 
+  const handleImageChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validar se é uma imagem
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor, selecione apenas arquivos de imagem.');
+        return;
+      }
+
+      // Validar tamanho (máximo 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('A imagem deve ter no máximo 10MB.');
+        return;
+      }
+
+      // Criar preview da imagem
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        if (result) {
+          // Atualizar o array de arquivos e previews simultaneamente
+          setProductImages((prev) => {
+            const newImages = [...prev];
+            newImages[index] = file;
+            return newImages;
+          });
+
+          setImagePreviews((prev) => {
+            const newPreviews = [...prev];
+            newPreviews[index] = result;
+            return newPreviews;
+          });
+        }
+      };
+
+      reader.onerror = (e) => {
+        console.error('FileReader error:', e);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setProductImages((prev) => {
+      const newImages = [...prev];
+      newImages[index] = undefined;
+      return newImages;
+    });
+
+    setImagePreviews((prev) => {
+      const newPreviews = [...prev];
+      newPreviews[index] = '';
+      return newPreviews;
+    });
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Validar campos obrigatórios
+      if (!productName.trim() || !productCategory.trim() || !productPrice) {
+        setError('Por favor, preencha todos os campos obrigatórios.');
+        return;
+      }
+
+      // Validar tamanhos
+      const invalidSizes = sizes.filter((s) => !s.size.trim() || s.quantity < 1);
+      if (invalidSizes.length > 0) {
+        setError('Por favor, preencha corretamente todos os tamanhos.');
+        return;
+      }
+
+      // Preparar dados do produto
+      const productData: ProductRequest = {
+        name: productName.trim(),
+        category: productCategory.trim(),
+        brand: productBrand.trim() || undefined,
+        type: productType,
+        basePrice: Number(productPrice),
+        discountType: discountType,
+        discountValue: discountType !== 'NONE' ? Number(discountValue) || 0 : undefined,
+        status: 'ACTIVE',
+        description: productDescription.trim() || undefined,
+        observations: productObservations.trim() || undefined,
+        variants: sizes.map((size) => ({
+          size: size.size.trim(),
+          initialStock: size.quantity,
+        })),
+      };
+
+      // 1. Criar o produto
+      const response = await productService.createProduct(productData);
+
+      // 2. Upload das imagens se fornecidas
+      const imagesToUpload = productImages.filter((img): img is File => img !== undefined);
+      if (imagesToUpload.length > 0) {
+        for (let i = 0; i < imagesToUpload.length; i++) {
+          const image = imagesToUpload[i];
+          if (image) {
+            const metadata: ProductImageMetadataRequest = {
+              position: i, // Position starts from 0
+              isMain: i === 0, // First image is main
+              operationType: 'ADD', // New product, so ADD operation
+            };
+            await productService.uploadProductImage(response.id, image, metadata);
+          }
+        }
+      }
+
+      // 3. Redirecionar para a lista de produtos
+      navigate('/admin/produtos');
+    } catch (error) {
+      console.error('Erro ao criar produto:', error);
+      if (error instanceof ApiError) {
+        setError(`Erro ao criar produto: ${error.message}`);
+      } else {
+        setError('Erro de conexão. Tente novamente.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
@@ -146,42 +319,31 @@ const AddProduct = () => {
             <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4'>
               {/* Main Image */}
               <label htmlFor='main-image' className='cursor-pointer group'>
-                <input accept='image/*' type='file' id='main-image' className='hidden' required />
-                <div className='aspect-square border-2 border-dashed border-purple-400 rounded-lg flex items-center justify-center bg-purple-50 group-hover:border-purple-500 group-hover:bg-purple-100 transition-all duration-300'>
-                  <div className='text-center'>
-                    <div className='w-8 h-8 mx-auto mb-2 bg-purple-200 rounded-full flex items-center justify-center group-hover:bg-purple-300 transition-colors'>
-                      <svg
-                        className='w-4 h-4 text-purple-600 group-hover:text-purple-700'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                        />
-                      </svg>
-                    </div>
-                    <p className='text-xs text-purple-600 group-hover:text-purple-700 font-medium'>
-                      Imagem Principal
-                    </p>
-                  </div>
-                </div>
-              </label>
-
-              {/* Additional Images */}
-              {Array(5)
-                .fill('')
-                .map((_, index) => (
-                  <label key={index} htmlFor={`image${index}`} className='cursor-pointer group'>
-                    <input accept='image/*' type='file' id={`image${index}`} className='hidden' />
-                    <div className='aspect-square border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center bg-slate-50 group-hover:border-purple-400 group-hover:bg-purple-50 transition-all duration-300'>
-                      <div className='text-center'>
-                        <div className='w-8 h-8 mx-auto mb-2 bg-slate-200 rounded-full flex items-center justify-center group-hover:bg-purple-200 transition-colors'>
+                <input
+                  accept='image/*'
+                  type='file'
+                  id='main-image'
+                  className='hidden'
+                  onChange={(e) => handleImageChange(0, e)}
+                />
+                {imagePreviews[0] ? (
+                  <div className='aspect-square rounded-lg overflow-hidden border-2 border-purple-400 shadow-lg group-hover:shadow-xl transition-all duration-300 relative'>
+                    <img
+                      src={imagePreviews[0]}
+                      alt='Imagem Principal'
+                      className='w-full h-full object-cover'
+                      onError={(e) => {
+                        console.error('Image load error:', e);
+                        const target = e.target as HTMLImageElement;
+                        target.src =
+                          'https://via.placeholder.com/150x150/8b5cf6/ffffff?text=Erro+Imagem';
+                      }}
+                    />
+                    <div className='absolute inset-0 bg-transparent group-hover:bg-white/20 transition-all duration-300 flex items-center justify-center'>
+                      <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                        <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg'>
                           <svg
-                            className='w-4 h-4 text-slate-500 group-hover:text-purple-600'
+                            className='w-4 h-4 text-purple-600'
                             fill='none'
                             stroke='currentColor'
                             viewBox='0 0 24 24'
@@ -190,15 +352,132 @@ const AddProduct = () => {
                               strokeLinecap='round'
                               strokeLinejoin='round'
                               strokeWidth={2}
-                              d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                              d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
                             />
                           </svg>
                         </div>
-                        <p className='text-xs text-slate-500 group-hover:text-purple-600'>
-                          Adicionar
-                        </p>
                       </div>
                     </div>
+                    <div className='absolute top-2 left-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg'>
+                      Principal
+                    </div>
+                    <button
+                      type='button'
+                      onClick={(e) => {
+                        e.preventDefault();
+                        removeImage(0);
+                      }}
+                      className='absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg'
+                    >
+                      <X className='w-3 h-3' />
+                    </button>
+                  </div>
+                ) : (
+                  <div className='aspect-square border-2 border-dashed border-purple-400 rounded-lg flex items-center justify-center bg-purple-50 group-hover:border-purple-500 group-hover:bg-purple-100 transition-all duration-300'>
+                    <div className='text-center'>
+                      <div className='w-8 h-8 mx-auto mb-2 bg-purple-200 rounded-full flex items-center justify-center group-hover:bg-purple-300 transition-colors'>
+                        <svg
+                          className='w-4 h-4 text-purple-600 group-hover:text-purple-700'
+                          fill='none'
+                          stroke='currentColor'
+                          viewBox='0 0 24 24'
+                        >
+                          <path
+                            strokeLinecap='round'
+                            strokeLinejoin='round'
+                            strokeWidth={2}
+                            d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                          />
+                        </svg>
+                      </div>
+                      <p className='text-xs text-purple-600 group-hover:text-purple-700 font-medium'>
+                        Imagem Principal
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </label>
+
+              {/* Additional Images */}
+              {Array(5)
+                .fill('')
+                .map((_, index) => (
+                  <label key={index} htmlFor={`image${index + 1}`} className='cursor-pointer group'>
+                    <input
+                      accept='image/*'
+                      type='file'
+                      id={`image${index + 1}`}
+                      className='hidden'
+                      onChange={(e) => handleImageChange(index + 1, e)}
+                    />
+                    {imagePreviews[index + 1] ? (
+                      <div className='aspect-square rounded-lg overflow-hidden border-2 border-slate-300 shadow-lg group-hover:shadow-xl transition-all duration-300 relative'>
+                        <img
+                          src={imagePreviews[index + 1]}
+                          alt={`Imagem ${index + 2}`}
+                          className='w-full h-full object-cover'
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src =
+                              'https://via.placeholder.com/150x150/8b5cf6/ffffff?text=Erro+Imagem';
+                          }}
+                        />
+                        <div className='absolute inset-0 bg-transparent group-hover:bg-white/20 transition-all duration-300 flex items-center justify-center'>
+                          <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                            <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg'>
+                              <svg
+                                className='w-4 h-4 text-purple-600'
+                                fill='none'
+                                stroke='currentColor'
+                                viewBox='0 0 24 24'
+                              >
+                                <path
+                                  strokeLinecap='round'
+                                  strokeLinejoin='round'
+                                  strokeWidth={2}
+                                  d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+                                />
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className='aspect-square border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center bg-slate-50 group-hover:border-purple-400 group-hover:bg-purple-50 transition-all duration-300'>
+                        <div className='text-center'>
+                          <div className='w-8 h-8 mx-auto mb-2 bg-slate-200 rounded-full flex items-center justify-center group-hover:bg-purple-200 transition-colors'>
+                            <svg
+                              className='w-4 h-4 text-slate-500 group-hover:text-purple-600'
+                              fill='none'
+                              stroke='currentColor'
+                              viewBox='0 0 24 24'
+                            >
+                              <path
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                                strokeWidth={2}
+                                d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+                              />
+                            </svg>
+                          </div>
+                          <p className='text-xs text-slate-500 group-hover:text-purple-600'>
+                            Adicionar
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {imagePreviews[index + 1] && (
+                      <button
+                        type='button'
+                        onClick={(e) => {
+                          e.preventDefault();
+                          removeImage(index + 1);
+                        }}
+                        className='absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg'
+                      >
+                        <X className='w-3 h-3' />
+                      </button>
+                    )}
                   </label>
                 ))}
             </div>
@@ -220,6 +499,8 @@ const AddProduct = () => {
                 <input
                   id='product-name'
                   type='text'
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
                   placeholder='Digite o nome do produto'
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
@@ -235,17 +516,21 @@ const AddProduct = () => {
                 </label>
                 <select
                   id='category'
+                  value={productCategory}
+                  onChange={(e) => setProductCategory(e.target.value)}
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  disabled={categoriesLoading}
                 >
-                  <option value=''>Selecione uma categoria</option>
-                  {[
-                    { name: 'Roupas Femininas' },
-                    { name: 'Acessórios' },
-                    { name: 'Sapatos' },
-                    { name: 'Bolsas' },
-                    { name: 'Bijuterias' },
-                  ].map((item, index) => (
-                    <option key={index} value={item.name}>
+                  <option value=''>
+                    {categoriesLoading ? 'Carregando categorias...' : 'Selecione uma categoria'}
+                  </option>
+                  {categoriesError && (
+                    <option value='' disabled>
+                      {categoriesError}
+                    </option>
+                  )}
+                  {categories.map((item) => (
+                    <option key={item.id} value={item.name}>
                       {item.name}
                     </option>
                   ))}
@@ -265,6 +550,8 @@ const AddProduct = () => {
                 <input
                   id='brand'
                   type='text'
+                  value={productBrand}
+                  onChange={(e) => setProductBrand(e.target.value)}
                   placeholder='Digite a marca do produto'
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                 />
@@ -276,11 +563,12 @@ const AddProduct = () => {
                 </label>
                 <select
                   id='type'
+                  value={productType}
+                  onChange={(e) => setProductType(e.target.value as 'NEW' | 'BAZAAR')}
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                 >
-                  <option value=''>Selecione o tipo</option>
-                  <option value='novo'>Novo</option>
-                  <option value='bazar'>Bazar</option>
+                  <option value='NEW'>Novo</option>
+                  <option value='BAZAAR'>Bazar</option>
                 </select>
               </div>
             </div>
@@ -385,6 +673,8 @@ const AddProduct = () => {
               </label>
               <textarea
                 id='product-description'
+                value={productDescription}
+                onChange={(e) => setProductDescription(e.target.value)}
                 rows={4}
                 className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
                 placeholder='Digite a descrição do produto'
@@ -401,6 +691,8 @@ const AddProduct = () => {
               </label>
               <textarea
                 id='observations'
+                value={productObservations}
+                onChange={(e) => setProductObservations(e.target.value)}
                 rows={3}
                 className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
                 placeholder='Informações adicionais, detalhes especiais, etc.'
@@ -465,9 +757,9 @@ const AddProduct = () => {
                   onChange={handleDiscountTypeChange}
                   className='outline-none py-3 px-4 text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white cursor-pointer hover:border-purple-300'
                 >
-                  <option value='percentage'>Porcentagem (%)</option>
-                  <option value='fixed'>Valor Fixo (R$)</option>
-                  <option value='none'>Sem Desconto</option>
+                  <option value='PERCENTAGE'>Porcentagem (%)</option>
+                  <option value='FIXED'>Valor Fixo (R$)</option>
+                  <option value='NONE'>Sem Desconto</option>
                 </select>
               </div>
 
@@ -481,7 +773,7 @@ const AddProduct = () => {
                   Valor do Desconto
                 </label>
                 <div className='relative group'>
-                  {discountType !== 'none' && (
+                  {discountType !== 'NONE' && (
                     <span className='absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-500 text-sm font-medium group-focus-within:text-purple-600 transition-colors'>
                       {getDiscountSymbol()}
                     </span>
@@ -490,13 +782,13 @@ const AddProduct = () => {
                     id='discount-value'
                     type='number'
                     min='0'
-                    step={discountType === 'percentage' ? '0.01' : '0.01'}
-                    value={discountType === 'none' ? 0 : discountValue}
+                    step={discountType === 'PERCENTAGE' ? '0.01' : '0.01'}
+                    value={discountType === 'NONE' ? 0 : discountValue}
                     onChange={handleDiscountValueChange}
                     placeholder='0'
-                    disabled={discountType === 'none'}
+                    disabled={discountType === 'NONE'}
                     className={`outline-none py-3 pr-4 text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full group-hover:border-purple-300 ${
-                      discountType === 'none' ? 'pl-4 bg-slate-100 cursor-not-allowed' : 'pl-10'
+                      discountType === 'NONE' ? 'pl-4 bg-slate-100 cursor-not-allowed' : 'pl-10'
                     }`}
                   />
                 </div>
@@ -551,16 +843,16 @@ const AddProduct = () => {
                   <h4 className='font-semibold text-green-700'>Informações Básicas</h4>
                   <div className='text-sm text-green-600'>
                     <p>
-                      <strong>Nome:</strong> [Nome do produto]
+                      <strong>Nome:</strong> {productName || '[Nome do produto]'}
                     </p>
                     <p>
-                      <strong>Categoria:</strong> [Categoria selecionada]
+                      <strong>Categoria:</strong> {productCategory || '[Categoria selecionada]'}
                     </p>
                     <p>
-                      <strong>Marca:</strong> [Marca do produto]
+                      <strong>Marca:</strong> {productBrand || '[Marca do produto]'}
                     </p>
                     <p>
-                      <strong>Tipo:</strong> [Novo/Bazar]
+                      <strong>Tipo:</strong> {productType === 'NEW' ? 'Novo' : 'Bazar'}
                     </p>
                   </div>
                 </div>
@@ -573,7 +865,7 @@ const AddProduct = () => {
                     </p>
                     <p>
                       <strong>Desconto:</strong>{' '}
-                      {discountType === 'none'
+                      {discountType === 'NONE'
                         ? 'Sem desconto'
                         : `${discountValue}${getDiscountSymbol()}`}
                     </p>
@@ -603,11 +895,52 @@ const AddProduct = () => {
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
       <div className='w-full max-w-7xl mx-auto'>
         <div className='mb-8'>
+          <div className='flex items-center gap-4 mb-4'>
+            <button
+              onClick={() => navigate('/admin/produtos')}
+              className='flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all duration-300'
+            >
+              <ArrowLeft className='w-4 h-4' />
+              Voltar
+            </button>
+          </div>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Adicionar Produto</h1>
           <p className='text-sm sm:text-base text-slate-600'>
             Preencha as informações do produto abaixo
           </p>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className='bg-red-50 border border-red-200 rounded-lg p-4 mb-6'>
+            <div className='flex items-center'>
+              <div className='flex-shrink-0'>
+                <svg className='h-5 w-5 text-red-400' viewBox='0 0 20 20' fill='currentColor'>
+                  <path
+                    fillRule='evenodd'
+                    d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
+                    clipRule='evenodd'
+                  />
+                </svg>
+              </div>
+              <div className='ml-3'>
+                <p className='text-sm text-red-800'>{error}</p>
+              </div>
+              <div className='ml-auto pl-3'>
+                <button onClick={() => setError(null)} className='text-red-400 hover:text-red-600'>
+                  <span className='sr-only'>Fechar</span>
+                  <svg className='h-5 w-5' viewBox='0 0 20 20' fill='currentColor'>
+                    <path
+                      fillRule='evenodd'
+                      d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Stepper Header */}
         <div className='mb-8'>
@@ -784,11 +1117,22 @@ const AddProduct = () => {
                 </button>
               ) : (
                 <button
-                  type='submit'
-                  className='flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-500 text-white text-sm font-medium rounded-lg hover:from-green-700 hover:to-emerald-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl w-full sm:w-auto'
+                  type='button'
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className='flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-500 text-white text-sm font-medium rounded-lg hover:from-green-700 hover:to-emerald-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
                 >
-                  <Check className='w-4 h-4' />
-                  Finalizar Cadastro
+                  {loading ? (
+                    <>
+                      <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+                      Criando...
+                    </>
+                  ) : (
+                    <>
+                      <Check className='w-4 h-4' />
+                      Finalizar Cadastro
+                    </>
+                  )}
                 </button>
               )}
             </div>

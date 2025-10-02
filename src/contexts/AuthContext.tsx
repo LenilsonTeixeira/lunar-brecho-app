@@ -41,6 +41,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // Verifica se há token salvo no localStorage ao inicializar
   useEffect(() => {
     const token = localStorage.getItem('authToken');
+    const refreshToken = localStorage.getItem('refreshToken');
     const userData = localStorage.getItem('userData');
 
     if (token && userData) {
@@ -50,8 +51,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } catch (error) {
         console.error('Erro ao parsear dados do usuário:', error);
         localStorage.removeItem('authToken');
+        localStorage.removeItem('refreshToken');
         localStorage.removeItem('userData');
       }
+    } else if (!token && refreshToken) {
+      // Se não há token mas há refresh token, limpa tudo
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userData');
     }
 
     setIsLoading(false);
@@ -64,8 +71,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const response = await authService.login({ email, password });
 
-      // Salva o token
+      // Salva os tokens
       localStorage.setItem('authToken', response.token);
+      localStorage.setItem('refreshToken', response.refreshToken);
 
       // Para obter dados do usuário, precisaríamos de um endpoint adicional
       // Por enquanto, vamos usar dados básicos
@@ -126,6 +134,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('userData');
     setUser(null);
   };

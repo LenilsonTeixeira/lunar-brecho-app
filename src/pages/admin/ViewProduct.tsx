@@ -1,29 +1,39 @@
-import { ArrowLeft, Package, Tag, BarChart3, Image } from 'lucide-react';
+import { ArrowLeft, Package, Tag, BarChart3, Image, Loader2, AlertCircle } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
+import { useState, useEffect } from 'react';
 import ProductTypeBadge from '../../components/product/ProductTypeBadge';
+import { productService, ApiError } from '@/services';
 
 interface ProductItem {
-  id: number;
+  id: string;
+  externalId: string;
   name: string;
   category: string;
   brand: string;
-  type: 'novo' | 'bazar';
-  price: number;
-  discountType: 'percentage' | 'fixed' | 'none';
-  discountValue: number;
-  totalQuantity: number;
-  initialStock: number;
-  soldQuantity: number;
-  reservedQuantity: number;
-  status: 'ativo' | 'inativo';
-  sizes: Array<{
+  type: 'SIMPLE' | 'VARIANT';
+  basePrice: number;
+  discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
+  discountValue?: number;
+  totalCurrentStock: number;
+  totalInitialStock: number;
+  totalSoldQuantity: number;
+  totalReservedQuantity: number;
+  status: 'ACTIVE' | 'INACTIVE';
+  variants: Array<{
+    id?: string;
     size: string;
-    quantity: number;
-    initialQuantity: number;
+    initialStock: number;
+    stockAvailable: number;
     soldQuantity: number;
     reservedQuantity: number;
   }>;
-  images: string[];
+  images: Array<{
+    id?: string;
+    originalUrl?: string;
+    thumbnailUrl?: string;
+    position: number;
+    isMain: boolean;
+  }>;
   description?: string;
   observations?: string;
   createdAt?: string;
@@ -34,40 +44,83 @@ const ViewProduct = () => {
   const navigate = useNavigate();
   const { productId } = useParams();
 
-  // Mock data - em uma aplicação real, isso viria de uma API
-  const mockProduct: ProductItem = {
-    id: parseInt(productId || '1'),
-    name: 'Vestido Floral Vintage',
-    category: 'Vestidos',
-    brand: 'Zara',
-    type: 'bazar',
-    price: 89.9,
-    discountType: 'percentage',
-    discountValue: 33.5,
-    totalQuantity: 12,
-    initialStock: 25,
-    soldQuantity: 8,
-    reservedQuantity: 5,
-    status: 'ativo',
-    sizes: [
-      { size: 'P', quantity: 3, initialQuantity: 8, soldQuantity: 3, reservedQuantity: 2 },
-      { size: 'M', quantity: 5, initialQuantity: 10, soldQuantity: 3, reservedQuantity: 2 },
-      { size: 'G', quantity: 4, initialQuantity: 7, soldQuantity: 2, reservedQuantity: 1 },
-    ],
-    images: [
-      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
-      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=100&h=100&fit=crop',
-      '',
-      '',
-      '',
-    ],
-    description:
-      'Vestido floral vintage com tecido leve e confortável. Ideal para eventos casuais e festas.',
-    observations: 'Produto em excelente estado, apenas uma pequena marca na parte inferior.',
-    createdAt: '2024-01-15T10:30:00Z',
-    updatedAt: '2024-03-20T14:45:00Z',
-  };
+  const [product, setProduct] = useState<ProductItem | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!productId) {
+        setError('ID do produto não fornecido');
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        setIsLoading(true);
+        setError(null);
+        const productData = await productService.getProduct(productId);
+        // Normalize optional fields to match local type expectations
+        const normalized: ProductItem = {
+          id: productData.id,
+          externalId: productData.externalId,
+          name: productData.name,
+          category: productData.category,
+          brand: productData.brand || '',
+          type: productData.type === 'NEW' ? 'SIMPLE' : 'VARIANT',
+          basePrice: productData.basePrice,
+          discountType: productData.discountType,
+          discountValue: productData.discountValue,
+          totalCurrentStock: productData.totalCurrentStock,
+          totalInitialStock: productData.totalInitialStock,
+          totalSoldQuantity: productData.totalSoldQuantity,
+          totalReservedQuantity: productData.totalReservedQuantity,
+          status: productData.status,
+          variants: (productData.variants || []).map((v) => ({
+            id: v.id,
+            size: v.size,
+            initialStock: v.initialStock || 0,
+            stockAvailable: v.stockAvailable || 0,
+            soldQuantity: v.soldQuantity || 0,
+            reservedQuantity: v.reservedQuantity || 0,
+          })),
+          images: (productData.images || []).map((img) => ({
+            id: img.id,
+            originalUrl: img.originalUrl,
+            thumbnailUrl: img.thumbnailUrl,
+            position: img.position,
+            isMain: img.isMain,
+          })),
+          description: productData.description || '',
+          observations: productData.observations || '',
+          createdAt: productData.createdAt,
+          updatedAt: productData.updatedAt,
+        };
+
+        setProduct(normalized);
+      } catch (err) {
+        console.error('Erro ao buscar produto:', err);
+        if (err instanceof ApiError) {
+          switch (err.status) {
+            case 404:
+              setError('Produto não encontrado');
+              break;
+            case 401:
+              setError('Não autorizado. Faça login novamente.');
+              break;
+            default:
+              setError('Erro ao carregar produto. Tente novamente.');
+          }
+        } else {
+          setError('Erro de conexão. Verifique sua internet.');
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -89,38 +142,99 @@ const ViewProduct = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'ativo':
+      case 'ACTIVE':
         return 'bg-green-300 text-slate-950';
-      case 'inativo':
+      case 'INACTIVE':
         return 'bg-red-300 text-slate-950';
       default:
         return 'bg-slate-300 text-slate-950';
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className='py-6 flex flex-col justify-center items-center bg-slate-50 min-h-screen'>
+        <div className='flex items-center gap-3'>
+          <Loader2 className='w-6 h-6 animate-spin text-purple-600' />
+          <span className='text-lg text-slate-600'>Carregando produto...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className='py-6 flex flex-col justify-center items-center bg-slate-50 min-h-screen'>
+        <div className='bg-white rounded-xl shadow-lg p-8 max-w-md w-full mx-4'>
+          <div className='text-center'>
+            <div className='w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4'>
+              <AlertCircle className='w-8 h-8 text-red-600' />
+            </div>
+            <h2 className='text-xl font-bold text-slate-800 mb-2'>Erro</h2>
+            <p className='text-slate-600 mb-6'>{error}</p>
+            <div className='flex gap-3'>
+              <button
+                onClick={() => navigate('/admin/produtos')}
+                className='flex-1 px-4 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors'
+              >
+                Voltar
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className='flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors'
+              >
+                Tentar Novamente
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className='py-6 flex flex-col justify-center items-center bg-slate-50 min-h-screen'>
+        <div className='bg-white rounded-xl shadow-lg p-8 max-w-md w-full mx-4'>
+          <div className='flex flex-col items-center gap-4 text-center'>
+            <AlertCircle className='w-12 h-12 text-slate-400' />
+            <h2 className='text-xl font-semibold text-slate-800'>Produto não encontrado</h2>
+            <p className='text-slate-600'>O produto solicitado não existe ou foi removido.</p>
+            <button
+              onClick={() => navigate('/admin/produtos')}
+              className='px-4 py-2 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-all duration-300 mt-4'
+            >
+              Voltar aos Produtos
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const calculateFinalPrice = () => {
-    if (mockProduct.discountType === 'none' || mockProduct.discountValue === 0) {
-      return mockProduct.price;
+    if (product.discountType === 'NONE' || !product.discountValue || product.discountValue === 0) {
+      return product.basePrice;
     }
 
-    if (mockProduct.discountType === 'percentage') {
-      return mockProduct.price - (mockProduct.price * mockProduct.discountValue) / 100;
+    if (product.discountType === 'PERCENTAGE') {
+      return product.basePrice - (product.basePrice * product.discountValue) / 100;
     }
 
-    if (mockProduct.discountType === 'fixed') {
-      return Math.max(0, mockProduct.price - mockProduct.discountValue);
+    if (product.discountType === 'FIXED') {
+      return Math.max(0, product.basePrice - product.discountValue);
     }
 
-    return mockProduct.price;
+    return product.basePrice;
   };
 
   const getDiscountSymbol = () => {
-    switch (mockProduct.discountType) {
-      case 'percentage':
+    switch (product.discountType) {
+      case 'PERCENTAGE':
         return '%';
-      case 'fixed':
+      case 'FIXED':
         return 'R$';
-      case 'none':
+      case 'NONE':
         return '';
       default:
         return '%';
@@ -128,12 +242,12 @@ const ViewProduct = () => {
   };
 
   const getDiscountLabel = () => {
-    switch (mockProduct.discountType) {
-      case 'percentage':
+    switch (product.discountType) {
+      case 'PERCENTAGE':
         return 'Porcentagem';
-      case 'fixed':
+      case 'FIXED':
         return 'Valor Fixo';
-      case 'none':
+      case 'NONE':
         return 'Sem Desconto';
       default:
         return 'Porcentagem';
@@ -141,7 +255,7 @@ const ViewProduct = () => {
   };
 
   // Filtrar apenas imagens que existem
-  const existingImages = mockProduct.images.filter((img) => img);
+  const existingImages = product.images.filter((img) => img.originalUrl);
 
   return (
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
@@ -157,7 +271,7 @@ const ViewProduct = () => {
             </button>
           </div>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
-            Produto #{mockProduct.id}
+            Produto #{product.externalId}
           </h1>
           <p className='text-sm sm:text-base text-slate-600'>Detalhes completos do produto</p>
         </div>
@@ -171,9 +285,9 @@ const ViewProduct = () => {
             </div>
             <div className='flex items-center justify-between'>
               <span
-                className={`px-3 py-2 rounded-lg text-sm font-medium ${getStatusColor(mockProduct.status)}`}
+                className={`px-3 py-2 rounded-lg text-sm font-medium ${getStatusColor(product.status)}`}
               >
-                {mockProduct.status === 'ativo' ? 'Ativo' : 'Inativo'}
+                {product.status === 'ACTIVE' ? 'Ativo' : 'Inativo'}
               </span>
             </div>
           </div>
@@ -191,14 +305,14 @@ const ViewProduct = () => {
                   Nome do Produto
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{mockProduct.name}</span>
+                  <span className='text-slate-800'>{product.name}</span>
                 </div>
               </div>
 
               <div>
                 <label className='text-sm font-semibold text-slate-700 mb-2 block'>Marca</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{mockProduct.brand}</span>
+                  <span className='text-slate-800'>{product.brand}</span>
                 </div>
               </div>
 
@@ -206,7 +320,7 @@ const ViewProduct = () => {
                 <label className='text-sm font-semibold text-slate-700 mb-2 block'>Categoria</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
                   <span className='px-3 py-1 bg-purple-300 text-slate-950 rounded-sm text-sm font-medium'>
-                    {mockProduct.category}
+                    {product.category}
                   </span>
                 </div>
               </div>
@@ -215,7 +329,7 @@ const ViewProduct = () => {
                 <label className='text-sm font-semibold text-slate-700 mb-2 block'>Tipo</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
                   <ProductTypeBadge
-                    type={mockProduct.type === 'novo' ? 'Novo' : 'Bazar'}
+                    type={product.type === 'SIMPLE' ? 'Novo' : 'Bazar'}
                     variant='compact'
                   />
                 </div>
@@ -233,22 +347,16 @@ const ViewProduct = () => {
             {existingImages.length > 0 ? (
               <div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4'>
                 {existingImages.map((image, index) => (
-                  <div key={index} className='relative group'>
-                    <div className='aspect-square rounded-lg overflow-hidden border-2 border-slate-300 shadow-lg hover:shadow-xl transition-all duration-300'>
+                  <div key={image.id || index} className='relative group'>
+                    <div className='aspect-square rounded-lg overflow-hidden border-2 border-slate-300 shadow-lg hover:shadow-xl transition-all duration-300 relative'>
                       <img
-                        src={image}
+                        src={image.originalUrl}
                         alt={`Imagem ${index + 1}`}
                         className='w-full h-full object-cover'
                       />
-                      <div className='absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center'>
-                        <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
-                          <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg'>
-                            <Image className='w-4 h-4 text-purple-600' />
-                          </div>
-                        </div>
-                      </div>
+                      <div className='absolute inset-0 bg-transparent pointer-events-none'></div>
                     </div>
-                    {index === 0 && (
+                    {image.isMain && (
                       <div className='absolute -top-2 -left-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg'>
                         Principal
                       </div>
@@ -286,7 +394,7 @@ const ViewProduct = () => {
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
                   <span className='text-lg font-bold text-slate-800'>
-                    {formatPrice(mockProduct.price)}
+                    {formatPrice(product.basePrice)}
                   </span>
                 </div>
               </div>
@@ -309,13 +417,13 @@ const ViewProduct = () => {
                   Valor do Desconto
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  {mockProduct.discountType !== 'none' ? (
+                  {product.discountType !== 'NONE' && product.discountValue ? (
                     <div className='flex items-center gap-2'>
                       <span className='text-sm font-medium text-slate-600'>
                         {getDiscountSymbol()}
                       </span>
                       <span className='text-lg font-bold text-slate-800'>
-                        {mockProduct.discountValue}
+                        {product.discountValue}
                       </span>
                     </div>
                   ) : (
@@ -366,25 +474,25 @@ const ViewProduct = () => {
               <div className='grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4'>
                 <div className='text-center'>
                   <div className='text-xl sm:text-2xl font-bold text-purple-600 mb-1'>
-                    {mockProduct.initialStock}
+                    {product.totalInitialStock}
                   </div>
                   <div className='text-xs sm:text-sm text-slate-600'>Estoque Inicial</div>
                 </div>
                 <div className='text-center'>
                   <div className='text-xl sm:text-2xl font-bold text-blue-600 mb-1'>
-                    {mockProduct.totalQuantity}
+                    {product.totalCurrentStock}
                   </div>
                   <div className='text-xs sm:text-sm text-slate-600'>Estoque Atual</div>
                 </div>
                 <div className='text-center'>
                   <div className='text-xl sm:text-2xl font-bold text-green-600 mb-1'>
-                    {mockProduct.soldQuantity}
+                    {product.totalSoldQuantity}
                   </div>
                   <div className='text-xs sm:text-sm text-slate-600'>Vendidos</div>
                 </div>
                 <div className='text-center'>
                   <div className='text-xl sm:text-2xl font-bold text-orange-600 mb-1'>
-                    {mockProduct.reservedQuantity}
+                    {product.totalReservedQuantity}
                   </div>
                   <div className='text-xs sm:text-sm text-slate-600'>Reservados</div>
                 </div>
@@ -397,7 +505,7 @@ const ViewProduct = () => {
                 Detalhamento por Tamanho
               </h4>
 
-              {mockProduct.sizes.map((sizeItem, index) => (
+              {product.variants.map((sizeItem, index) => (
                 <div
                   key={index}
                   className='p-3 sm:p-4 bg-white rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 group'
@@ -423,7 +531,7 @@ const ViewProduct = () => {
                     <div className='text-right'>
                       <div className='inline-flex items-center gap-2  px-3 py-2'>
                         <div className='text-lg sm:text-xl font-bold text-purple-600'>
-                          {sizeItem.quantity}
+                          {sizeItem.stockAvailable}
                         </div>
                         <div className='text-xs text-slate-500'>Disponível</div>
                       </div>
@@ -440,7 +548,7 @@ const ViewProduct = () => {
                         </span>
                       </div>
                       <div className='text-lg sm:text-xl font-bold text-blue-700 mb-1'>
-                        {sizeItem.initialQuantity}
+                        {sizeItem.initialStock}
                       </div>
                       <div className='text-xs text-blue-600'>Unidades cadastradas</div>
                     </div>
@@ -479,24 +587,24 @@ const ViewProduct = () => {
           {/* Descrição e Observações */}
           <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
             <div className='space-y-4'>
-              {mockProduct.description && (
+              {product.description && (
                 <div>
                   <label className='text-sm font-semibold text-slate-700 mb-2 block'>
                     Descrição
                   </label>
                   <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                    <span className='text-slate-800'>{mockProduct.description}</span>
+                    <span className='text-slate-800'>{product.description}</span>
                   </div>
                 </div>
               )}
 
-              {mockProduct.observations && (
+              {product.observations && (
                 <div>
                   <label className='text-sm font-semibold text-slate-700 mb-2 block'>
                     Observações
                   </label>
                   <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                    <span className='text-slate-800'>{mockProduct.observations}</span>
+                    <span className='text-slate-800'>{product.observations}</span>
                   </div>
                 </div>
               )}
@@ -511,7 +619,7 @@ const ViewProduct = () => {
                   Data de Criação
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{formatDate(mockProduct.createdAt)}</span>
+                  <span className='text-slate-800'>{formatDate(product.createdAt)}</span>
                 </div>
               </div>
 
@@ -520,7 +628,7 @@ const ViewProduct = () => {
                   Última Atualização
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{formatDate(mockProduct.updatedAt)}</span>
+                  <span className='text-slate-800'>{formatDate(product.updatedAt)}</span>
                 </div>
               </div>
             </div>
@@ -536,7 +644,7 @@ const ViewProduct = () => {
                 Voltar
               </button>
               <button
-                onClick={() => navigate(`/admin/produtos/editar/${mockProduct.id}`)}
+                onClick={() => navigate(`/admin/produtos/editar/${product.id}`)}
                 className='w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
               >
                 Editar Produto
