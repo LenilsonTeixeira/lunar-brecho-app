@@ -156,8 +156,8 @@ const ListProduct = () => {
         <div className='mb-8'>
           <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
             <div>
-              <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Produtos</h1>
-              <p className='text-sm sm:text-base text-slate-600'>
+              <h1 className='text-3xl font-bold text-slate-900 mb-2'>Produtos</h1>
+              <p className='text-base text-slate-600'>
                 Gerencie o catálogo de produtos da sua loja
               </p>
             </div>
@@ -268,22 +268,22 @@ const ListProduct = () => {
             <table className='w-full'>
               <thead className='bg-slate-50 border-b border-slate-200'>
                 <tr>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
+                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
                     Produto
                   </th>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
+                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
                     Categoria
                   </th>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
+                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
                     Marca
                   </th>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
+                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
                     Preços
                   </th>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
+                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
                     Status
                   </th>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
+                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
                     Ações
                   </th>
                 </tr>
@@ -326,34 +326,26 @@ const ListProduct = () => {
                             </div>
                           )}
                           <div>
-                            <p className='text-xs sm:text-sm font-medium text-slate-800'>
-                              {product.name}
-                            </p>
-                            <p className='text-xs text-slate-500'>ID: {product.externalId}</p>
+                            <p className='text-sm font-medium text-slate-900'>{product.name}</p>
+                            <p className='text-sm text-slate-600'>ID: {product.externalId}</p>
                           </div>
                         </div>
                       </td>
                       <td className='px-6 py-4'>
-                        <span className='px-3 py-1 bg-purple-300 text-slate-950 rounded-sm text-xs sm:text-sm font-medium'>
-                          {product.category}
-                        </span>
+                        <span className='text-sm text-slate-900'>{product.category}</span>
                       </td>
-                      <td className='px-6 py-4 text-xs sm:text-sm text-slate-700'>
-                        {product.brand}
-                      </td>
+                      <td className='px-6 py-4 text-sm text-slate-900'>{product.brand}</td>
                       <td className='px-6 py-4'>
                         <div className='space-y-1'>
-                          <p className='text-xs sm:text-sm font-semibold text-slate-800'>
-                            {formatPrice(product.basePrice)}
-                          </p>
+                          <p className='text-sm text-slate-900'>{formatPrice(product.basePrice)}</p>
                         </div>
                       </td>
                       <td className='px-6 py-4'>
                         <span
-                          className={`px-3 py-1 rounded-sm text-xs sm:text-sm font-medium ${
+                          className={`px-3 py-1 rounded-sm text-sm ${
                             product.status === 'ACTIVE'
-                              ? 'bg-green-300 text-slate-950'
-                              : 'bg-red-300 text-slate-950'
+                              ? 'bg-green-300 text-slate-900'
+                              : 'bg-red-300 text-slate-900'
                           }`}
                         >
                           {product.status === 'ACTIVE' ? 'Ativo' : 'Inativo'}
@@ -393,10 +385,10 @@ const ListProduct = () => {
                         <div className='w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center'>
                           <FolderOpen className='w-8 h-8 text-slate-400' />
                         </div>
-                        <h3 className='text-base sm:text-lg font-medium text-slate-800 mb-2'>
+                        <h3 className='text-lg font-semibold text-slate-800 mb-2'>
                           Nenhum produto encontrado
                         </h3>
-                        <p className='text-sm sm:text-base text-slate-600'>
+                        <p className='text-base text-slate-600'>
                           Tente ajustar os filtros ou criar um novo produto.
                         </p>
                       </div>

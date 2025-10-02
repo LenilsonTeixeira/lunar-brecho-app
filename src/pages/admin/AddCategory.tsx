@@ -77,12 +77,8 @@ const AddCategory = () => {
               Voltar
             </button>
           </div>
-          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
-            Adicionar Categoria
-          </h1>
-          <p className='text-sm sm:text-base text-slate-600'>
-            Preencha as informações da categoria abaixo
-          </p>
+          <h1 className='text-3xl font-bold text-slate-900 mb-2'>Adicionar Categoria</h1>
+          <p className='text-base text-slate-600'>Preencha as informações da categoria abaixo</p>
         </div>
 
         {/* Error Message */}
@@ -123,7 +119,7 @@ const AddCategory = () => {
         >
           {/* Imagem da Categoria */}
           <div>
-            <label className='text-sm sm:text-base font-semibold text-slate-700 mb-3 block'>
+            <label className='text-sm font-medium text-slate-700 mb-3 block'>
               Imagem da Categoria
             </label>
 
@@ -196,76 +192,44 @@ const AddCategory = () => {
             </div>
           </div>
 
-          {/* Category Name and Color - Side by side on larger screens */}
-          <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-            <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm sm:text-base font-semibold text-slate-700'
-                htmlFor='categoryName'
-              >
-                Nome da Categoria
-              </label>
-              <input
-                id='categoryName'
-                name='categoryName'
-                type='text'
-                placeholder='Digite o nome da categoria'
-                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                required
-              />
-            </div>
-
-            <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm sm:text-base font-semibold text-slate-700'
-                htmlFor='category-color'
-              >
-                Cor da Categoria
-              </label>
-              <div className='flex items-center gap-4'>
-                <input
-                  id='category-color'
-                  name='categoryColor'
-                  type='color'
-                  className='w-16 h-12 rounded-lg border border-slate-200 cursor-pointer'
-                  defaultValue='#8b5cf6'
-                />
-                <span className='text-xs text-slate-500'>
-                  Escolha uma cor para identificar a categoria
-                </span>
-              </div>
-            </div>
+          {/* Category Name */}
+          <div className='flex flex-col gap-2'>
+            <label className='text-sm font-medium text-slate-700' htmlFor='categoryName'>
+              Nome da Categoria
+            </label>
+            <input
+              id='categoryName'
+              name='categoryName'
+              type='text'
+              placeholder='Digite o nome da categoria'
+              className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+              required
+            />
           </div>
 
           {/* Category Description */}
           <div className='flex flex-col gap-2'>
-            <label
-              className='text-sm sm:text-base font-semibold text-slate-700'
-              htmlFor='category-description'
-            >
+            <label className='text-sm font-medium text-slate-700' htmlFor='category-description'>
               Descrição da Categoria
             </label>
             <textarea
               id='category-description'
               name='categoryDescription'
               rows={4}
-              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
+              className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
               placeholder='Digite uma descrição para a categoria'
             ></textarea>
           </div>
 
           {/* Category Status */}
           <div className='flex flex-col gap-2'>
-            <label
-              className='text-sm sm:text-base font-semibold text-slate-700'
-              htmlFor='category-status'
-            >
+            <label className='text-sm font-medium text-slate-700' htmlFor='category-status'>
               Status da Categoria
             </label>
             <select
               id='category-status'
               name='categoryStatus'
-              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+              className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
             >
               <option value='active'>Ativa</option>
               <option value='inactive'>Inativa</option>
@@ -277,7 +241,7 @@ const AddCategory = () => {
             <button
               type='submit'
               disabled={loading}
-              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
+              className='w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
             >
               {loading ? (
                 <div className='flex items-center justify-center gap-2'>

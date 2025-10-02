@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Tag, Palette, FileText, Image, ArrowLeft, X, Loader2 } from 'lucide-react';
+import { Tag, FileText, Image, ArrowLeft, X, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { categoryService, CategoryResponse, ApiError } from '@/services';
 
@@ -9,7 +9,6 @@ const EditCategory = () => {
 
   const [category, setCategory] = useState<CategoryResponse | null>(null);
   const [categoryName, setCategoryName] = useState('');
-  const [categoryColor, setCategoryColor] = useState('#8B5CF6');
   const [categoryDescription, setCategoryDescription] = useState('');
   const [categoryStatus, setCategoryStatus] = useState<'ativo' | 'inativo'>('ativo');
   const [categoryImage, setCategoryImage] = useState('');
@@ -31,7 +30,6 @@ const EditCategory = () => {
         const categoryData = await categoryService.getCategory(categoryId);
         setCategory(categoryData);
         setCategoryName(categoryData.name);
-        setCategoryColor(categoryData.color || '#8B5CF6');
         setCategoryDescription(categoryData.description || '');
         setCategoryImage(categoryData.imageUrl || '');
       } catch (err) {
@@ -95,7 +93,6 @@ const EditCategory = () => {
       const updateData = {
         name: categoryName.trim(),
         description: categoryDescription.trim() || undefined,
-        color: categoryColor.trim() || undefined,
       };
 
       await categoryService.updateCategory(categoryId, updateData);
@@ -184,12 +181,10 @@ const EditCategory = () => {
               Voltar
             </button>
           </div>
-          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
+          <h1 className='text-3xl font-bold text-slate-900 mb-2'>
             Editar Categoria {category?.externalId ? `#${category.externalId}` : ''}
           </h1>
-          <p className='text-sm sm:text-base text-slate-600'>
-            Modifique as informações da categoria abaixo
-          </p>
+          <p className='text-base text-slate-600'>Modifique as informações da categoria abaixo</p>
         </div>
 
         <form
@@ -214,7 +209,7 @@ const EditCategory = () => {
 
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
               <div className='flex flex-col gap-2'>
-                <label className='text-sm font-semibold text-slate-700' htmlFor='category-name'>
+                <label className='text-sm font-medium text-slate-700' htmlFor='category-name'>
                   Nome da Categoria *
                 </label>
                 <input
@@ -223,20 +218,20 @@ const EditCategory = () => {
                   value={categoryName}
                   onChange={(e) => setCategoryName(e.target.value)}
                   placeholder='Digite o nome da categoria'
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 />
               </div>
 
               <div className='flex flex-col gap-2'>
-                <label className='text-sm font-semibold text-slate-700' htmlFor='category-status'>
+                <label className='text-sm font-medium text-slate-700' htmlFor='category-status'>
                   Status *
                 </label>
                 <select
                   id='category-status'
                   value={categoryStatus}
                   onChange={(e) => setCategoryStatus(e.target.value as 'ativo' | 'inativo')}
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 >
                   <option value='ativo'>Ativa</option>
@@ -246,52 +241,9 @@ const EditCategory = () => {
             </div>
           </div>
 
-          {/* Cor da Categoria */}
-          <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
-            <div className='flex items-center gap-3 mb-4'>
-              <Palette className='w-5 h-5 text-purple-600' />
-              <h3 className='text-lg font-semibold text-slate-800'>Cor da Categoria</h3>
-            </div>
-
-            <div className='space-y-4'>
-              <div className='flex items-center gap-4'>
-                <div className='flex flex-col gap-2'>
-                  <label className='text-sm font-semibold text-slate-700' htmlFor='category-color'>
-                    Selecione a Cor *
-                  </label>
-                  <input
-                    id='category-color'
-                    type='color'
-                    value={categoryColor}
-                    onChange={(e) => setCategoryColor(e.target.value)}
-                    className='w-16 h-12 rounded-lg border-2 border-slate-200 cursor-pointer'
-                    required
-                  />
-                </div>
-
-                <div className='flex flex-col gap-2'>
-                  <label
-                    className='text-sm font-semibold text-slate-700'
-                    htmlFor='category-color-hex'
-                  >
-                    Código da Cor
-                  </label>
-                  <input
-                    id='category-color-hex'
-                    type='text'
-                    value={categoryColor}
-                    onChange={(e) => setCategoryColor(e.target.value)}
-                    placeholder='#8B5CF6'
-                    className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white font-mono'
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Imagem da Categoria */}
           <div>
-            <label className='text-sm sm:text-base font-semibold text-slate-700 mb-3 block'>
+            <label className='text-sm font-medium text-slate-700 mb-3 block'>
               Imagem da Categoria
             </label>
 
@@ -372,10 +324,7 @@ const EditCategory = () => {
             </div>
 
             <div className='flex flex-col gap-2'>
-              <label
-                className='text-sm font-semibold text-slate-700'
-                htmlFor='category-description'
-              >
+              <label className='text-sm font-medium text-slate-700' htmlFor='category-description'>
                 Descrição da Categoria
               </label>
               <textarea
@@ -384,7 +333,7 @@ const EditCategory = () => {
                 onChange={(e) => setCategoryDescription(e.target.value)}
                 placeholder='Descreva a categoria...'
                 rows={4}
-                className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white resize-none'
+                className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white resize-none'
               />
             </div>
           </div>
@@ -394,7 +343,7 @@ const EditCategory = () => {
             <button
               type='submit'
               disabled={saving}
-              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2'
+              className='w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2'
             >
               {saving ? (
                 <>

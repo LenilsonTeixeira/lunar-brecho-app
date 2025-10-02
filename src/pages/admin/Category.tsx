@@ -9,7 +9,6 @@ interface CategoryItem {
   id: string;
   externalId: string;
   name: string;
-  color?: string;
   image: string;
   createdAt?: string;
   updatedAt?: string;
@@ -19,7 +18,6 @@ interface CategoryItem {
 
 interface CategoryFormData {
   name: string;
-  color: string;
   image: File | null;
   description: string;
   previewImage: string;
@@ -49,7 +47,6 @@ const Category = () => {
         id: cat.id,
         externalId: cat.externalId,
         name: cat.name,
-        color: cat.color || '#8B5CF6',
         image: cat.imageUrl || 'https://via.placeholder.com/150x150/8b5cf6/ffffff?text=Sem+Imagem',
         createdAt: cat.createdAt,
         updatedAt: cat.updatedAt,
@@ -75,7 +72,6 @@ const Category = () => {
     try {
       const categoryData = {
         name: data.name,
-        color: data.color,
         description: data.description || '',
       };
 
@@ -109,7 +105,6 @@ const Category = () => {
     try {
       const categoryData = {
         name: data.name,
-        color: data.color,
         description: editingCategory.description || '',
       };
 
@@ -182,8 +177,8 @@ const Category = () => {
         <div className='mb-8'>
           <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
             <div>
-              <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Categorias</h1>
-              <p className='text-sm sm:text-base text-slate-600'>
+              <h1 className='text-3xl font-bold text-slate-900 mb-2'>Categorias</h1>
+              <p className='text-base text-slate-600'>
                 Gerencie as categorias de produtos da sua loja
               </p>
             </div>
@@ -260,19 +255,19 @@ const Category = () => {
             <table className='w-full md:min-w-full min-w-[600px]'>
               <thead className='bg-slate-50 border-b border-slate-200'>
                 <tr>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[80px]'>
+                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700 min-w-[80px]'>
                     ID
                   </th>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[120px]'>
+                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700 min-w-[120px]'>
                     Imagem
                   </th>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[200px]'>
+                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700 min-w-[200px]'>
                     Nome
                   </th>
-                  <th className='px-6 py-4 text-center text-xs sm:text-sm font-semibold text-slate-700 min-w-[120px]'>
+                  <th className='px-6 py-4 text-center text-sm font-semibold text-slate-700 min-w-[120px]'>
                     Quantidade de Produtos
                   </th>
-                  <th className='px-6 py-4 text-center text-xs sm:text-sm font-semibold text-slate-700 min-w-[120px]'>
+                  <th className='px-6 py-4 text-center text-sm font-semibold text-slate-700 min-w-[120px]'>
                     Ações
                   </th>
                 </tr>
@@ -294,7 +289,7 @@ const Category = () => {
                       className='hover:bg-slate-50 transition-colors duration-200 shadow-sm'
                     >
                       <td className='px-6 py-4'>
-                        <span className='text-xs sm:text-sm font-medium text-slate-800'>
+                        <span className='text-sm font-medium text-slate-900'>
                           #{category.externalId}
                         </span>
                       </td>
@@ -309,13 +304,11 @@ const Category = () => {
                         </div>
                       </td>
                       <td className='px-6 py-4'>
-                        <span className='text-xs sm:text-sm font-medium text-slate-800'>
-                          {category.name}
-                        </span>
+                        <span className='text-sm font-medium text-slate-900'>{category.name}</span>
                       </td>
                       <td className='px-6 py-4 text-center'>
                         <div className='flex items-center justify-center'>
-                          <span className='text-xs sm:text-sm font-semibold text-white bg-gradient-to-br from-purple-500 to-pink-500 w-8 h-8 rounded-full flex items-center justify-center shadow-lg'>
+                          <span className='text-sm font-semibold text-white bg-gradient-to-br from-purple-500 to-pink-500 w-8 h-8 rounded-full flex items-center justify-center shadow-lg'>
                             {category.productCount || 0}
                           </span>
                         </div>
@@ -354,10 +347,10 @@ const Category = () => {
                         <div className='w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center'>
                           <FolderOpen className='w-8 h-8 text-slate-400' />
                         </div>
-                        <h3 className='text-base sm:text-lg font-medium text-slate-800 mb-2'>
+                        <h3 className='text-lg font-semibold text-slate-800 mb-2'>
                           Nenhuma categoria encontrada
                         </h3>
-                        <p className='text-sm sm:text-base text-slate-600'>
+                        <p className='text-base text-slate-600'>
                           Tente ajustar os filtros ou criar uma nova categoria.
                         </p>
                       </div>

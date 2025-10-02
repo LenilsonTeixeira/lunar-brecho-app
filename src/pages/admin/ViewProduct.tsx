@@ -269,10 +269,8 @@ const ViewProduct = () => {
               Voltar
             </button>
           </div>
-          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
-            Produto #{product.externalId}
-          </h1>
-          <p className='text-sm sm:text-base text-slate-600'>Detalhes do produto</p>
+          <h1 className='text-3xl font-bold text-slate-900 mb-2'>Produto #{product.externalId}</h1>
+          <p className='text-base text-slate-600'>Detalhes do produto</p>
         </div>
 
         <div className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'>
@@ -285,41 +283,41 @@ const ViewProduct = () => {
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>
+                <label className='text-sm font-medium text-slate-700 mb-2 block'>
                   Nome do Produto
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{product.name}</span>
+                  <span className='text-base text-slate-900'>{product.name}</span>
                 </div>
               </div>
 
               <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>Marca</label>
+                <label className='text-sm font-medium text-slate-700 mb-2 block'>Marca</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{product.brand}</span>
+                  <span className='text-base text-slate-900'>{product.brand}</span>
                 </div>
               </div>
 
               <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>Categoria</label>
+                <label className='text-sm font-medium text-slate-700 mb-2 block'>Categoria</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{product.category}</span>
+                  <span className='text-base text-slate-900'>{product.category}</span>
                 </div>
               </div>
 
               <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>Tipo</label>
+                <label className='text-sm font-medium text-slate-700 mb-2 block'>Tipo</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>
+                  <span className='text-base text-slate-900'>
                     {product.type === 'SIMPLE' ? 'Novo' : 'Bazar'}
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>Status</label>
+                <label className='text-sm font-medium text-slate-700 mb-2 block'>Status</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>
+                  <span className='text-base text-slate-900'>
                     {product.status === 'ACTIVE' ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
@@ -369,7 +367,7 @@ const ViewProduct = () => {
             <div className='mb-6'>
               <div className='flex items-center gap-3 mb-1'>
                 <BadgePercent className='w-5 h-5 text-purple-600' />
-                <h3 className='text-lg sm:text-xl font-bold text-slate-800'>Preços e Descontos</h3>
+                <h3 className='text-lg font-semibold text-slate-800'>Preços e Descontos</h3>
               </div>
               <p className='text-sm text-slate-600'>
                 Informações sobre preços e descontos aplicados
@@ -379,12 +377,12 @@ const ViewProduct = () => {
             <div className='grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6'>
               {/* Preço Original */}
               <div className='flex flex-col gap-3'>
-                <label className='text-sm font-semibold text-slate-700 flex items-center gap-2'>
+                <label className='text-sm font-medium text-slate-700 flex items-center gap-2'>
                   <div className='w-2 h-2 bg-green-500 rounded-full'></div>
                   Preço Original
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-lg font-bold text-slate-800'>
+                  <span className='text-lg font-bold text-slate-900'>
                     {formatPrice(product.basePrice)}
                   </span>
                 </div>
@@ -392,18 +390,18 @@ const ViewProduct = () => {
 
               {/* Tipo de Desconto */}
               <div className='flex flex-col gap-3'>
-                <label className='text-sm font-semibold text-slate-700 flex items-center gap-2'>
+                <label className='text-sm font-medium text-slate-700 flex items-center gap-2'>
                   <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
                   Tipo de Desconto
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-sm font-medium text-slate-800'>{getDiscountLabel()}</span>
+                  <span className='text-base text-slate-900'>{getDiscountLabel()}</span>
                 </div>
               </div>
 
               {/* Valor do Desconto */}
               <div className='flex flex-col gap-3 sm:col-span-2 xl:col-span-1'>
-                <label className='text-sm font-semibold text-slate-700 flex items-center gap-2'>
+                <label className='text-sm font-medium text-slate-700 flex items-center gap-2'>
                   <div className='w-2 h-2 bg-red-500 rounded-full'></div>
                   Valor do Desconto
                 </label>
@@ -413,12 +411,12 @@ const ViewProduct = () => {
                       <span className='text-sm font-medium text-slate-600'>
                         {getDiscountSymbol()}
                       </span>
-                      <span className='text-lg font-bold text-slate-800'>
+                      <span className='text-lg font-bold text-slate-900'>
                         {product.discountValue}
                       </span>
                     </div>
                   ) : (
-                    <span className='text-sm text-slate-500'>Não aplicado</span>
+                    <span className='text-sm text-slate-600'>Não aplicado</span>
                   )}
                 </div>
               </div>
@@ -459,7 +457,7 @@ const ViewProduct = () => {
 
             {/* Detalhamento por Tamanho */}
             <div className='space-y-3'>
-              <h4 className='text-base sm:text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2'>
+              <h4 className='text-base font-semibold text-slate-800 mb-3 flex items-center gap-2'>
                 Detalhamento por Tamanho
               </h4>
 
@@ -511,22 +509,20 @@ const ViewProduct = () => {
             <div className='space-y-4'>
               {product.description && (
                 <div>
-                  <label className='text-sm font-semibold text-slate-700 mb-2 block'>
-                    Descrição
-                  </label>
+                  <label className='text-sm font-medium text-slate-700 mb-2 block'>Descrição</label>
                   <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                    <span className='text-slate-800'>{product.description}</span>
+                    <span className='text-base text-slate-900'>{product.description}</span>
                   </div>
                 </div>
               )}
 
               {product.observations && (
                 <div>
-                  <label className='text-sm font-semibold text-slate-700 mb-2 block'>
+                  <label className='text-sm font-medium text-slate-700 mb-2 block'>
                     Observações
                   </label>
                   <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                    <span className='text-slate-800'>{product.observations}</span>
+                    <span className='text-base text-slate-900'>{product.observations}</span>
                   </div>
                 </div>
               )}
@@ -539,8 +535,8 @@ const ViewProduct = () => {
               <div className='p-4 bg-white rounded-lg border border-slate-200 flex items-center gap-3'>
                 <Calendar className='w-5 h-5 text-purple-600' />
                 <div>
-                  <div className='text-xs text-slate-500'>Criado em</div>
-                  <div className='text-sm font-medium text-slate-800'>
+                  <div className='text-sm text-slate-600'>Criado em</div>
+                  <div className='text-base font-medium text-slate-900'>
                     {formatDate(product.createdAt)}
                   </div>
                 </div>
@@ -548,8 +544,8 @@ const ViewProduct = () => {
               <div className='p-4 bg-white rounded-lg border border-slate-200 flex items-center gap-3'>
                 <Clock className='w-5 h-5 text-purple-600' />
                 <div>
-                  <div className='text-xs text-slate-500'>Atualizado em</div>
-                  <div className='text-sm font-medium text-slate-800'>
+                  <div className='text-sm text-slate-600'>Atualizado em</div>
+                  <div className='text-base font-medium text-slate-900'>
                     {formatDate(product.updatedAt)}
                   </div>
                 </div>
@@ -562,13 +558,13 @@ const ViewProduct = () => {
             <div className='flex flex-col sm:flex-row justify-end gap-3 sm:gap-4'>
               <button
                 onClick={() => navigate('/admin/produtos')}
-                className='w-full sm:w-auto px-8 py-3 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300 shadow-sm hover:shadow-md'
+                className='w-full sm:w-auto px-8 py-3 border border-slate-300 text-base text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300 shadow-sm hover:shadow-md'
               >
                 Voltar
               </button>
               <button
                 onClick={() => navigate(`/admin/produtos/editar/${product.id}`)}
-                className='w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+                className='w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-base text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
               >
                 Editar Produto
               </button>

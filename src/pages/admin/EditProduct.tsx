@@ -402,12 +402,10 @@ const EditProduct = () => {
               Voltar
             </button>
           </div>
-          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
+          <h1 className='text-3xl font-bold text-slate-900 mb-2'>
             Editar Produto #{product?.externalId || productId}
           </h1>
-          <p className='text-sm sm:text-base text-slate-600'>
-            Modifique as informações do produto abaixo
-          </p>
+          <p className='text-base text-slate-600'>Modifique as informações do produto abaixo</p>
         </div>
 
         {/* Error Message */}
@@ -455,7 +453,7 @@ const EditProduct = () => {
 
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
               <div className='flex flex-col gap-2'>
-                <label className='text-sm font-semibold text-slate-700' htmlFor='product-name'>
+                <label className='text-sm font-medium text-slate-700' htmlFor='product-name'>
                   Nome do Produto *
                 </label>
                 <input
@@ -464,13 +462,13 @@ const EditProduct = () => {
                   value={productName}
                   onChange={(e) => setProductName(e.target.value)}
                   placeholder='Digite o nome do produto'
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 />
               </div>
 
               <div className='flex flex-col gap-2'>
-                <label className='text-sm font-semibold text-slate-700' htmlFor='product-brand'>
+                <label className='text-sm font-medium text-slate-700' htmlFor='product-brand'>
                   Marca *
                 </label>
                 <input
@@ -479,20 +477,20 @@ const EditProduct = () => {
                   value={productBrand}
                   onChange={(e) => setProductBrand(e.target.value)}
                   placeholder='Digite a marca'
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 />
               </div>
 
               <div className='flex flex-col gap-2'>
-                <label className='text-sm font-semibold text-slate-700' htmlFor='product-category'>
+                <label className='text-sm font-medium text-slate-700' htmlFor='product-category'>
                   Categoria *
                 </label>
                 <select
                   id='product-category'
                   value={productCategory}
                   onChange={(e) => setProductCategory(e.target.value)}
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                   disabled={categoriesLoading}
                 >
@@ -513,14 +511,14 @@ const EditProduct = () => {
               </div>
 
               <div className='flex flex-col gap-2'>
-                <label className='text-sm font-semibold text-slate-700' htmlFor='product-type'>
+                <label className='text-sm font-medium text-slate-700' htmlFor='product-type'>
                   Tipo *
                 </label>
                 <select
                   id='product-type'
                   value={productType}
                   onChange={(e) => setProductType(e.target.value as 'NEW' | 'BAZAAR')}
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 >
                   <option value='NEW'>Novo</option>
@@ -529,14 +527,14 @@ const EditProduct = () => {
               </div>
 
               <div className='flex flex-col gap-2'>
-                <label className='text-sm font-semibold text-slate-700' htmlFor='product-status'>
+                <label className='text-sm font-medium text-slate-700' htmlFor='product-status'>
                   Status *
                 </label>
                 <select
                   id='product-status'
                   value={productStatus}
                   onChange={(e) => setProductStatus(e.target.value as 'ACTIVE' | 'INACTIVE')}
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 >
                   <option value='ACTIVE'>Ativo</option>
@@ -681,9 +679,7 @@ const EditProduct = () => {
           {/* Preços e Descontos - Seção Profissional */}
           <div className='p-4 sm:p-6 bg-gradient-to-br from-slate-50 to-purple-50 rounded-xl border border-slate-200 shadow-sm'>
             <div className='mb-6'>
-              <h3 className='text-lg sm:text-xl font-bold text-slate-800 mb-2'>
-                Preços e Descontos
-              </h3>
+              <h3 className='text-lg font-semibold text-slate-800 mb-2'>Preços e Descontos</h3>
               <p className='text-sm text-slate-600'>
                 Configure o preço base e as opções de desconto
               </p>
@@ -693,7 +689,7 @@ const EditProduct = () => {
               {/* Preço Original */}
               <div className='flex flex-col gap-3'>
                 <label
-                  className='text-sm font-semibold text-slate-700 flex items-center gap-2'
+                  className='text-sm font-medium text-slate-700 flex items-center gap-2'
                   htmlFor='product-price'
                 >
                   <div className='w-2 h-2 bg-green-500 rounded-full'></div>
@@ -711,7 +707,7 @@ const EditProduct = () => {
                     step='0.01'
                     value={productPrice}
                     onChange={handlePriceChange}
-                    className='outline-none py-3 pl-10 pr-4 text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full group-hover:border-purple-300'
+                    className='outline-none py-3 pl-10 pr-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full group-hover:border-purple-300'
                     required
                   />
                 </div>
@@ -720,7 +716,7 @@ const EditProduct = () => {
               {/* Tipo de Desconto */}
               <div className='flex flex-col gap-3'>
                 <label
-                  className='text-sm font-semibold text-slate-700 flex items-center gap-2'
+                  className='text-sm font-medium text-slate-700 flex items-center gap-2'
                   htmlFor='discount-type'
                 >
                   <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
@@ -730,7 +726,7 @@ const EditProduct = () => {
                   id='discount-type'
                   value={discountType}
                   onChange={handleDiscountTypeChange}
-                  className='outline-none py-3 px-4 text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white cursor-pointer hover:border-purple-300'
+                  className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white cursor-pointer hover:border-purple-300'
                 >
                   <option value='PERCENTAGE'>Porcentagem (%)</option>
                   <option value='FIXED'>Valor Fixo (R$)</option>
@@ -741,7 +737,7 @@ const EditProduct = () => {
               {/* Valor do Desconto */}
               <div className='flex flex-col gap-3 sm:col-span-2 xl:col-span-1'>
                 <label
-                  className='text-sm font-semibold text-slate-700 flex items-center gap-2'
+                  className='text-sm font-medium text-slate-700 flex items-center gap-2'
                   htmlFor='discount-value'
                 >
                   <div className='w-2 h-2 bg-red-500 rounded-full'></div>
@@ -762,7 +758,7 @@ const EditProduct = () => {
                     onChange={handleDiscountValueChange}
                     placeholder='0'
                     disabled={discountType === 'NONE'}
-                    className={`outline-none py-3 pr-4 text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full group-hover:border-purple-300 ${
+                    className={`outline-none py-3 pr-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full group-hover:border-purple-300 ${
                       discountType === 'NONE' ? 'pl-4 bg-slate-100 cursor-not-allowed' : 'pl-10'
                     }`}
                   />
@@ -822,23 +818,19 @@ const EditProduct = () => {
 
                   <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                     <div className='flex flex-col gap-2'>
-                      <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        Tamanho *
-                      </label>
+                      <label className='text-sm font-medium text-slate-700'>Tamanho *</label>
                       <input
                         type='text'
                         value={size.size}
                         onChange={(e) => updateSize(size.id!, 'size', e.target.value)}
                         placeholder='P, M, G, 36, 37, etc.'
-                        className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                        className='outline-none py-2 px-3 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                         required
                       />
                     </div>
 
                     <div className='flex flex-col gap-2'>
-                      <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        Quantidade *
-                      </label>
+                      <label className='text-sm font-medium text-slate-700'>Quantidade *</label>
                       <input
                         type='number'
                         min='0'
@@ -847,16 +839,14 @@ const EditProduct = () => {
                           updateSize(size.id!, 'quantity', parseInt(e.target.value) || 0)
                         }
                         placeholder='0'
-                        className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                        className='outline-none py-2 px-3 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                         required
                       />
                     </div>
 
                     {sizes.length > 1 && (
                       <div className='flex flex-col gap-2'>
-                        <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                          &nbsp;
-                        </label>
+                        <label className='text-sm font-medium text-slate-700'>&nbsp;</label>
                         <button
                           type='button'
                           onClick={() => removeSize(size.id!)}
@@ -886,10 +876,7 @@ const EditProduct = () => {
           <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
             <div className='space-y-4'>
               <div className='flex flex-col gap-2'>
-                <label
-                  className='text-sm font-semibold text-slate-700'
-                  htmlFor='product-description'
-                >
+                <label className='text-sm font-medium text-slate-700' htmlFor='product-description'>
                   Descrição
                 </label>
                 <textarea
@@ -898,13 +885,13 @@ const EditProduct = () => {
                   onChange={(e) => setProductDescription(e.target.value)}
                   placeholder='Descreva o produto...'
                   rows={4}
-                  className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white resize-none'
+                  className='outline-none py-2 px-3 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white resize-none'
                 />
               </div>
 
               <div className='flex flex-col gap-2'>
                 <label
-                  className='text-sm font-semibold text-slate-700'
+                  className='text-sm font-medium text-slate-700'
                   htmlFor='product-observations'
                 >
                   Observações
@@ -915,7 +902,7 @@ const EditProduct = () => {
                   onChange={(e) => setProductObservations(e.target.value)}
                   placeholder='Observações sobre o produto...'
                   rows={3}
-                  className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white resize-none'
+                  className='outline-none py-2 px-3 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white resize-none'
                 />
               </div>
             </div>
@@ -926,7 +913,7 @@ const EditProduct = () => {
             <button
               type='submit'
               disabled={saving}
-              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2'
+              className='w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2'
             >
               {saving ? (
                 <>

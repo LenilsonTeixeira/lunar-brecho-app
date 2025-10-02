@@ -1,4 +1,4 @@
-import { ArrowLeft, Tag, Palette, FileText, Image, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Tag, FileText, Image, Loader2, AlertCircle } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { useState, useEffect } from 'react';
 import { categoryService, ApiError } from '@/services';
@@ -7,7 +7,6 @@ interface Category {
   id: string;
   externalId: string;
   name: string;
-  color?: string;
   description?: string;
   imageUrl?: string;
   thumbnailUrl?: string;
@@ -130,10 +129,10 @@ const ViewCategory = () => {
               Voltar
             </button>
           </div>
-          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
+          <h1 className='text-3xl font-bold text-slate-900 mb-2'>
             Categoria #{category.externalId}
           </h1>
-          <p className='text-sm sm:text-base text-slate-600'>Detalhes da categoria</p>
+          <p className='text-base text-slate-600'>Detalhes da categoria</p>
         </div>
 
         <div className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'>
@@ -146,34 +145,15 @@ const ViewCategory = () => {
 
             <div className='grid grid-cols-1 gap-4'>
               <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>
+                <label className='text-sm font-medium text-slate-700 mb-2 block'>
                   Nome da Categoria
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{category.name}</span>
+                  <span className='text-base text-slate-900'>{category.name}</span>
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Cor da Categoria */}
-          {category.color && (
-            <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
-              <div className='flex items-center gap-3 mb-4'>
-                <Palette className='w-5 h-5 text-purple-600' />
-                <h3 className='text-lg font-semibold text-slate-800'>Cor da Categoria</h3>
-              </div>
-              <div className='flex items-center gap-4'>
-                <div
-                  className='w-12 h-12 rounded-lg border-2 border-slate-200 shadow-lg'
-                  style={{ backgroundColor: category.color }}
-                ></div>
-                <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800 font-mono'>{category.color}</span>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Imagem da Categoria */}
           {category.imageUrl && (
@@ -218,7 +198,7 @@ const ViewCategory = () => {
                 <h3 className='text-lg font-semibold text-slate-800'>Descrição</h3>
               </div>
               <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                <span className='text-slate-800'>{category.description}</span>
+                <span className='text-base text-slate-900'>{category.description}</span>
               </div>
             </div>
           )}
@@ -228,13 +208,13 @@ const ViewCategory = () => {
             <div className='flex flex-col sm:flex-row justify-end gap-3 sm:gap-4'>
               <button
                 onClick={() => navigate('/admin/categorias')}
-                className='w-full sm:w-auto px-8 py-3 border border-slate-300 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300 shadow-sm hover:shadow-md'
+                className='w-full sm:w-auto px-8 py-3 border border-slate-300 text-base text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-all duration-300 shadow-sm hover:shadow-md'
               >
                 Voltar
               </button>
               <button
                 onClick={() => navigate(`/admin/categorias/editar/${category.id}`)}
-                className='w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+                className='w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-base text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
               >
                 Editar Categoria
               </button>
