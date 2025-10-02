@@ -1,9 +1,19 @@
-import { ArrowLeft, Package, Tag, BarChart3, Image, Loader2, AlertCircle } from 'lucide-react';
+import {
+  ArrowLeft,
+  Tag,
+  BarChart3,
+  Image,
+  Loader2,
+  AlertCircle,
+  FileText,
+  BadgePercent,
+  Calendar,
+  Clock,
+} from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { useState, useEffect } from 'react';
-import ProductTypeBadge from '../../components/product/ProductTypeBadge';
-import { productService, ApiError } from '@/services';
 
+import { productService, ApiError } from '@/services';
 interface ProductItem {
   id: string;
   externalId: string;
@@ -140,17 +150,6 @@ const ViewProduct = () => {
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'ACTIVE':
-        return 'bg-green-300 text-slate-950';
-      case 'INACTIVE':
-        return 'bg-red-300 text-slate-950';
-      default:
-        return 'bg-slate-300 text-slate-950';
-    }
-  };
-
   if (isLoading) {
     return (
       <div className='py-6 flex flex-col justify-center items-center bg-slate-50 min-h-screen'>
@@ -273,25 +272,10 @@ const ViewProduct = () => {
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
             Produto #{product.externalId}
           </h1>
-          <p className='text-sm sm:text-base text-slate-600'>Detalhes completos do produto</p>
+          <p className='text-sm sm:text-base text-slate-600'>Detalhes do produto</p>
         </div>
 
         <div className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'>
-          {/* Status do Produto */}
-          <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
-            <div className='flex items-center gap-3 mb-4'>
-              <Package className='w-5 h-5 text-purple-600' />
-              <h3 className='text-lg font-semibold text-slate-800'>Status do Produto</h3>
-            </div>
-            <div className='flex items-center justify-between'>
-              <span
-                className={`px-3 py-2 rounded-lg text-sm font-medium ${getStatusColor(product.status)}`}
-              >
-                {product.status === 'ACTIVE' ? 'Ativo' : 'Inativo'}
-              </span>
-            </div>
-          </div>
-
           {/* Informações Básicas */}
           <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
             <div className='flex items-center gap-3 mb-4'>
@@ -319,19 +303,25 @@ const ViewProduct = () => {
               <div>
                 <label className='text-sm font-semibold text-slate-700 mb-2 block'>Categoria</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='px-3 py-1 bg-purple-300 text-slate-950 rounded-sm text-sm font-medium'>
-                    {product.category}
-                  </span>
+                  <span className='text-slate-800'>{product.category}</span>
                 </div>
               </div>
 
               <div>
                 <label className='text-sm font-semibold text-slate-700 mb-2 block'>Tipo</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <ProductTypeBadge
-                    type={product.type === 'SIMPLE' ? 'Novo' : 'Bazar'}
-                    variant='compact'
-                  />
+                  <span className='text-slate-800'>
+                    {product.type === 'SIMPLE' ? 'Novo' : 'Bazar'}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className='text-sm font-semibold text-slate-700 mb-2 block'>Status</label>
+                <div className='p-3 bg-white rounded-lg border border-slate-200'>
+                  <span className='text-slate-800'>
+                    {product.status === 'ACTIVE' ? 'Ativo' : 'Inativo'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -377,9 +367,10 @@ const ViewProduct = () => {
           {/* Preços e Descontos */}
           <div className='p-4 sm:p-6 bg-gradient-to-br from-slate-50 to-purple-50 rounded-xl border border-slate-200 shadow-sm'>
             <div className='mb-6'>
-              <h3 className='text-lg sm:text-xl font-bold text-slate-800 mb-2'>
-                Preços e Descontos
-              </h3>
+              <div className='flex items-center gap-3 mb-1'>
+                <BadgePercent className='w-5 h-5 text-purple-600' />
+                <h3 className='text-lg sm:text-xl font-bold text-slate-800'>Preços e Descontos</h3>
+              </div>
               <p className='text-sm text-slate-600'>
                 Informações sobre preços e descontos aplicados
               </p>
@@ -466,39 +457,6 @@ const ViewProduct = () => {
               <h3 className='text-lg font-semibold text-slate-800'>Estoque</h3>
             </div>
 
-            {/* Resumo Geral do Estoque */}
-            <div className='mb-6 p-4 sm:p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200'>
-              <h4 className='text-base sm:text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2'>
-                Resumo Geral
-              </h4>
-              <div className='grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4'>
-                <div className='text-center'>
-                  <div className='text-xl sm:text-2xl font-bold text-purple-600 mb-1'>
-                    {product.totalInitialStock}
-                  </div>
-                  <div className='text-xs sm:text-sm text-slate-600'>Estoque Inicial</div>
-                </div>
-                <div className='text-center'>
-                  <div className='text-xl sm:text-2xl font-bold text-blue-600 mb-1'>
-                    {product.totalCurrentStock}
-                  </div>
-                  <div className='text-xs sm:text-sm text-slate-600'>Estoque Atual</div>
-                </div>
-                <div className='text-center'>
-                  <div className='text-xl sm:text-2xl font-bold text-green-600 mb-1'>
-                    {product.totalSoldQuantity}
-                  </div>
-                  <div className='text-xs sm:text-sm text-slate-600'>Vendidos</div>
-                </div>
-                <div className='text-center'>
-                  <div className='text-xl sm:text-2xl font-bold text-orange-600 mb-1'>
-                    {product.totalReservedQuantity}
-                  </div>
-                  <div className='text-xs sm:text-sm text-slate-600'>Reservados</div>
-                </div>
-              </div>
-            </div>
-
             {/* Detalhamento por Tamanho */}
             <div className='space-y-3'>
               <h4 className='text-base sm:text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2'>
@@ -538,47 +496,7 @@ const ViewProduct = () => {
                     </div>
                   </div>
 
-                  {/* Métricas do Tamanho */}
-                  <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
-                    {/* Estoque Inicial */}
-                    <div className='relative p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200 hover:shadow-sm transition-all duration-300'>
-                      <div className='flex items-center gap-2 mb-1'>
-                        <span className='text-xs font-semibold text-blue-700 uppercase tracking-wide'>
-                          Inicial
-                        </span>
-                      </div>
-                      <div className='text-lg sm:text-xl font-bold text-blue-700 mb-1'>
-                        {sizeItem.initialStock}
-                      </div>
-                      <div className='text-xs text-blue-600'>Unidades cadastradas</div>
-                    </div>
-
-                    {/* Quantidade Vendida */}
-                    <div className='relative p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200 hover:shadow-sm transition-all duration-300'>
-                      <div className='flex items-center gap-2 mb-1'>
-                        <span className='text-xs font-semibold text-green-700 uppercase tracking-wide'>
-                          Vendidos
-                        </span>
-                      </div>
-                      <div className='text-lg sm:text-xl font-bold text-green-700 mb-1'>
-                        {sizeItem.soldQuantity}
-                      </div>
-                      <div className='text-xs text-blue-600'>Unidades vendidas</div>
-                    </div>
-
-                    {/* Quantidade Reservada */}
-                    <div className='relative p-3 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200 hover:shadow-sm transition-all duration-300'>
-                      <div className='flex items-center gap-2 mb-1'>
-                        <span className='text-xs font-semibold text-orange-700 uppercase tracking-wide'>
-                          Reservados
-                        </span>
-                      </div>
-                      <div className='text-lg sm:text-xl font-bold text-orange-700 mb-1'>
-                        {sizeItem.reservedQuantity}
-                      </div>
-                      <div className='text-xs text-orange-600'>Unidades reservadas</div>
-                    </div>
-                  </div>
+                  {/* Somente quantidade disponível exibida, seção simplificada */}
                 </div>
               ))}
             </div>
@@ -586,6 +504,10 @@ const ViewProduct = () => {
 
           {/* Descrição e Observações */}
           <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
+            <div className='flex items-center gap-3 mb-4'>
+              <FileText className='w-5 h-5 text-purple-600' />
+              <h3 className='text-lg font-semibold text-slate-800'>Descrição e Observações</h3>
+            </div>
             <div className='space-y-4'>
               {product.description && (
                 <div>
@@ -613,22 +535,23 @@ const ViewProduct = () => {
 
           {/* Datas */}
           <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>
-                  Data de Criação
-                </label>
-                <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{formatDate(product.createdAt)}</span>
+            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+              <div className='p-4 bg-white rounded-lg border border-slate-200 flex items-center gap-3'>
+                <Calendar className='w-5 h-5 text-purple-600' />
+                <div>
+                  <div className='text-xs text-slate-500'>Criado em</div>
+                  <div className='text-sm font-medium text-slate-800'>
+                    {formatDate(product.createdAt)}
+                  </div>
                 </div>
               </div>
-
-              <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>
-                  Última Atualização
-                </label>
-                <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{formatDate(product.updatedAt)}</span>
+              <div className='p-4 bg-white rounded-lg border border-slate-200 flex items-center gap-3'>
+                <Clock className='w-5 h-5 text-purple-600' />
+                <div>
+                  <div className='text-xs text-slate-500'>Atualizado em</div>
+                  <div className='text-sm font-medium text-slate-800'>
+                    {formatDate(product.updatedAt)}
+                  </div>
                 </div>
               </div>
             </div>

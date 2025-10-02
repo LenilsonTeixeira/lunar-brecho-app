@@ -133,7 +133,7 @@ const ViewCategory = () => {
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
             Categoria #{category.externalId}
           </h1>
-          <p className='text-sm sm:text-base text-slate-600'>Detalhes completos da categoria</p>
+          <p className='text-sm sm:text-base text-slate-600'>Detalhes da categoria</p>
         </div>
 
         <div className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'>
@@ -222,29 +222,6 @@ const ViewCategory = () => {
               </div>
             </div>
           )}
-
-          {/* Informações Adicionais */}
-          <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>
-                  ID da Categoria
-                </label>
-                <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800 font-mono text-sm'>{category.id}</span>
-                </div>
-              </div>
-
-              <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>
-                  ID Externo
-                </label>
-                <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800 font-mono text-sm'>{category.externalId}</span>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* Ações */}
           <div className='pt-6 border-t border-slate-200'>

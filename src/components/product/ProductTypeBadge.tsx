@@ -1,14 +1,13 @@
 import { Sparkles, Tag } from 'lucide-react';
-import { Product } from '../../types/product';
 
 interface ProductTypeBadgeProps {
-  type: Product['type'];
+  type: 'NEW' | 'BAZAAR' | 'Novo' | 'Bazar';
   variant?: 'default' | 'compact' | 'detailed';
   className?: string;
 }
 
 const ProductTypeBadge = ({ type, variant = 'default', className = '' }: ProductTypeBadgeProps) => {
-  const isNew = type === 'Novo';
+  const isNew = type === 'Novo' || type === 'NEW';
 
   const variants = {
     default: {
@@ -39,7 +38,17 @@ const ProductTypeBadge = ({ type, variant = 'default', className = '' }: Product
       icon: 'text-emerald-100',
       text: 'text-white',
     },
+    NEW: {
+      container: `${currentVariant.container} bg-gradient-to-r from-emerald-500 to-green-500 text-white border border-emerald-400/30`,
+      icon: 'text-emerald-100',
+      text: 'text-white',
+    },
     Bazar: {
+      container: `${currentVariant.container} bg-gradient-to-r from-violet-500 to-purple-600 text-white border border-violet-400/30`,
+      icon: 'text-violet-100',
+      text: 'text-white',
+    },
+    BAZAAR: {
       container: `${currentVariant.container} bg-gradient-to-r from-violet-500 to-purple-600 text-white border border-violet-400/30`,
       icon: 'text-violet-100',
       text: 'text-white',
@@ -48,6 +57,9 @@ const ProductTypeBadge = ({ type, variant = 'default', className = '' }: Product
 
   const currentStyles = typeStyles[type];
 
+  // Mapeia o tipo para o texto em português
+  const displayText = isNew ? 'Novo' : 'Bazar';
+
   return (
     <div className={`${currentStyles.container} ${className}`}>
       {isNew ? (
@@ -55,7 +67,7 @@ const ProductTypeBadge = ({ type, variant = 'default', className = '' }: Product
       ) : (
         <Tag className={`${currentVariant.icon} ${currentStyles.icon}`} />
       )}
-      <span className={`${currentVariant.text} ${currentStyles.text}`}>{type}</span>
+      <span className={`${currentVariant.text} ${currentStyles.text}`}>{displayText}</span>
     </div>
   );
 };

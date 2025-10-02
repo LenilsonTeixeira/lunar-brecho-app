@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Search, Edit, Trash2, Eye, Plus, FolderOpen } from 'lucide-react';
+import { Search, Edit, Trash2, Eye, Plus, FolderOpen, ImageOff } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import ProductTypeBadge from '../../components/product/ProductTypeBadge';
 import { productService, ApiError, ProductResponse } from '@/services';
 
 interface ProductItem {
@@ -58,8 +57,9 @@ const ListProduct = () => {
         totalCurrentStock: product.totalCurrentStock,
         status: product.status,
         mainImageUrl:
-          product.mainImageUrl ||
-          'https://via.placeholder.com/150x150/8b5cf6/ffffff?text=Sem+Imagem',
+          product.mainImageUrl && product.mainImageUrl.trim() !== ''
+            ? product.mainImageUrl
+            : undefined,
         description: product.description || '',
         observations: product.observations || '',
         createdAt: product.createdAt,
@@ -278,13 +278,7 @@ const ListProduct = () => {
                     Marca
                   </th>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
-                    Tipo
-                  </th>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Preços
-                  </th>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
-                    Estoque
                   </th>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Status
@@ -297,7 +291,7 @@ const ListProduct = () => {
               <tbody className='divide-y divide-slate-200'>
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className='py-12 text-center text-slate-500'>
+                    <td colSpan={6} className='py-12 text-center text-slate-500'>
                       <div className='flex flex-col items-center gap-2'>
                         <div className='w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin'></div>
                         <p className='font-medium'>Carregando produtos...</p>
@@ -312,11 +306,25 @@ const ListProduct = () => {
                     >
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-3'>
-                          <img
-                            src={product.mainImageUrl}
-                            alt={product.name}
-                            className='w-12 h-12 rounded-lg object-cover'
-                          />
+                          {product.mainImageUrl ? (
+                            <img
+                              src={product.mainImageUrl}
+                              alt={product.name}
+                              className='w-12 h-12 rounded-lg object-cover'
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const placeholder = target.nextElementSibling;
+                                if (placeholder) {
+                                  (placeholder as HTMLElement).style.display = 'flex';
+                                }
+                              }}
+                            />
+                          ) : (
+                            <div className='w-12 h-12 rounded-lg bg-gray-100 border-2 border-gray-300 flex items-center justify-center'>
+                              <ImageOff className='w-6 h-6 text-gray-400' />
+                            </div>
+                          )}
                           <div>
                             <p className='text-xs sm:text-sm font-medium text-slate-800'>
                               {product.name}
@@ -334,23 +342,10 @@ const ListProduct = () => {
                         {product.brand}
                       </td>
                       <td className='px-6 py-4'>
-                        <ProductTypeBadge
-                          type={product.type === 'NEW' ? 'Novo' : 'Bazar'}
-                          variant='compact'
-                        />
-                      </td>
-                      <td className='px-6 py-4'>
                         <div className='space-y-1'>
                           <p className='text-xs sm:text-sm font-semibold text-slate-800'>
                             {formatPrice(product.basePrice)}
                           </p>
-                        </div>
-                      </td>
-                      <td className='px-6 py-4'>
-                        <div className='text-center'>
-                          <span className='text-xs sm:text-sm font-semibold text-white bg-gradient-to-br from-purple-500 to-pink-500 w-8 h-8 rounded-full flex items-center justify-center shadow-lg mx-auto'>
-                            {product.totalCurrentStock}
-                          </span>
                         </div>
                       </td>
                       <td className='px-6 py-4'>
@@ -393,7 +388,7 @@ const ListProduct = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className='py-12 text-center text-slate-500'>
+                    <td colSpan={6} className='py-12 text-center text-slate-500'>
                       <div className='flex flex-col items-center gap-2'>
                         <div className='w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center'>
                           <FolderOpen className='w-8 h-8 text-slate-400' />

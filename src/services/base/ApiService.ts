@@ -1,12 +1,11 @@
 import { ApiError } from '../types';
-import { authService } from '../auth/AuthService';
 
 const API_BASE_URL = 'http://localhost:8080';
 
 export class BaseApiService {
   protected baseURL: string;
   private isRefreshing = false;
-  private refreshPromise: Promise<string> | null = null;
+  private refreshPromise: Promise<string | null> | null = null;
 
   constructor(baseURL: string = API_BASE_URL) {
     this.baseURL = baseURL;
@@ -104,7 +103,9 @@ export class BaseApiService {
         throw new Error('Refresh token não encontrado');
       }
 
-      const response = await authService.refreshToken(refreshToken);
+      // Importação dinâmica para evitar dependência circular
+      const { authService } = await import('../auth/AuthService');
+      const response = await authService.refreshToken({ refreshToken });
 
       // Atualiza os tokens no localStorage
       localStorage.setItem('authToken', response.token);

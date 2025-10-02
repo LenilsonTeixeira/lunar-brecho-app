@@ -1,11 +1,11 @@
-import { Product } from '../../types/product';
+import { ProductResponse } from '../../services/types';
 import Title from '../commom/Title';
 import ProductItem from '../product/ProductItem';
 import NoProductsFound from '../product/NoProductsFound';
 
 type Props = {
   title: string;
-  products: Product[];
+  products: ProductResponse[];
   searchQuery?: string;
   selectedCategory?: string | null;
 };

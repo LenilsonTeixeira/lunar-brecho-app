@@ -1,10 +1,10 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Product } from '../types/product';
-import axios from 'axios';
+import { ProductResponse } from '../services/types';
+import { productService } from '../services/product/ProductService';
 
 interface ProductContextData {
-  products: Product[];
-  filteredProducts: Product[];
+  products: ProductResponse[];
+  filteredProducts: ProductResponse[];
   selectedCategory: string | null;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -15,16 +15,15 @@ interface ProductContextData {
 const ProductContext = createContext<ProductContextData>({} as ProductContextData);
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductResponse[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   const getProducts = async () => {
-    const API_URL = 'http://localhost:3001/produtos';
     try {
-      const response = await axios.get<Product[]>(API_URL);
-      return response.data;
+      const response = await productService.getProducts();
+      return response.content || [];
     } catch (error) {
       console.error('Erro ao buscar produtos:', error);
       return [];
