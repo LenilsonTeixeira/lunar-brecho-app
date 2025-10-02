@@ -3,11 +3,21 @@ import HomeLayout from '../components/home/HomeLayout';
 import ProductSection from '../components/home/ProductSection';
 import { useEffect } from 'react';
 import { useProducts } from '../contexts/ProductContext';
+import { useProductPolling } from '../hooks/useProductPolling';
 
 const Home = () => {
   const location = useLocation();
-  const { filteredProducts, selectedCategory, searchQuery, setSearchQuery, handleCategorySelect } =
-    useProducts();
+  const {
+    filteredProducts,
+    selectedCategory,
+    searchQuery,
+    setSearchQuery,
+    handleCategorySelect,
+    refreshProducts,
+  } = useProducts();
+
+  // Polling inteligente: atualiza a cada 60s apenas na Home quando aba está ativa
+  useProductPolling(refreshProducts, 60000);
 
   useEffect(() => {
     handleCategorySelect(null);

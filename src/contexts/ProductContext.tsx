@@ -10,6 +10,7 @@ interface ProductContextData {
   setSearchQuery: (query: string) => void;
   handleCategorySelect: (category: string | null) => void;
   isLoading: boolean;
+  refreshProducts: () => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextData>({} as ProductContextData);
@@ -30,15 +31,18 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setIsLoading(true);
+  const refreshProducts = async () => {
+    setIsLoading(true);
+    try {
       const data = await getProducts();
       setProducts(data);
+    } finally {
       setIsLoading(false);
-    };
+    }
+  };
 
-    fetchProducts();
+  useEffect(() => {
+    refreshProducts();
   }, []);
 
   const handleCategorySelect = (category: string | null) => {
@@ -65,6 +69,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         setSearchQuery,
         handleCategorySelect,
         isLoading,
+        refreshProducts,
       }}
     >
       {children}
