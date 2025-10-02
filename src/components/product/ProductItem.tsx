@@ -28,9 +28,6 @@ const ProductItem = ({ product }: ProductItemProps) => {
   // Extrai os tamanhos dos variants
   const sizes = product.variants?.map((v) => v.size) || [];
 
-  // Verifica se tem estoque reservado
-  const isReserved = (product.totalReservedQuantity || 0) > 0;
-
   // Converte ProductResponse para Product (formato antigo do carrinho)
   const convertToLegacyProduct = (): Product => {
     const imageUrls = product.images?.map((img) => img.originalUrl || img.thumbnailUrl || '') || [];
@@ -49,7 +46,6 @@ const ProductItem = ({ product }: ProductItemProps) => {
       type: product.type === 'NEW' ? 'Novo' : 'Bazar',
       category: product.category as any,
       amount: product.totalCurrentStock || 0,
-      isReserved,
       observations: product.observations || '',
     };
   };
@@ -84,15 +80,6 @@ const ProductItem = ({ product }: ProductItemProps) => {
         <div className='absolute top-2 left-2 z-10'>
           <ProductTypeBadge type={product.type} variant='compact' />
         </div>
-
-        {/* Label Reservado */}
-        {isReserved && (
-          <div className='absolute bottom-2 right-2 z-10'>
-            <span className='px-2 py-1 text-[10px] font-medium rounded-sm bg-yellow-400 text-black bg-opacity-80'>
-              Reservado
-            </span>
-          </div>
-        )}
 
         {/* Botão do Carrinho */}
         <button
