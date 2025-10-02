@@ -256,6 +256,9 @@ const AddProduct = () => {
         return;
       }
 
+      // Verificar se há imagens
+      const hasImages = productImages.some((img) => img !== undefined);
+
       // Preparar dados do produto
       const productData: ProductRequest = {
         name: productName.trim(),
@@ -265,7 +268,7 @@ const AddProduct = () => {
         basePrice: Number(productPrice),
         discountType: discountType,
         discountValue: discountType !== 'NONE' ? Number(discountValue) || 0 : undefined,
-        status: 'ACTIVE',
+        status: hasImages ? 'ACTIVE' : 'INACTIVE',
         description: productDescription.trim() || undefined,
         observations: productObservations.trim() || undefined,
         variants: sizes.map((size) => ({
