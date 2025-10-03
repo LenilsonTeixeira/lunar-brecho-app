@@ -66,7 +66,9 @@ const ProductTitleSection = ({ product }: Props) => {
         </div>
       </div>
       <ProductDetailItem value={product.description || ''} className='mt-5 md:w-4/5' />
-      <ProductDetailItem label='Marca' value={product.brand || ''} className='mt-4 mb-4' />
+      {product.brand && (
+        <ProductDetailItem label='Marca' value={product.brand} className='mt-4 mb-4' />
+      )}
       <ProductDetailItem label='Categoria' value={product.category.name} className='mt-4 mb-4' />
       <ProductDetailItem
         label='Tipo'

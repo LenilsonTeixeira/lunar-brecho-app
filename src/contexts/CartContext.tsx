@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Product } from '../types/product';
+import { ProductResponse } from '../services/types';
 import { CartItem, CartContextData } from '../types/cart';
-import { calculateDiscountedPrice } from '../utils/priceUtils';
 
 const CartContext = createContext<CartContextData>({} as CartContextData);
 
@@ -13,9 +12,25 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
       try {
-        setItems(JSON.parse(savedCart));
+        const parsed = JSON.parse(savedCart);
+
+        // Verificar se é o modelo antigo (não tem snapshot)
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0] && !parsed[0].snapshot) {
+          // Modelo antigo detectado - limpar carrinho
+          console.warn('Carrinho no formato antigo detectado. Limpando...');
+          localStorage.removeItem('cart');
+          alert(
+            'Seu carrinho foi atualizado para uma nova versão. Por favor, adicione os produtos novamente.',
+          );
+          setItems([]);
+          return;
+        }
+
+        // Modelo novo - carregar normalmente
+        setItems(parsed);
       } catch (error) {
         console.error('Erro ao carregar carrinho:', error);
+        localStorage.removeItem('cart');
         setItems([]);
       }
     }
@@ -26,13 +41,39 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('cart', JSON.stringify(items));
   }, [items]);
 
-  const addToCart = (product: Product, quantity: number, selectedSize: string) => {
+  // Calcula o preço final com desconto
+  const calculateFinalPrice = (
+    basePrice: number,
+    discountType: 'PERCENTAGE' | 'FIXED' | 'NONE',
+    discountValue?: number,
+  ): number => {
+    if (discountType === 'NONE' || !discountValue) {
+      return basePrice;
+    }
+
+    if (discountType === 'PERCENTAGE') {
+      return basePrice - (basePrice * discountValue) / 100;
+    }
+
+    if (discountType === 'FIXED') {
+      return Math.max(0, basePrice - discountValue);
+    }
+
+    return basePrice;
+  };
+
+  const addToCart = (product: ProductResponse, quantity: number, variantId: string) => {
     if (quantity <= 0) return;
 
-    // Verificar se o produto já está no carrinho com o mesmo tamanho
-    const existingItemIndex = items.findIndex(
-      (item) => item.product.id === product.id && item.selectedSize === selectedSize,
-    );
+    // Buscar a variante selecionada
+    const variant = product.variants.find((v) => v.id === variantId);
+    if (!variant) {
+      alert('Variante não encontrada.');
+      return;
+    }
+
+    // Verificar se o produto já está no carrinho com a mesma variante
+    const existingItemIndex = items.findIndex((item) => item.variantId === variantId);
 
     if (existingItemIndex >= 0) {
       // Atualizar quantidade do item existente
@@ -40,8 +81,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const newQuantity = updatedItems[existingItemIndex].quantity + quantity;
 
       // Validar estoque
-      if (newQuantity > product.amount) {
-        alert(`Quantidade indisponível. Estoque disponível: ${product.amount} unidades.`);
+      if (newQuantity > (variant.stockAvailable || 0)) {
+        alert(
+          `Quantidade indisponível. Estoque disponível: ${variant.stockAvailable || 0} unidades.`,
+        );
         return;
       }
 
@@ -49,16 +92,32 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       setItems(updatedItems);
     } else {
       // Adicionar novo item
-      if (quantity > product.amount) {
-        alert(`Quantidade indisponível. Estoque disponível: ${product.amount} unidades.`);
+      if (quantity > (variant.stockAvailable || 0)) {
+        alert(
+          `Quantidade indisponível. Estoque disponível: ${variant.stockAvailable || 0} unidades.`,
+        );
         return;
       }
 
       const newItem: CartItem = {
-        id: `${product.id}-${selectedSize}-${Date.now()}`,
-        product,
+        id: `${product.id}-${variantId}-${Date.now()}`,
+        productId: product.id,
+        productExternalId: product.externalId,
+        variantId,
         quantity,
-        selectedSize,
+        snapshot: {
+          name: product.name,
+          mainImageUrl: product.mainImageUrl,
+          mainThumbnailUrl: product.mainThumbnailUrl,
+          brand: product.brand,
+          type: product.type,
+          category: product.category.name,
+          basePrice: product.basePrice,
+          discountType: product.discountType,
+          discountValue: product.discountValue,
+          size: variant.size,
+          stockAvailable: variant.stockAvailable || 0,
+        },
       };
       setItems([...items, newItem]);
     }
@@ -78,8 +137,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     if (!item) return;
 
     // Validar estoque
-    if (quantity > item.product.amount) {
-      alert(`Quantidade indisponível. Estoque disponível: ${item.product.amount} unidades.`);
+    if (quantity > item.snapshot.stockAvailable) {
+      alert(
+        `Quantidade indisponível. Estoque disponível: ${item.snapshot.stockAvailable} unidades.`,
+      );
       return;
     }
 
@@ -90,18 +151,22 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setItems([]);
   };
 
-  const getItemQuantity = (productId: string, selectedSize: string): number => {
-    const item = items.find(
-      (item) => item.product.id === productId && item.selectedSize === selectedSize,
-    );
+  const getItemQuantity = (productId: string, variantId: string): number => {
+    const item = items.find((item) => item.productId === productId && item.variantId === variantId);
     return item ? item.quantity : 0;
   };
 
   const totalItems = items.reduce((total, item) => total + item.quantity, 0);
 
   const totalPrice = items.reduce((total, item) => {
-    const discountedPrice = calculateDiscountedPrice(item.product.price, 5);
-    return total + discountedPrice * item.quantity;
+    const finalPrice = calculateFinalPrice(
+      item.snapshot.basePrice,
+      item.snapshot.discountType,
+      item.snapshot.discountValue,
+    );
+    // Aplicar desconto adicional de 5% no PIX (mantido da lógica anterior)
+    const pixPrice = finalPrice * 0.95;
+    return total + pixPrice * item.quantity;
   }, 0);
 
   return (

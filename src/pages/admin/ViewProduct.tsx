@@ -263,7 +263,9 @@ const ViewProduct = () => {
               <div>
                 <label className='text-sm font-medium text-slate-700 mb-2 block'>Marca</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-base text-slate-900'>{product.brand}</span>
+                  <span className='text-base text-slate-900'>
+                    {product.brand || <span className='text-slate-400 italic'>Não informado</span>}
+                  </span>
                 </div>
               </div>
 

@@ -95,19 +95,23 @@ const Cart = () => {
                       <div className='flex items-center gap-3 sm:gap-4'>
                         <div className='w-14 h-14 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl overflow-hidden ring-2 ring-slate-100 flex-shrink-0'>
                           <img
-                            src={item.product.images[0]}
-                            alt={item.product.name}
+                            src={
+                              item.snapshot.mainThumbnailUrl ||
+                              item.snapshot.mainImageUrl ||
+                              'https://via.placeholder.com/64'
+                            }
+                            alt={item.snapshot.name}
                             className='w-full h-full object-cover'
                           />
                         </div>
                         <div className='flex-1 min-w-0'>
                           <h3 className='font-light text-slate-50 text-md leading-tight line-clamp-2'>
-                            {item.product.name}
+                            {item.snapshot.name}
                           </h3>
                           <div className='flex items-center gap-2 mt-1'>
                             <span className='text-xs text-slate-100 font-light'>Tamanho:</span>
                             <span className='px-2 sm:px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-xs font-medium'>
-                              {item.selectedSize}
+                              {item.snapshot.size}
                             </span>
                           </div>
                         </div>
@@ -127,7 +131,7 @@ const Cart = () => {
                       {/* Preços */}
                       <div className='space-y-2'>
                         <div className='text-md font-medium text-slate-800'>
-                          {formatToBRL(item.product.price * 0.95)}
+                          {formatToBRL(item.snapshot.basePrice * 0.95)}
                         </div>
                       </div>
 
@@ -146,7 +150,7 @@ const Cart = () => {
                           </span>
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            disabled={item.quantity >= item.product.amount}
+                            disabled={item.quantity >= item.snapshot.stockAvailable}
                             className='w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                           >
                             <Plus className='w-4 h-4 text-slate-600' />
@@ -159,7 +163,7 @@ const Cart = () => {
                         <div className='space-y-1'>
                           <p className='text-xs font-light text-slate-500'>Subtotal</p>
                           <div className='text-md font-medium text-slate-800'>
-                            {formatToBRL(item.product.price * 0.95 * item.quantity)}
+                            {formatToBRL(item.snapshot.basePrice * 0.95 * item.quantity)}
                           </div>
                         </div>
                       </div>

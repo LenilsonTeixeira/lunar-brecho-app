@@ -17,11 +17,15 @@ const ProductActions = ({ product, selectedSize }: Props) => {
       return;
     }
 
-    // Busca o estoque disponível para o tamanho selecionado
+    // Busca a variante selecionada
     const selectedVariant = product.variants?.find((v) => v.size === selectedSize);
-    const stockAvailable = selectedVariant?.stockAvailable || 0;
+    if (!selectedVariant || !selectedVariant.id) {
+      alert('Variante não encontrada.');
+      return;
+    }
 
-    const currentQuantity = getItemQuantity(product.id, selectedSize);
+    const stockAvailable = selectedVariant.stockAvailable || 0;
+    const currentQuantity = getItemQuantity(product.id, selectedVariant.id);
     const availableQuantity = stockAvailable - currentQuantity;
 
     if (availableQuantity <= 0) {
@@ -29,7 +33,7 @@ const ProductActions = ({ product, selectedSize }: Props) => {
       return;
     }
 
-    addToCart(product as any, 1, selectedSize);
+    addToCart(product, 1, selectedVariant.id);
     alert('Produto adicionado ao carrinho!');
   };
 
@@ -39,11 +43,12 @@ const ProductActions = ({ product, selectedSize }: Props) => {
 
   const whatsappLink = `https://api.whatsapp.com/send?phone=${import.meta.env.VITE_PHONE_NUMBER}&text=${whatsappMessage}`;
 
-  // Busca o estoque disponível para o tamanho selecionado
+  // Busca a variante selecionada para verificar estoque
   const selectedVariant = product.variants?.find((v) => v.size === selectedSize);
   const stockAvailable = selectedVariant?.stockAvailable || 0;
+  const variantId = selectedVariant?.id || '';
 
-  const currentQuantity = getItemQuantity(product.id, selectedSize);
+  const currentQuantity = variantId ? getItemQuantity(product.id, variantId) : 0;
   const isOutOfStock = selectedSize ? currentQuantity >= stockAvailable : false;
 
   return (

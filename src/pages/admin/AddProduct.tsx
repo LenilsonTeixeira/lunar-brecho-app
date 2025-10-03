@@ -34,6 +34,7 @@ const AddProduct = () => {
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -167,15 +168,72 @@ const AddProduct = () => {
     }
   };
 
+  const validateCurrentStep = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    switch (currentStep) {
+      case 1: // Imagens - não obrigatório
+        break;
+
+      case 2: // Informações Básicas
+        if (!productName.trim()) {
+          errors.productName = 'Nome do produto é obrigatório';
+        }
+        if (!productCategory.trim()) {
+          errors.productCategory = 'Categoria é obrigatória';
+        }
+        // Tipo sempre tem valor padrão, não precisa validar
+        break;
+
+      case 3: {
+        // Tamanhos
+        const invalidSizes = sizes.filter(
+          (s) => !s.size.trim() || s.quantity === '' || Number(s.quantity) < 1,
+        );
+        if (invalidSizes.length > 0) {
+          sizes.forEach((size) => {
+            if (!size.size.trim()) {
+              errors[`size_${size.id}`] = 'Selecione um tamanho';
+            }
+            if (size.quantity === '' || Number(size.quantity) < 1) {
+              errors[`quantity_${size.id}`] = 'Quantidade deve ser maior que 0';
+            }
+          });
+        }
+        break;
+      }
+
+      case 4: // Descrição
+        if (!productDescription.trim()) {
+          errors.productDescription = 'Descrição do produto é obrigatória';
+        }
+        break;
+
+      case 5: // Preços
+        if (!productPrice || Number(productPrice) <= 0) {
+          errors.productPrice = 'Preço original é obrigatório e deve ser maior que 0';
+        }
+        break;
+
+      case 6: // Revisão - não precisa validar
+        break;
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const nextStep = () => {
-    if (currentStep < steps.length) {
+    if (validateCurrentStep() && currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
+      setFieldErrors({}); // Limpa erros ao avançar
     }
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
+      setFieldErrors({}); // Limpa erros ao voltar
     }
   };
 
@@ -501,17 +559,42 @@ const AddProduct = () => {
                   className='text-sm sm:text-base font-semibold text-slate-700'
                   htmlFor='product-name'
                 >
-                  Nome do Produto
+                  Nome do Produto <span className='text-red-500'>*</span>
                 </label>
                 <input
                   id='product-name'
                   type='text'
                   value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
+                  onChange={(e) => {
+                    setProductName(e.target.value);
+                    if (fieldErrors.productName) {
+                      setFieldErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors.productName;
+                        return newErrors;
+                      });
+                    }
+                  }}
                   placeholder='Digite o nome do produto'
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  className={`outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border transition-all duration-300 bg-white ${
+                    fieldErrors.productName
+                      ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                      : 'border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
+                  }`}
                   required
                 />
+                {fieldErrors.productName && (
+                  <p className='text-sm text-red-600 flex items-center gap-1'>
+                    <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                      <path
+                        fillRule='evenodd'
+                        d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    {fieldErrors.productName}
+                  </p>
+                )}
               </div>
 
               <div className='flex flex-col gap-2'>
@@ -519,13 +602,26 @@ const AddProduct = () => {
                   className='text-sm sm:text-base font-semibold text-slate-700'
                   htmlFor='category'
                 >
-                  Categoria
+                  Categoria <span className='text-red-500'>*</span>
                 </label>
                 <select
                   id='category'
                   value={productCategory}
-                  onChange={(e) => setProductCategory(e.target.value)}
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  onChange={(e) => {
+                    setProductCategory(e.target.value);
+                    if (fieldErrors.productCategory) {
+                      setFieldErrors((prev) => {
+                        const newErrors = { ...prev };
+                        delete newErrors.productCategory;
+                        return newErrors;
+                      });
+                    }
+                  }}
+                  className={`outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border transition-all duration-300 bg-white ${
+                    fieldErrors.productCategory
+                      ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                      : 'border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
+                  }`}
                   disabled={categoriesLoading}
                 >
                   <option value=''>
@@ -542,6 +638,18 @@ const AddProduct = () => {
                     </option>
                   ))}
                 </select>
+                {fieldErrors.productCategory && (
+                  <p className='text-sm text-red-600 flex items-center gap-1'>
+                    <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                      <path
+                        fillRule='evenodd'
+                        d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    {fieldErrors.productCategory}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -587,7 +695,7 @@ const AddProduct = () => {
           <div>
             <div className='flex items-center justify-between mb-4'>
               <label className='text-sm sm:text-base font-semibold text-slate-700'>
-                Tamanhos e Quantidades
+                Tamanhos e Quantidades <span className='text-red-500'>*</span>
               </label>
               <button
                 type='button'
@@ -603,56 +711,115 @@ const AddProduct = () => {
               {sizes.map((sizeItem, index) => (
                 <div
                   key={sizeItem.id}
-                  className='flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200'
+                  className={`flex flex-col gap-3 p-4 rounded-lg border transition-all duration-300 ${
+                    fieldErrors[`size_${sizeItem.id}`] || fieldErrors[`quantity_${sizeItem.id}`]
+                      ? 'bg-red-50 border-red-300'
+                      : 'bg-slate-50 border-slate-200'
+                  }`}
                 >
-                  <div className='flex-1'>
-                    <label className='text-xs sm:text-sm font-medium text-slate-600 mb-2 block'>
-                      Tamanho {index + 1}
-                    </label>
-                    <select
-                      value={sizeItem.size}
-                      onChange={(e) => updateSize(sizeItem.id, 'size', e.target.value)}
-                      className='w-full outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                    >
-                      <option value=''>Selecione o tamanho</option>
-                      {availableSizes.map((size) => (
-                        <option key={size} value={size}>
-                          {size}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <div className='flex items-start gap-4'>
+                    <div className='flex-1'>
+                      <label className='text-xs sm:text-sm font-medium text-slate-600 mb-2 block'>
+                        Tamanho {index + 1} <span className='text-red-500'>*</span>
+                      </label>
+                      <select
+                        value={sizeItem.size}
+                        onChange={(e) => {
+                          updateSize(sizeItem.id, 'size', e.target.value);
+                          if (fieldErrors[`size_${sizeItem.id}`]) {
+                            setFieldErrors((prev) => {
+                              const newErrors = { ...prev };
+                              delete newErrors[`size_${sizeItem.id}`];
+                              return newErrors;
+                            });
+                          }
+                        }}
+                        className={`w-full outline-none py-2 px-3 text-sm sm:text-base rounded-lg border transition-all duration-300 bg-white ${
+                          fieldErrors[`size_${sizeItem.id}`]
+                            ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                            : 'border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
+                        }`}
+                      >
+                        <option value=''>Selecione o tamanho</option>
+                        {availableSizes.map((size) => (
+                          <option key={size} value={size}>
+                            {size}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                  <div className='flex-1'>
-                    <label className='text-xs sm:text-sm font-medium text-slate-600 mb-2 block'>
-                      Quantidade
-                    </label>
-                    <input
-                      type='number'
-                      min='1'
-                      value={sizeItem.quantity}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        updateSize(
-                          sizeItem.id,
-                          'quantity',
-                          value === '' ? '' : parseInt(value) || 1,
-                        );
-                      }}
-                      placeholder='Qtd'
-                      className='w-full outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                    />
-                  </div>
+                    <div className='flex-1'>
+                      <label className='text-xs sm:text-sm font-medium text-slate-600 mb-2 block'>
+                        Quantidade <span className='text-red-500'>*</span>
+                      </label>
+                      <input
+                        type='number'
+                        min='1'
+                        value={sizeItem.quantity}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          updateSize(
+                            sizeItem.id,
+                            'quantity',
+                            value === '' ? '' : parseInt(value) || 1,
+                          );
+                          if (fieldErrors[`quantity_${sizeItem.id}`]) {
+                            setFieldErrors((prev) => {
+                              const newErrors = { ...prev };
+                              delete newErrors[`quantity_${sizeItem.id}`];
+                              return newErrors;
+                            });
+                          }
+                        }}
+                        placeholder='Qtd'
+                        className={`w-full outline-none py-2 px-3 text-sm sm:text-base rounded-lg border transition-all duration-300 bg-white ${
+                          fieldErrors[`quantity_${sizeItem.id}`]
+                            ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                            : 'border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
+                        }`}
+                      />
+                    </div>
 
-                  {sizes.length > 1 && (
-                    <button
-                      type='button'
-                      onClick={() => removeSize(sizeItem.id)}
-                      className='mt-6 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300'
-                      aria-label='Remover tamanho'
-                    >
-                      <X className='w-4 h-4' />
-                    </button>
+                    {sizes.length > 1 && (
+                      <button
+                        type='button'
+                        onClick={() => removeSize(sizeItem.id)}
+                        className='mt-6 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300'
+                        aria-label='Remover tamanho'
+                      >
+                        <X className='w-4 h-4' />
+                      </button>
+                    )}
+                  </div>
+                  {(fieldErrors[`size_${sizeItem.id}`] ||
+                    fieldErrors[`quantity_${sizeItem.id}`]) && (
+                    <div className='flex flex-col gap-1'>
+                      {fieldErrors[`size_${sizeItem.id}`] && (
+                        <p className='text-sm text-red-600 flex items-center gap-1'>
+                          <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                            <path
+                              fillRule='evenodd'
+                              d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z'
+                              clipRule='evenodd'
+                            />
+                          </svg>
+                          {fieldErrors[`size_${sizeItem.id}`]}
+                        </p>
+                      )}
+                      {fieldErrors[`quantity_${sizeItem.id}`] && (
+                        <p className='text-sm text-red-600 flex items-center gap-1'>
+                          <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                            <path
+                              fillRule='evenodd'
+                              d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z'
+                              clipRule='evenodd'
+                            />
+                          </svg>
+                          {fieldErrors[`quantity_${sizeItem.id}`]}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
               ))}
@@ -681,16 +848,41 @@ const AddProduct = () => {
                 className='text-sm sm:text-base font-semibold text-slate-700'
                 htmlFor='product-description'
               >
-                Descrição do Produto
+                Descrição do Produto <span className='text-red-500'>*</span>
               </label>
               <textarea
                 id='product-description'
                 value={productDescription}
-                onChange={(e) => setProductDescription(e.target.value)}
+                onChange={(e) => {
+                  setProductDescription(e.target.value);
+                  if (fieldErrors.productDescription) {
+                    setFieldErrors((prev) => {
+                      const newErrors = { ...prev };
+                      delete newErrors.productDescription;
+                      return newErrors;
+                    });
+                  }
+                }}
                 rows={4}
-                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
+                className={`outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border transition-all duration-300 resize-none bg-white ${
+                  fieldErrors.productDescription
+                    ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                    : 'border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
+                }`}
                 placeholder='Digite a descrição do produto'
               ></textarea>
+              {fieldErrors.productDescription && (
+                <p className='text-sm text-red-600 flex items-center gap-1'>
+                  <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                    <path
+                      fillRule='evenodd'
+                      d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                  {fieldErrors.productDescription}
+                </p>
+              )}
             </div>
 
             {/* Observations */}
@@ -746,12 +938,37 @@ const AddProduct = () => {
                     min='0'
                     step='0.01'
                     value={productPrice}
-                    onChange={handlePriceChange}
+                    onChange={(e) => {
+                      handlePriceChange(e);
+                      if (fieldErrors.productPrice) {
+                        setFieldErrors((prev) => {
+                          const newErrors = { ...prev };
+                          delete newErrors.productPrice;
+                          return newErrors;
+                        });
+                      }
+                    }}
                     placeholder='0,00'
-                    className='outline-none py-3 pl-10 pr-4 text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white w-full group-hover:border-purple-300'
+                    className={`outline-none py-3 pl-10 pr-4 text-base rounded-lg border transition-all duration-300 bg-white w-full group-hover:border-purple-300 ${
+                      fieldErrors.productPrice
+                        ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                        : 'border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
+                    }`}
                     required
                   />
                 </div>
+                {fieldErrors.productPrice && (
+                  <p className='text-sm text-red-600 flex items-center gap-1'>
+                    <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                      <path
+                        fillRule='evenodd'
+                        d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    {fieldErrors.productPrice}
+                  </p>
+                )}
               </div>
 
               {/* Tipo de Desconto */}
@@ -1099,6 +1316,30 @@ const AddProduct = () => {
 
         {/* Form Content */}
         <form className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'>
+          {/* Validation Error Alert */}
+          {Object.keys(fieldErrors).length > 0 && (
+            <div className='bg-red-50 border-l-4 border-red-500 rounded-lg p-4'>
+              <div className='flex items-start'>
+                <div className='flex-shrink-0'>
+                  <svg className='h-5 w-5 text-red-500' viewBox='0 0 20 20' fill='currentColor'>
+                    <path
+                      fillRule='evenodd'
+                      d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                </div>
+                <div className='ml-3'>
+                  <h3 className='text-sm font-semibold text-red-800'>
+                    Preencha todos os campos obrigatórios
+                  </h3>
+                  <p className='text-sm text-red-700 mt-1'>
+                    Por favor, corrija os campos destacados em vermelho antes de continuar.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           {renderStepContent()}
 
           {/* Navigation Buttons - Mobile Responsive */}

@@ -1,7 +1,6 @@
 import { Link } from 'react-router';
 import { ShoppingCart } from 'lucide-react';
 import { ProductResponse } from '../../services/types';
-import { Product } from '../../types/product';
 import { useCart } from '../../contexts/CartContext';
 import ProductTypeBadge from './ProductTypeBadge';
 import { calculateInstallment, formatToBRL } from '../../utils/priceUtils';
@@ -28,36 +27,13 @@ const ProductItem = ({ product }: ProductItemProps) => {
   // Extrai os tamanhos dos variants
   const sizes = product.variants?.map((v) => v.size) || [];
 
-  // Converte ProductResponse para Product (formato antigo do carrinho)
-  const convertToLegacyProduct = (): Product => {
-    const imageUrls = product.images?.map((img) => img.originalUrl || img.thumbnailUrl || '') || [];
-    if (product.mainImageUrl && !imageUrls.includes(product.mainImageUrl)) {
-      imageUrls.unshift(product.mainImageUrl);
-    }
-
-    return {
-      id: product.id,
-      images: imageUrls.filter(Boolean),
-      name: product.name,
-      price: product.basePrice,
-      brand: product.brand || '',
-      description: product.description || '',
-      sizes,
-      type: product.type === 'NEW' ? 'Novo' : 'Bazar',
-      category: product.category.name as any,
-      amount: product.totalCurrentStock || 0,
-      observations: product.observations || '',
-    };
-  };
-
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault(); // Previne a navegação do Link
     e.stopPropagation();
 
-    if (sizes.length === 1) {
+    if (sizes.length === 1 && product.variants[0].id) {
       // Se só tem um tamanho, adiciona automaticamente
-      const legacyProduct = convertToLegacyProduct();
-      addToCart(legacyProduct, 1, sizes[0]);
+      addToCart(product, 1, product.variants[0].id);
       alert('Produto adicionado ao carrinho!');
     } else {
       // Se tem múltiplos tamanhos, redireciona para a página do produto
