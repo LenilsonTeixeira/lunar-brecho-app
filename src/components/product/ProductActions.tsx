@@ -57,7 +57,7 @@ const ProductActions = ({ product, selectedSize }: Props) => {
         href={whatsappLink}
         target='_blank'
         rel='noopener noreferrer'
-        className='bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-4 text-sm w-full sm:w-80 cursor-pointer flex items-center justify-center gap-3 transition-colors rounded-lg font-medium'
+        className='bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-4 text-base w-full sm:w-80 cursor-pointer flex items-center justify-center gap-3 transition-colors rounded-lg font-medium'
       >
         <WhatsappIcon width={24} height={24} />
         Compre pelo WhatsApp
@@ -66,7 +66,7 @@ const ProductActions = ({ product, selectedSize }: Props) => {
       <button
         onClick={handleAddToCart}
         disabled={isOutOfStock}
-        className={`px-6 py-4 text-sm w-full sm:w-80 cursor-pointer flex items-center justify-center gap-3 transition-colors rounded-lg font-medium ${
+        className={`px-6 py-4 text-base w-full sm:w-80 cursor-pointer flex items-center justify-center gap-3 transition-colors rounded-lg font-medium ${
           isOutOfStock
             ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
             : 'bg-sky-500 hover:bg-sky-600 text-white'

@@ -55,23 +55,29 @@ const ProductTitleSection = ({ product }: Props) => {
       </div>
       <div className='flex items-center gap-1 mt-2'>
         <CreditCard />
-        <div>
+        <div className='text-base'>
           <strong>6 x de {formatToBRL(installment)}</strong>
         </div>
       </div>
       <div className='flex items-center gap-1 mt-2'>
         <Banknote />
-        <div>
+        <div className='text-base'>
           <strong>5% de desconto</strong> pagando por PIX
         </div>
       </div>
-      <ProductDetailItem value={product.description || ''} className='mt-6 md:w-4/5' />
-      {product.brand && <ProductDetailItem label='Marca' value={product.brand} className='mt-4' />}
-      <ProductDetailItem label='Categoria' value={product.category.name} className='mt-3' />
+      <ProductDetailItem value={product.description || ''} className='mt-6 md:w-4/5 text-base' />
+      {product.brand && (
+        <ProductDetailItem label='Marca' value={product.brand} className='mt-4 text-base' />
+      )}
+      <ProductDetailItem
+        label='Categoria'
+        value={product.category.name}
+        className='mt-3 text-base'
+      />
       <ProductDetailItem
         label='Tipo'
         value={product.type === 'NEW' ? 'Novo' : 'Bazar'}
-        className='mt-3'
+        className='mt-3 text-base'
       />
     </>
   );

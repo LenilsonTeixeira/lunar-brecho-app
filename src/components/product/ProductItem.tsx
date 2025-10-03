@@ -84,7 +84,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
         </div>
       </div>
 
-      <div className='mt-2 text-md flex-1 overflow-hidden font-light w-full text-center'>
+      <div className='mt-2 text-base flex-1 overflow-hidden font-light w-full text-center'>
         {product.name}
       </div>
 
@@ -118,7 +118,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
         })}
       </div>
 
-      <div className='mt-2 text-md font-medium text-slate-700 w-full text-center'>
+      <div className='mt-2 text-lg font-medium text-slate-700 w-full text-center'>
         <span>
           {basePrice.toLocaleString('pt-BR', {
             style: 'currency',
@@ -127,7 +127,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
         </span>
       </div>
 
-      <div className='text-md font-light text-slate-700 w-full text-center'>
+      <div className='text-base font-light text-slate-700 w-full text-center'>
         <span>{formatToBRL(finalPrice)} no PIX</span>
       </div>
 

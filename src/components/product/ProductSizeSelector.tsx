@@ -9,7 +9,7 @@ type SizeSelectorProps = {
 const ProductSizeSelector = ({ variants, selectedSize, onSelectSize }: SizeSelectorProps) => {
   return (
     <div className='flex flex-col w-fit'>
-      <p className='mb-3 font-medium'>
+      <p className='mb-3 text-base font-medium'>
         Tamanho: {selectedSize || 'Selecione'}
         {selectedSize && (
           <span className='ml-2 text-sm text-slate-600 font-normal'>

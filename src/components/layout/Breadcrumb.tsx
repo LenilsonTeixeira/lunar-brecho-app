@@ -24,13 +24,13 @@ const Breadcrumb = ({ items }: BreadcrumbProps) => {
               )}
 
               {isLast ? (
-                <span className='text-xs md:text-sm font-semibold text-slate-900 px-1.5 md:px-2 py-1 rounded-md bg-slate-50 border border-slate-200 whitespace-nowrap'>
+                <span className='text-sm font-semibold text-slate-900 px-1.5 md:px-2 py-1 rounded-md bg-slate-50 border border-slate-200 whitespace-nowrap'>
                   {item.label}
                 </span>
               ) : (
                 <Link
                   to={item.to || '#'}
-                  className='text-xs md:text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-1.5 md:px-2 py-1 rounded-md transition-all duration-200 whitespace-nowrap'
+                  className='text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 px-1.5 md:px-2 py-1 rounded-md transition-all duration-200 whitespace-nowrap'
                 >
                   {item.label}
                 </Link>
