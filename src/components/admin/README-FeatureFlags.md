@@ -46,12 +46,20 @@ const {
 
 ### 2. Componente ProtectedRoute
 
-O componente `ProtectedRoute` protege rotas baseado nas feature flags:
+O componente `ProtectedRoute` protege rotas baseado nas feature flags e roles de usuário:
 
 ```typescript
+// Proteção baseada em feature flag
 <Route path='produtos' element={
   <ProtectedRoute>
     <ListProduct />
+  </ProtectedRoute>
+} />
+
+// Proteção para super admins
+<Route path='feature-flags' element={
+  <ProtectedRoute requireSuperAdmin={true}>
+    <FeatureFlags />
   </ProtectedRoute>
 } />
 ```
@@ -61,8 +69,8 @@ O componente `ProtectedRoute` protege rotas baseado nas feature flags:
 O sidebar automaticamente:
 
 - Mostra apenas grupos que têm pelo menos um item habilitado
-- Desabilita itens não permitidos com visual diferenciado
-- Exibe badge "Em breve" para funcionalidades desabilitadas
+- **Oculta completamente** itens desabilitados pelas feature flags
+- Exibe apenas funcionalidades habilitadas
 
 ## Estrutura de Arquivos
 
@@ -162,9 +170,36 @@ O componente `FeatureFlagsDemo` está incluído no Dashboard e permite:
 - Resetar para configuração padrão
 - Ver o impacto das mudanças no sidebar e nas rotas
 
+## Controle de Acesso
+
+### Página de Feature Flags
+
+🔒 **Acesso Restrito**: A página de gerenciamento de feature flags (`/admin/feature-flags`) está protegida e **apenas usuários com role `SUPER_ADMIN`** podem acessá-la.
+
+- Usuários com role `ADMIN` não verão o link no sidebar
+- Tentativas de acesso direto à URL serão redirecionadas para `/admin`
+- O ProtectedRoute verifica automaticamente a role do usuário
+
+### Roles de Usuário
+
+O sistema suporta as seguintes roles:
+
+- **SUPER_ADMIN**:
+  - ✅ Pode acessar rotas habilitadas diretamente via URL (ignora feature flags, exceto dashboard)
+  - ✅ Único role que pode acessar e gerenciar feature flags
+  - ⚠️ **No sidebar**: vê apenas as opções habilitadas pelas feature flags (igual aos admins)
+  - ⚠️ **Dashboard**: respeita a feature flag para todos (não aparece se desabilitado)
+- **ADMIN**:
+  - ⚠️ Acesso apenas às funcionalidades habilitadas via feature flags
+  - ❌ Não pode acessar feature flags
+  - ⚠️ Vê apenas opções habilitadas no sidebar
+  - ❌ Redirecionado se tentar acessar rotas desabilitadas
+
 ## Considerações de Segurança
 
 ⚠️ **Importante**: Este sistema de feature flags é baseado no frontend e não deve ser considerado uma medida de segurança robusta. Para funcionalidades críticas, sempre implemente validações no backend.
+
+✅ **Proteção de Role**: A página de feature flags possui proteção adicional baseada em role de usuário, impedindo que administradores regulares alterem as configurações.
 
 ## Extensibilidade
 

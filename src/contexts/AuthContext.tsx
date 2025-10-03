@@ -11,6 +11,24 @@ interface User {
   active: boolean;
 }
 
+// Função para decodificar JWT (sem validação - apenas para extrair dados)
+const decodeJWT = (token: string): any => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(''),
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Erro ao decodificar JWT:', error);
+    return null;
+  }
+};
+
 interface RegisterData {
   email: string;
   password: string;
@@ -75,16 +93,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       localStorage.setItem('authToken', response.token);
       localStorage.setItem('refreshToken', response.refreshToken);
 
-      // Para obter dados do usuário, precisaríamos de um endpoint adicional
-      // Por enquanto, vamos usar dados básicos
-      const userData = {
-        id: 'temp-id',
-        email,
-        firstName: 'Usuário',
-        lastName: 'Admin',
-        role: 'ADMIN',
-        storeId: null,
-        active: true,
+      // Decodifica o JWT para extrair os dados do usuário
+      const decodedToken = decodeJWT(response.token);
+
+      if (!decodedToken) {
+        return { success: false, error: 'Erro ao processar token de autenticação.' };
+      }
+
+      // Extrai os dados do usuário do token JWT
+      // Estrutura esperada: { id, firstName, lastName, role, sub (email), storeId? }
+      const userData: User = {
+        id: decodedToken.id || 'unknown',
+        email: decodedToken.sub || email, // O email está no campo 'sub'
+        firstName: decodedToken.firstName || 'Usuário',
+        lastName: decodedToken.lastName || 'Admin',
+        role: decodedToken.role || 'ADMIN',
+        storeId: decodedToken.storeId || null,
+        active: decodedToken.active !== undefined ? decodedToken.active : true,
       };
 
       localStorage.setItem('userData', JSON.stringify(userData));

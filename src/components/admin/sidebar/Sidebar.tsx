@@ -23,10 +23,12 @@ import { Link, useLocation } from 'react-router';
 import { useState } from 'react';
 import MoonIcon from '../../icon/MoonIcon';
 import { useFeatureFlagsContext } from '@/contexts/FeatureFlagsContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Definição dos grupos do sidebar com mapeamento para feature flags
 const getSidebarGroups = (
   isFeatureEnabled: (flag: keyof import('@/hooks/useFeatureFlags').FeatureFlags) => boolean,
+  isSuperAdmin: boolean,
 ) => [
   {
     id: 'overview',
@@ -36,13 +38,13 @@ const getSidebarGroups = (
         label: 'Dashboard',
         icon: <LayoutDashboard />,
         path: '/admin',
-        enabled: isFeatureEnabled('dashboard'),
+        enabled: isFeatureEnabled('dashboard'), // Dashboard respeita feature flag para todos
       },
       {
         label: 'Feature Flags',
         icon: <Flag />,
         path: '/admin/feature-flags',
-        enabled: true, // Feature Flags sempre habilitado
+        enabled: isSuperAdmin, // Feature Flags apenas para Super Admins
       },
     ],
   },
@@ -167,9 +169,13 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
   const { isFeatureEnabled } = useFeatureFlagsContext();
+  const { user } = useAuth();
+
+  // Verifica se o usuário é super admin
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
 
   // Obtém os grupos do sidebar com base nas feature flags
-  const sidebarGroups = getSidebarGroups(isFeatureEnabled);
+  const sidebarGroups = getSidebarGroups(isFeatureEnabled, isSuperAdmin);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
   const closeSidebar = () => setIsOpen(false);
@@ -295,26 +301,9 @@ const Sidebar = () => {
                     {group.items.map((item, index) => {
                       const isActive = isMenuItemActive(item.path);
 
-                      // Se o item não estiver habilitado, renderiza como desabilitado
+                      // Se o item não estiver habilitado, não renderiza
                       if (!item.enabled) {
-                        return (
-                          <div
-                            key={index}
-                            className='flex items-center py-2.5 px-4 gap-3 transition-all duration-300 relative group rounded-r-lg mx-2 opacity-50 cursor-not-allowed'
-                          >
-                            <div className='flex items-center gap-3 w-full'>
-                              <div className='transition-all duration-300 flex-shrink-0'>
-                                {item.icon}
-                              </div>
-                              <p className='font-medium transition-all duration-300 flex-1 text-sm text-slate-400'>
-                                {item.label}
-                              </p>
-                              <span className='text-xs text-slate-500 bg-slate-700 px-2 py-1 rounded'>
-                                Em breve
-                              </span>
-                            </div>
-                          </div>
-                        );
+                        return null;
                       }
 
                       return (

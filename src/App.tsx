@@ -528,8 +528,15 @@ const App = () => {
                   }
                 />
 
-                {/* Feature Flags - Sempre acessível para administradores */}
-                <Route path='feature-flags' element={<FeatureFlags />} />
+                {/* Feature Flags - Apenas para Super Admins */}
+                <Route
+                  path='feature-flags'
+                  element={
+                    <ProtectedRoute requireSuperAdmin={true}>
+                      <FeatureFlags />
+                    </ProtectedRoute>
+                  }
+                />
               </Route>
             </Routes>
             {!isAdminPath && <Footer />}

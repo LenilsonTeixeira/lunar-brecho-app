@@ -6,15 +6,17 @@ import { useAuth } from '@/contexts/AuthContext';
 interface ProtectedRouteProps {
   children: ReactNode;
   fallbackPath?: string;
+  requireSuperAdmin?: boolean;
 }
 
 const ProtectedRoute = ({
   children,
-  fallbackPath = '/admin/feature-flags',
+  fallbackPath = '/admin',
+  requireSuperAdmin = false,
 }: ProtectedRouteProps) => {
   const location = useLocation();
   const { isFeatureEnabled } = useFeatureFlagsContext();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   // Se ainda está carregando, mostra loading
   if (isLoading) {
@@ -28,6 +30,11 @@ const ProtectedRoute = ({
   // Se não está autenticado, redireciona para login
   if (!isAuthenticated) {
     return <Navigate to='/admin/login' replace />;
+  }
+
+  // Se requer super admin e o usuário não é super admin, redireciona
+  if (requireSuperAdmin && user?.role !== 'SUPER_ADMIN') {
+    return <Navigate to='/admin' replace />;
   }
 
   // Mapeamento de rotas para feature flags
@@ -68,9 +75,17 @@ const ProtectedRoute = ({
     }
   }
 
+  // Super Admins e Admins ignoram feature flags, EXCETO para o dashboard
+  const isDashboardRoute = location.pathname === '/admin';
+  const isAdminOrAbove = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
+  if (isAdminOrAbove && !isDashboardRoute) {
+    return <>{children}</>;
+  }
+
   if (!isEnabled) {
-    // Redireciona para o fallback (feature-flags por padrão)
-    return <Navigate to={fallbackPath} replace />;
+    // Super Admins sem acesso ao dashboard vão para feature flags
+    const redirectPath = user?.role === 'SUPER_ADMIN' ? '/admin/feature-flags' : fallbackPath;
+    return <Navigate to={redirectPath} replace />;
   }
 
   return <>{children}</>;
