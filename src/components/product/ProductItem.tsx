@@ -24,15 +24,17 @@ const ProductItem = ({ product }: ProductItemProps) => {
 
   const installment = calculateInstallment(basePrice, 6);
 
-  // Extrai os tamanhos dos variants
-  const sizes = product.variants?.map((v) => v.size) || [];
-
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault(); // Previne a navegação do Link
     e.stopPropagation();
 
-    if (sizes.length === 1 && product.variants[0].id) {
-      // Se só tem um tamanho, adiciona automaticamente
+    if (product.variants?.length === 1 && product.variants[0].id) {
+      const stockAvailable = product.variants[0].stockAvailable || 0;
+      if (stockAvailable === 0) {
+        alert('Este produto está sem estoque.');
+        return;
+      }
+      // Se só tem um tamanho e tem estoque, adiciona automaticamente
       addToCart(product, 1, product.variants[0].id);
       alert('Produto adicionado ao carrinho!');
     } else {
@@ -61,7 +63,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
         <button
           onClick={handleAddToCart}
           className='absolute top-2 right-2 z-10 bg-white/90 hover:bg-white text-slate-700 hover:text-sky-600 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300'
-          title={sizes.length === 1 ? 'Adicionar ao carrinho' : 'Ver produto'}
+          title={product.variants?.length === 1 ? 'Adicionar ao carrinho' : 'Ver produto'}
         >
           <ShoppingCart className='w-4 h-4' />
         </button>
@@ -87,16 +89,33 @@ const ProductItem = ({ product }: ProductItemProps) => {
       </div>
 
       <div className='flex gap-2 flex-wrap mt-1 w-full justify-center'>
-        {sizes.map((size, index) => (
-          <button
-            key={index}
-            onClick={(e) => handleSizeClick(e, size)}
-            className='p-1 rounded-full border-2 border-slate-200 text-xs hover:border-sky-400 hover:bg-sky-50 transition-all duration-200 cursor-pointer'
-            title={`Selecionar tamanho ${size}`}
-          >
-            {size}
-          </button>
-        ))}
+        {product.variants?.map((variant, index) => {
+          const stockAvailable = variant.stockAvailable || 0;
+          const isOutOfStock = stockAvailable === 0;
+
+          return (
+            <button
+              key={index}
+              onClick={(e) => !isOutOfStock && handleSizeClick(e, variant.size)}
+              disabled={isOutOfStock}
+              className={`p-1 px-2 rounded-full border-2 text-xs transition-all duration-200 relative ${
+                isOutOfStock
+                  ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
+                  : 'border-slate-200 hover:border-sky-400 hover:bg-sky-50 cursor-pointer'
+              }`}
+              title={
+                isOutOfStock
+                  ? 'Esgotado'
+                  : `${stockAvailable} disponível(is) - Tamanho ${variant.size}`
+              }
+            >
+              <span className={isOutOfStock ? 'line-through' : ''}>{variant.size}</span>
+              {!isOutOfStock && stockAvailable <= 3 && (
+                <span className='ml-1 text-orange-500 font-semibold'>•</span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       <div className='mt-2 text-md font-medium text-slate-700 w-full text-center'>

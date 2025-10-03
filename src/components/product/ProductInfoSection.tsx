@@ -7,7 +7,7 @@ import ProductStoreInfo from './ProductStoreInfo';
 import { ProductResponse } from '../../services/types';
 
 type Props = {
-  product: ProductResponse & { sizes: string[] };
+  product: ProductResponse;
   selectedSize: string;
   onSelectSize: (size: string) => void;
 };
@@ -23,23 +23,23 @@ const ProductInfoSection = ({ product, selectedSize, onSelectSize }: Props) => {
             { label: product.name },
           ]}
         />
-        <div className='mt-4 sm:mt-6'>
+        <div className='mt-4'>
           <ProductTitleSection product={product} />
         </div>
-        <div className='mt-1'>
+        <div className='mt-6'>
           <ProductSizeSelector
-            sizes={product.sizes}
+            variants={product.variants}
             selectedSize={selectedSize}
             onSelectSize={onSelectSize}
           />
         </div>
-        <div className='mt-6 sm:mt-8'>
+        <div className='mt-6'>
           <ProductObservations product={product} />
         </div>
-        <div className='mt-8 sm:mt-10'>
+        <div className='mt-8'>
           <ProductActions product={product} selectedSize={selectedSize} />
         </div>
-        <div className='mt-8 sm:mt-10 pb-8'>
+        <div className='mt-8 pb-8'>
           <ProductStoreInfo />
         </div>
       </div>

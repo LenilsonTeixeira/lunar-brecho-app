@@ -9,7 +9,6 @@ import ProductInfoSection from '../components/product/ProductInfoSection';
 // Tipo estendido do ProductResponse com propriedades calculadas
 type EnrichedProductResponse = ProductResponse & {
   imageUrls: string[];
-  sizes: string[];
 };
 
 const ProductDetail = () => {
@@ -36,7 +35,6 @@ const ProductDetail = () => {
       return {
         ...response,
         imageUrls: imageUrls.filter(Boolean),
-        sizes: response.variants?.map((v) => v.size) || [],
       };
     } catch (error) {
       console.error('Erro ao buscar produto:', error);
@@ -52,7 +50,8 @@ const ProductDetail = () => {
       // Verifica se há um tamanho na URL e se ele é válido para o produto
       const urlParams = new URLSearchParams(window.location.search);
       const sizeFromUrl = urlParams.get('size');
-      if (sizeFromUrl && data.sizes.includes(sizeFromUrl)) {
+      const availableSizes = data.variants?.map((v) => v.size) || [];
+      if (sizeFromUrl && availableSizes.includes(sizeFromUrl)) {
         setSize(sizeFromUrl);
       }
     };

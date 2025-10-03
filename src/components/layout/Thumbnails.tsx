@@ -49,7 +49,7 @@ const Thumbnails = ({ images, alt, onSelect, selectedImage }: ThumbnailsProps) =
 
       <div
         ref={containerRef}
-        className='flex lg:flex-col overflow-x-auto lg:overflow-y-auto h-auto max-h-[70vh] justify-between lg:justify-start w-full gap-3 lg:gap-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 p-1'
+        className='flex lg:flex-col overflow-x-auto lg:overflow-y-auto h-auto max-h-[70vh] justify-start lg:justify-start w-full gap-3 lg:gap-3 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 p-1'
       >
         {images.map((img, idx) => (
           <img

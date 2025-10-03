@@ -8,9 +8,9 @@ const ProductObservations = ({ product }: Props) => {
   return (
     <>
       {product.observations && (
-        <div className='mt-4 mb-4'>
-          <p className='mb-1'>Observações:</p>
-          <p className='text-slate-900 text-sm font-light'>{product.observations}</p>
+        <div>
+          <p className='mb-2 font-medium'>Observações:</p>
+          <p className='text-slate-700 text-sm leading-relaxed'>{product.observations}</p>
         </div>
       )}
     </>

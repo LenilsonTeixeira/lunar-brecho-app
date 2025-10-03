@@ -33,7 +33,7 @@ const ProductTitleSection = ({ product }: Props) => {
 
   return (
     <>
-      <div className='flex items-start justify-between mt-2'>
+      <div className='flex items-start justify-between'>
         <h1 className='font-medium text-2xl flex-1'>{product.name}</h1>
         <button
           onClick={handleShare}
@@ -45,35 +45,33 @@ const ProductTitleSection = ({ product }: Props) => {
       </div>
       <ProductDetailItem
         value={formatToBRL(product.basePrice)}
-        className='mt-5 text-3xl font-medium'
+        className='mt-4 text-3xl font-medium'
       />
-      <div className='flex items-center gap-1'>
+      <div className='flex items-center gap-1 mt-2'>
         <span className='text-sm font-medium text-slate-600'>
           De {formatToBRL(product.basePrice)} por R$ {formatToBRL(finalPrice)} no PIX (5% de
           desconto).
         </span>
       </div>
-      <div className='flex items-center gap-1'>
+      <div className='flex items-center gap-1 mt-2'>
         <CreditCard />
         <div>
           <strong>6 x de {formatToBRL(installment)}</strong>
         </div>
       </div>
-      <div className='flex items-center gap-1'>
+      <div className='flex items-center gap-1 mt-2'>
         <Banknote />
         <div>
           <strong>5% de desconto</strong> pagando por PIX
         </div>
       </div>
-      <ProductDetailItem value={product.description || ''} className='mt-5 md:w-4/5' />
-      {product.brand && (
-        <ProductDetailItem label='Marca' value={product.brand} className='mt-4 mb-4' />
-      )}
-      <ProductDetailItem label='Categoria' value={product.category.name} className='mt-4 mb-4' />
+      <ProductDetailItem value={product.description || ''} className='mt-6 md:w-4/5' />
+      {product.brand && <ProductDetailItem label='Marca' value={product.brand} className='mt-4' />}
+      <ProductDetailItem label='Categoria' value={product.category.name} className='mt-3' />
       <ProductDetailItem
         label='Tipo'
         value={product.type === 'NEW' ? 'Novo' : 'Bazar'}
-        className='mt-4'
+        className='mt-3'
       />
     </>
   );
