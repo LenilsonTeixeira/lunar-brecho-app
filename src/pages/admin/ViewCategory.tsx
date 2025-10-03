@@ -10,6 +10,7 @@ interface Category {
   description?: string;
   imageUrl?: string;
   thumbnailUrl?: string;
+  status: 'ACTIVE' | 'INACTIVE';
 }
 
 const ViewCategory = () => {
@@ -143,7 +144,7 @@ const ViewCategory = () => {
               <h3 className='text-lg font-semibold text-slate-800'>Informações Básicas</h3>
             </div>
 
-            <div className='grid grid-cols-1 gap-4'>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div>
                 <label className='text-sm font-medium text-slate-700 mb-2 block'>
                   Nome da Categoria
@@ -152,16 +153,26 @@ const ViewCategory = () => {
                   <span className='text-base text-slate-900'>{category.name}</span>
                 </div>
               </div>
+
+              <div>
+                <label className='text-sm font-medium text-slate-700 mb-2 block'>Status</label>
+                <div className='p-3 bg-white rounded-lg border border-slate-200'>
+                  <span className='text-base text-slate-900'>
+                    {category.status === 'ACTIVE' ? 'Ativa' : 'Inativa'}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Imagem da Categoria */}
-          {category.imageUrl && (
-            <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
-              <div className='flex items-center gap-3 mb-4'>
-                <Image className='w-5 h-5 text-purple-600' />
-                <h3 className='text-lg font-semibold text-slate-800'>Imagem da Categoria</h3>
-              </div>
+          <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
+            <div className='flex items-center gap-3 mb-4'>
+              <Image className='w-5 h-5 text-purple-600' />
+              <h3 className='text-lg font-semibold text-slate-800'>Imagem da Categoria</h3>
+            </div>
+
+            {category.imageUrl ? (
               <div className='flex justify-center'>
                 <div className='relative group'>
                   <div className='w-48 h-48 rounded-lg overflow-hidden border-2 border-slate-300 shadow-lg hover:shadow-xl transition-all duration-300 bg-white'>
@@ -187,8 +198,32 @@ const ViewCategory = () => {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className='flex justify-center'>
+                <div className='w-48 h-48 rounded-lg border-2 border-dashed border-slate-300 bg-slate-100 flex flex-col items-center justify-center gap-3 shadow-sm'>
+                  <div className='w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center'>
+                    <svg
+                      className='w-8 h-8 text-slate-400'
+                      fill='none'
+                      stroke='currentColor'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+                      />
+                    </svg>
+                  </div>
+                  <div className='text-center px-4'>
+                    <p className='text-sm font-medium text-slate-600 mb-1'>Sem imagem</p>
+                    <p className='text-xs text-slate-500'>Nenhuma imagem foi cadastrada</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Descrição */}
           {category.description && (

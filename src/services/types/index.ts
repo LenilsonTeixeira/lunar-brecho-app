@@ -47,6 +47,7 @@ export interface CategoryRequest {
   name: string;
   description?: string;
   color?: string;
+  status?: 'ACTIVE' | 'INACTIVE';
 }
 
 export interface CategoryResponse {
@@ -59,6 +60,7 @@ export interface CategoryResponse {
   thumbnailUrl?: string;
   productCount?: number;
   totalProducts?: number;
+  status: 'ACTIVE' | 'INACTIVE';
 }
 
 // Product types

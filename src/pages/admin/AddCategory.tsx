@@ -37,9 +37,15 @@ const AddCategory = () => {
 
     try {
       const formData = event.target as HTMLFormElement;
+
+      // Definir status automaticamente: INACTIVE se não houver imagem, ACTIVE se houver
+      const hasImage = selectedFile !== null;
+      const status: 'ACTIVE' | 'INACTIVE' = hasImage ? 'ACTIVE' : 'INACTIVE';
+
       const categoryData = {
         name: formData.categoryName.value,
         description: formData.categoryDescription.value || '',
+        status: status,
       };
 
       // Criar a categoria
@@ -219,21 +225,6 @@ const AddCategory = () => {
               className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
               placeholder='Digite uma descrição para a categoria'
             ></textarea>
-          </div>
-
-          {/* Category Status */}
-          <div className='flex flex-col gap-2'>
-            <label className='text-sm font-medium text-slate-700' htmlFor='category-status'>
-              Status da Categoria
-            </label>
-            <select
-              id='category-status'
-              name='categoryStatus'
-              className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-            >
-              <option value='active'>Ativa</option>
-              <option value='inactive'>Inativa</option>
-            </select>
           </div>
 
           {/* Submit Button */}

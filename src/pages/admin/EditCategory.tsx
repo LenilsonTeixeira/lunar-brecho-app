@@ -10,7 +10,7 @@ const EditCategory = () => {
   const [category, setCategory] = useState<CategoryResponse | null>(null);
   const [categoryName, setCategoryName] = useState('');
   const [categoryDescription, setCategoryDescription] = useState('');
-  const [categoryStatus, setCategoryStatus] = useState<'ativo' | 'inativo'>('ativo');
+  const [categoryStatus, setCategoryStatus] = useState<'ACTIVE' | 'INACTIVE'>('ACTIVE');
   const [categoryImage, setCategoryImage] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -31,6 +31,7 @@ const EditCategory = () => {
         setCategory(categoryData);
         setCategoryName(categoryData.name);
         setCategoryDescription(categoryData.description || '');
+        setCategoryStatus(categoryData.status || 'ACTIVE');
         setCategoryImage(categoryData.imageUrl || '');
       } catch (err) {
         if (err instanceof ApiError) {
@@ -93,6 +94,7 @@ const EditCategory = () => {
       const updateData = {
         name: categoryName.trim(),
         description: categoryDescription.trim() || undefined,
+        status: categoryStatus,
       };
 
       await categoryService.updateCategory(categoryId, updateData);
@@ -230,12 +232,12 @@ const EditCategory = () => {
                 <select
                   id='category-status'
                   value={categoryStatus}
-                  onChange={(e) => setCategoryStatus(e.target.value as 'ativo' | 'inativo')}
+                  onChange={(e) => setCategoryStatus(e.target.value as 'ACTIVE' | 'INACTIVE')}
                   className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 >
-                  <option value='ativo'>Ativa</option>
-                  <option value='inativo'>Inativa</option>
+                  <option value='ACTIVE'>Ativa</option>
+                  <option value='INACTIVE'>Inativa</option>
                 </select>
               </div>
             </div>

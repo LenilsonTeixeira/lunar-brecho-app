@@ -37,8 +37,6 @@ interface ProductItem {
   }>;
   description?: string;
   observations?: string;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 const EditProduct = () => {
@@ -64,7 +62,7 @@ const EditProduct = () => {
       thumbnailUrl?: string;
       position: number;
       isMain: boolean;
-    }>
+    } | null>
   >([]);
   const [imageFiles, setImageFiles] = useState<(File | null)[]>(new Array(6).fill(null));
   const [sizes, setSizes] = useState<ProductSize[]>([]);
@@ -103,7 +101,46 @@ const EditProduct = () => {
         setProductPrice(productData.basePrice);
         setProductDescription(productData.description || '');
         setProductObservations(productData.observations || '');
-        setProductImages(productData.images || []);
+
+        // Mapear as imagens existentes para um array de 6 posições ordenado
+        const imagesArray: Array<{
+          id?: string;
+          originalUrl?: string;
+          thumbnailUrl?: string;
+          position: number;
+          isMain: boolean;
+        } | null> = new Array(6).fill(null);
+
+        // Se a API retornar images como undefined, usar array vazio
+        const apiImages = productData.images || [];
+
+        if (apiImages.length > 0) {
+          // Ordenar as imagens por position
+          const sortedImages = [...apiImages].sort((a, b) => a.position - b.position);
+
+          sortedImages.forEach((img) => {
+            if (img.position >= 0 && img.position < 6) {
+              imagesArray[img.position] = {
+                id: img.id,
+                originalUrl: img.originalUrl,
+                thumbnailUrl: img.thumbnailUrl,
+                position: img.position,
+                isMain: img.isMain,
+              };
+            }
+          });
+        } else if (productData.mainImageUrl) {
+          // Fallback: Se não tiver array de images mas tiver mainImageUrl, usar ela
+          imagesArray[0] = {
+            originalUrl: productData.mainImageUrl,
+            thumbnailUrl: productData.mainThumbnailUrl,
+            position: 0,
+            isMain: true,
+          };
+        }
+
+        setProductImages(imagesArray);
+
         setSizes(
           productData.variants.map((v) => ({
             id: v.id,
@@ -207,8 +244,13 @@ const EditProduct = () => {
 
   const removeImage = (index: number) => {
     const newImages = [...productImages];
-    newImages.splice(index, 1);
+    newImages[index] = null;
     setProductImages(newImages);
+
+    // Também limpar o arquivo correspondente se houver
+    const newImageFiles = [...imageFiles];
+    newImageFiles[index] = null;
+    setImageFiles(newImageFiles);
   };
 
   const calculateTotalQuantity = () => {
@@ -545,18 +587,45 @@ const EditProduct = () => {
                     onChange={(e) => handleImageChange(0, e)}
                     className='hidden'
                   />
-                  {productImages?.[0] ? (
-                    <div className='aspect-square rounded-lg overflow-hidden border-2 border-purple-400 shadow-lg group-hover:shadow-xl transition-all duration-300'>
+                  {productImages[0] ? (
+                    <div className='aspect-square rounded-lg overflow-hidden border-2 border-purple-400 shadow-lg group-hover:shadow-xl transition-all duration-300 relative'>
                       <img
-                        src={
-                          typeof productImages[0] === 'string'
-                            ? productImages[0]
-                            : productImages[0]?.originalUrl
-                        }
+                        src={productImages[0]?.originalUrl || productImages[0]?.thumbnailUrl || ''}
                         alt='Imagem Principal'
                         className='w-full h-full object-cover'
                       />
-                      <div className='absolute inset-0 bg-transparent pointer-events-none flex items-center justify-center'></div>
+                      <div className='absolute inset-0 bg-transparent group-hover:bg-white/20 transition-all duration-300 flex items-center justify-center'>
+                        <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                          <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg'>
+                            <svg
+                              className='w-4 h-4 text-purple-600'
+                              fill='none'
+                              stroke='currentColor'
+                              viewBox='0 0 24 24'
+                            >
+                              <path
+                                strokeLinecap='round'
+                                strokeLinejoin='round'
+                                strokeWidth={2}
+                                d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+                              />
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                      <div className='absolute top-2 left-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-full font-medium shadow-lg'>
+                        Principal
+                      </div>
+                      <button
+                        type='button'
+                        onClick={(e) => {
+                          e.preventDefault();
+                          removeImage(0);
+                        }}
+                        className='absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg'
+                      >
+                        <X className='w-3 h-3' />
+                      </button>
                     </div>
                   ) : (
                     <div className='aspect-square border-2 border-dashed border-purple-400 rounded-lg flex items-center justify-center bg-purple-50 group-hover:border-purple-500 group-hover:bg-purple-100 transition-all duration-300'>
@@ -583,15 +652,6 @@ const EditProduct = () => {
                     </div>
                   )}
                 </label>
-                {productImages?.[0] && (
-                  <button
-                    type='button'
-                    onClick={() => removeImage(0)}
-                    className='absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg'
-                  >
-                    <X className='w-3 h-3' />
-                  </button>
-                )}
               </div>
 
               {/* Imagens Adicionais */}
@@ -607,18 +667,46 @@ const EditProduct = () => {
                         onChange={(e) => handleImageChange(index + 1, e)}
                         className='hidden'
                       />
-                      {productImages?.[index + 1] ? (
-                        <div className='aspect-square rounded-lg overflow-hidden border-2 border-slate-300 shadow-lg group-hover:shadow-xl transition-all duration-300'>
+                      {productImages[index + 1] ? (
+                        <div className='aspect-square rounded-lg overflow-hidden border-2 border-slate-300 shadow-lg group-hover:shadow-xl transition-all duration-300 relative'>
                           <img
                             src={
-                              typeof productImages[index + 1] === 'string'
-                                ? productImages[index + 1]
-                                : (productImages[index + 1] as any)?.originalUrl
+                              productImages[index + 1]?.originalUrl ||
+                              productImages[index + 1]?.thumbnailUrl ||
+                              ''
                             }
                             alt={`Imagem ${index + 2}`}
                             className='w-full h-full object-cover'
                           />
-                          <div className='absolute inset-0 bg-transparent pointer-events-none flex items-center justify-center'></div>
+                          <div className='absolute inset-0 bg-transparent group-hover:bg-white/20 transition-all duration-300 flex items-center justify-center'>
+                            <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                              <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg'>
+                                <svg
+                                  className='w-4 h-4 text-purple-600'
+                                  fill='none'
+                                  stroke='currentColor'
+                                  viewBox='0 0 24 24'
+                                >
+                                  <path
+                                    strokeLinecap='round'
+                                    strokeLinejoin='round'
+                                    strokeWidth={2}
+                                    d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+                                  />
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            type='button'
+                            onClick={(e) => {
+                              e.preventDefault();
+                              removeImage(index + 1);
+                            }}
+                            className='absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg'
+                          >
+                            <X className='w-3 h-3' />
+                          </button>
                         </div>
                       ) : (
                         <div className='aspect-square border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center bg-slate-50 group-hover:border-purple-400 group-hover:bg-purple-50 transition-all duration-300'>
@@ -645,15 +733,6 @@ const EditProduct = () => {
                         </div>
                       )}
                     </label>
-                    {productImages?.[index + 1] && (
-                      <button
-                        type='button'
-                        onClick={() => removeImage(index + 1)}
-                        className='absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg'
-                      >
-                        <X className='w-3 h-3' />
-                      </button>
-                    )}
                   </div>
                 ))}
             </div>

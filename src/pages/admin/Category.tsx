@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Edit, Trash2, Eye, Plus, FolderOpen } from 'lucide-react';
+import { Search, Edit, Trash2, Eye, Plus, FolderOpen, ImageOff } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import CategoryForm from '../../components/admin/CategoryForm';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
@@ -12,6 +12,7 @@ interface CategoryItem {
   image: string;
   totalProducts?: number;
   description?: string;
+  status: 'ACTIVE' | 'INACTIVE';
 }
 
 interface CategoryFormData {
@@ -45,9 +46,10 @@ const Category = () => {
         id: cat.id,
         externalId: cat.externalId,
         name: cat.name,
-        image: cat.imageUrl || 'https://via.placeholder.com/150x150/8b5cf6/ffffff?text=Sem+Imagem',
+        image: cat.imageUrl || '',
         totalProducts: cat.totalProducts || 0,
         description: cat.description || '',
+        status: cat.status || 'ACTIVE',
       }));
       setCategories(formattedCategories);
     } catch (error) {
@@ -260,6 +262,9 @@ const Category = () => {
                   <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700 min-w-[200px]'>
                     Nome
                   </th>
+                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700 min-w-[100px]'>
+                    Status
+                  </th>
                   <th className='px-6 py-4 text-center text-sm font-semibold text-slate-700 min-w-[120px]'>
                     Quantidade de Produtos
                   </th>
@@ -271,7 +276,7 @@ const Category = () => {
               <tbody className='divide-y divide-slate-200'>
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className='py-12 text-center text-slate-500'>
+                    <td colSpan={6} className='py-12 text-center text-slate-500'>
                       <div className='flex flex-col items-center gap-2'>
                         <div className='w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin'></div>
                         <p className='font-medium'>Carregando categorias...</p>
@@ -290,17 +295,48 @@ const Category = () => {
                         </span>
                       </td>
                       <td className='px-6 py-4'>
-                        <div className='w-12 h-12 rounded-lg overflow-hidden border border-slate-200'>
-                          <img
-                            src={category.image}
-                            alt={category.name}
-                            className='w-full h-full object-cover'
-                            loading='lazy'
-                          />
-                        </div>
+                        {category.image ? (
+                          <>
+                            <img
+                              src={category.image}
+                              alt={category.name}
+                              className='w-12 h-12 rounded-lg object-cover'
+                              loading='lazy'
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                                const placeholder = target.nextElementSibling;
+                                if (placeholder) {
+                                  (placeholder as HTMLElement).style.display = 'flex';
+                                }
+                              }}
+                            />
+                            <div
+                              className='w-12 h-12 rounded-lg bg-gray-100 border-2 border-gray-300 flex items-center justify-center'
+                              style={{ display: 'none' }}
+                            >
+                              <ImageOff className='w-6 h-6 text-gray-400' />
+                            </div>
+                          </>
+                        ) : (
+                          <div className='w-12 h-12 rounded-lg bg-gray-100 border-2 border-gray-300 flex items-center justify-center'>
+                            <ImageOff className='w-6 h-6 text-gray-400' />
+                          </div>
+                        )}
                       </td>
                       <td className='px-6 py-4'>
                         <span className='text-sm font-medium text-slate-900'>{category.name}</span>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <span
+                          className={`px-3 py-1 rounded-sm text-sm ${
+                            category.status === 'ACTIVE'
+                              ? 'bg-green-300 text-slate-900'
+                              : 'bg-red-300 text-slate-900'
+                          }`}
+                        >
+                          {category.status === 'ACTIVE' ? 'Ativa' : 'Inativa'}
+                        </span>
                       </td>
                       <td className='px-6 py-4 text-center'>
                         <div className='flex items-center justify-center'>
@@ -338,7 +374,7 @@ const Category = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className='py-12 text-center text-slate-500'>
+                    <td colSpan={6} className='py-12 text-center text-slate-500'>
                       <div className='flex flex-col items-center gap-2'>
                         <div className='w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center'>
                           <FolderOpen className='w-8 h-8 text-slate-400' />
