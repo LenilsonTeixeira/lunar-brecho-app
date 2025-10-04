@@ -1,11 +1,8 @@
 import { Link } from 'react-router';
-import { ShoppingCart } from 'lucide-react';
 import MoonIcon from '../icon/MoonIcon';
-import { useCart } from '../../contexts/CartContext';
+import CartDrawerTrigger from '../common/CartDrawerTrigger';
 
 const Header = () => {
-  const { totalItems } = useCart();
-
   return (
     <div className='w-full flex items-center h-16 sm:h-20 font-medium shadow-2xl fixed left-0 z-50 bg-slate-900 transition-all duration-300 ease-in-out top-0'>
       <div className='flex h-16 sm:h-20 items-center justify-between w-full px-4 sm:px-6 lg:px-10'>
@@ -20,17 +17,7 @@ const Header = () => {
         </Link>
 
         {/* Carrinho de Compras */}
-        <Link
-          to='/carrinho'
-          className='relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full hover:bg-white transition-colors text-slate-50 hover:text-slate-800'
-        >
-          <ShoppingCart className='w-5 h-5 sm:w-6 sm:h-6' />
-          {totalItems > 0 && (
-            <span className='absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-red-500 text-white text-xs font-bold rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center'>
-              {totalItems > 99 ? '99+' : totalItems}
-            </span>
-          )}
-        </Link>
+        <CartDrawerTrigger />
       </div>
     </div>
   );
