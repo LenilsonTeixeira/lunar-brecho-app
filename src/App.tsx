@@ -1,5 +1,4 @@
 import { Route, Routes, useLocation } from 'react-router';
-import { useState, useEffect } from 'react';
 import Header from './components/layout/Header';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
@@ -12,7 +11,6 @@ import { FeatureFlagsProvider } from './contexts/FeatureFlagsContext';
 import Layout from './pages/admin/Layout';
 import ProtectedRoute from './components/admin/ProtectedRoute';
 import Dashboard from './pages/admin/Dashboard';
-import Banner from './components/banner/Banner';
 import AddProduct from './pages/admin/AddProduct';
 import ListProduct from './pages/admin/ListProduct';
 import ViewProduct from './pages/admin/ViewProduct';
@@ -70,24 +68,12 @@ import Register from './pages/admin/Register';
 const App = () => {
   const isAdminPath = useLocation().pathname.includes('admin');
 
-  // Inicializa o estado baseado no localStorage
-  const [showBanner, setShowBanner] = useState(() => {
-    const saved = localStorage.getItem('showBanner');
-    return saved !== null ? JSON.parse(saved) : true;
-  });
-
-  // Salva o estado no localStorage sempre que ele mudar
-  useEffect(() => {
-    localStorage.setItem('showBanner', JSON.stringify(showBanner));
-  }, [showBanner]);
-
   return (
     <AuthProvider>
       <FeatureFlagsProvider>
         <ProductProvider>
           <CartProvider>
-            <Banner showBanner={showBanner} onClose={() => setShowBanner(false)} />
-            {!isAdminPath && <Header showBanner={showBanner} />}
+            {!isAdminPath && <Header />}
             <Routes>
               <Route path='/' element={<Home />} />
               <Route path='/produtos/:productId' element={<ProductDetail />} />

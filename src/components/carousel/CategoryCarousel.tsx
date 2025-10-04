@@ -2,61 +2,7 @@ import { useRef, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCarousel } from '../../hooks/useCarousel';
-
-const categories = [
-  {
-    name: 'Body',
-    image:
-      'https://acdn-us.mitiendanube.com/stores/004/414/596/products/86c1af187bed52a509db2649e0144039-424f199920b186aca517177081243046-1024-1024.webp',
-  },
-  {
-    name: 'Calças',
-    image:
-      'https://acdn-us.mitiendanube.com/stores/004/414/596/products/imagem-whatsapp-2025-01-27-as-17-05-21_981ec453-811c39988cd9bd47c317380867063164-1024-1024.webp',
-  },
-  {
-    name: 'Blusas',
-    image: 'https://cdn.awsli.com.br/1538/1538522/produto/340598723/img_2977-24c9s0rovs.jpeg',
-  },
-  {
-    name: 'Macaquinhos',
-    image: 'https://cdn.awsli.com.br/1538/1538522/produto/338746166/img_1715-zdjy3qfnl6.jpeg',
-  },
-  {
-    name: 'Vestidos',
-    image:
-      'https://cdn.awsli.com.br/1538/1538522/produto/335928056/3d0ae793-6d64-4785-9eea-7638f716b531-rc61dwiw7t.jpeg',
-  },
-  {
-    name: 'Jeans',
-    image:
-      'https://acdn-us.mitiendanube.com/stores/004/414/596/products/img_6792-ref-24637-5afcdc908780ab980017283342510339-1024-1024.webp',
-  },
-  {
-    name: 'Chinelos',
-    image:
-      'https://cdn.awsli.com.br/1538/1538522/produto/246582579/f7c2f065-cd4d-4eb4-bb35-284c857de334-oxj4tjwkcp.jpeg',
-  },
-  {
-    name: 'Croppeds',
-    image:
-      'https://cdn.awsli.com.br/1538/1538522/produto/210614200/whatsapp-image-2023-03-30-at-15-23-39-rhjycw.jpg',
-  },
-  {
-    name: 'Conjuntos',
-    image: 'https://cdn.awsli.com.br/1538/1538522/produto/338700026/img_1646-vnkljmtjrp.jpeg',
-  },
-  {
-    name: 'Macacão',
-    image:
-      'https://cdn.awsli.com.br/1538/1538522/produto/299448951/71601444-a299-4587-ad99-bf170e7f9760-9ikj2wsrqb.jpeg',
-  },
-  {
-    name: 'Shorts',
-    image:
-      'https://cdn.awsli.com.br/1538/1538522/produto/217419654/whatsapp-image-2023-05-17-at-13-40-07-65w1r2wpb9.jpeg',
-  },
-];
+import { useCategories } from '../../hooks/useCategories';
 
 type CategoryCarouselProps = {
   selectedCategory: string | null;
@@ -66,6 +12,7 @@ type CategoryCarouselProps = {
 const CategoryCarousel = ({ selectedCategory, onSelectCategory }: CategoryCarouselProps) => {
   const firstItemRef = useRef<HTMLDivElement>(null);
   const { scrollRef, canScrollLeft, canScrollRight, scroll, checkScrollLimits } = useCarousel();
+  const { categories, loading, error } = useCategories();
 
   const getScrollAmount = useCallback(() => {
     if (!firstItemRef.current) return 100;
@@ -73,6 +20,36 @@ const CategoryCarousel = ({ selectedCategory, onSelectCategory }: CategoryCarous
     const gap = 16;
     return itemWidth + gap;
   }, []);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className='w-full flex items-center justify-center gap-2 mb-5 mt-3'>
+        <div className='flex space-x-4 px-4 md:px-10 py-2'>
+          {[...Array(6)].map((_, index) => (
+            <div key={index} className='flex flex-col items-center flex-shrink-0 w-24'>
+              <div className='w-24 h-24 rounded-full bg-gray-200 animate-pulse'></div>
+              <div className='w-16 h-4 bg-gray-200 rounded mt-1 animate-pulse'></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className='w-full flex items-center justify-center gap-2 mb-5 mt-3'>
+        <div className='text-center py-4'>
+          <p className='text-red-500 text-sm'>Erro ao carregar categorias: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Filter only active categories
+  const activeCategories = categories.filter((category) => category.status === 'ACTIVE');
 
   return (
     <div className='w-full flex items-center justify-between gap-2 mb-5 mt-3'>
@@ -93,9 +70,9 @@ const CategoryCarousel = ({ selectedCategory, onSelectCategory }: CategoryCarous
         aria-label='Categorias de produtos'
         onScroll={() => requestAnimationFrame(checkScrollLimits)}
       >
-        {categories.map((category, index) => (
+        {activeCategories.map((category, index) => (
           <motion.div
-            key={index}
+            key={category.id}
             ref={index === 0 ? firstItemRef : undefined}
             whileHover={{ scale: 1.08 }}
             className='flex flex-col items-center cursor-pointer flex-shrink-0 snap-start w-24'
@@ -111,10 +88,16 @@ const CategoryCarousel = ({ selectedCategory, onSelectCategory }: CategoryCarous
               }`}
             >
               <img
-                src={category.image}
+                src={category.imageUrl || category.thumbnailUrl}
                 alt={category.name}
                 className='w-full h-full object-cover'
                 loading='lazy'
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src =
+                    'https://via.placeholder.com/96x96/8b5cf6/ffffff?text=' +
+                    encodeURIComponent(category.name);
+                }}
               />
             </div>
             <span

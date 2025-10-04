@@ -3,18 +3,11 @@ import { ShoppingCart } from 'lucide-react';
 import MoonIcon from '../icon/MoonIcon';
 import { useCart } from '../../contexts/CartContext';
 
-interface HeaderProps {
-  showBanner: boolean;
-}
-
-const Header = ({ showBanner }: HeaderProps) => {
+const Header = () => {
   const { totalItems } = useCart();
 
   return (
-    <div
-      className='w-full flex items-center h-16 sm:h-20 font-medium shadow-2xl fixed left-0 z-50 bg-slate-900 transition-all duration-300 ease-in-out'
-      style={{ top: showBanner ? '2rem' : '0' }}
-    >
+    <div className='w-full flex items-center h-16 sm:h-20 font-medium shadow-2xl fixed left-0 z-50 bg-slate-900 transition-all duration-300 ease-in-out top-0'>
       <div className='flex h-16 sm:h-20 items-center justify-between w-full px-4 sm:px-6 lg:px-10'>
         <Link
           to='/'
