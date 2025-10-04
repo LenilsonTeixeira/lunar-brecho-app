@@ -11,6 +11,8 @@ import {
   Shield,
   HelpCircle,
   Package,
+  Wallet,
+  Banknote,
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { formatToBRL } from '../utils/priceUtils';
@@ -18,6 +20,7 @@ import { formatToBRL } from '../utils/priceUtils';
 const Checkout = () => {
   const { items, totalPrice } = useCart();
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
+  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | 'cash'>('pix');
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -40,7 +43,7 @@ const Checkout = () => {
 
   if (items.length === 0) {
     return (
-      <div className='min-h-screen bg-slate-50 pt-20 sm:pt-24 pb-20'>
+      <div className='min-h-screen bg-slate-50 pt-80 sm:pt-24 pb-20'>
         <div className='max-w-4xl mx-auto px-4 sm:px-6'>
           <div className='bg-white rounded-xl shadow-sm border border-slate-200 p-8 sm:p-12 text-center'>
             <div className='w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6'>
@@ -89,21 +92,19 @@ const Checkout = () => {
 
       {/* Breadcrumb */}
       <div className='bg-white border-b border-slate-200 shadow-sm'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4'>
+        <div className='max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6'>
           <div className='flex items-center gap-2 text-xs sm:text-sm overflow-x-auto'>
-            <span className='text-sky-600 font-semibold whitespace-nowrap'>1. Envio</span>
+            <span className='text-sky-600 font-semibold whitespace-nowrap'>1. Pedido</span>
             <span className='text-slate-400'>&gt;</span>
-            <span className='text-slate-400 whitespace-nowrap'>2. Forma de pagamento</span>
-            <span className='text-slate-400'>&gt;</span>
-            <span className='text-slate-400 whitespace-nowrap'>3. Confirmação</span>
+            <span className='text-slate-400 whitespace-nowrap'>2. Confirmação</span>
           </div>
         </div>
       </div>
 
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 py-8'>
-        <div className='grid lg:grid-cols-3 gap-8'>
+      <div className='max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10'>
+        <div className='grid lg:grid-cols-3 gap-6 sm:gap-8'>
           {/* Left Column - Form */}
-          <div className='lg:col-span-2 space-y-8'>
+          <div className='lg:col-span-2 space-y-6 sm:space-y-8'>
             {/* Delivery Method */}
             <div className='bg-white border border-slate-200 rounded-xl p-5 sm:p-6 shadow-sm'>
               <h2 className='text-base sm:text-lg font-bold text-slate-900 mb-4 sm:mb-5'>
@@ -158,6 +159,90 @@ const Checkout = () => {
                         Retirar na loja
                       </div>
                       <div className='text-xs sm:text-sm text-slate-500'>Grátis</div>
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Payment Method */}
+            <div className='bg-white border border-slate-200 rounded-xl p-5 sm:p-6 shadow-sm'>
+              <h2 className='text-base sm:text-lg font-bold text-slate-900 mb-4 sm:mb-5'>
+                2. Qual será a forma de pagamento?
+              </h2>
+              <div className='grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4'>
+                <label
+                  className={`flex items-start sm:items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    paymentMethod === 'pix'
+                      ? 'border-purple-600 bg-purple-50'
+                      : 'border-slate-200 hover:border-purple-300'
+                  }`}
+                >
+                  <input
+                    type='radio'
+                    name='payment'
+                    value='pix'
+                    checked={paymentMethod === 'pix'}
+                    onChange={(e) => setPaymentMethod(e.target.value as 'pix' | 'card' | 'cash')}
+                    className='mr-3 mt-1 sm:mt-0 text-purple-600 focus:ring-purple-600'
+                  />
+                  <div className='flex items-center gap-2 sm:gap-3'>
+                    <Wallet className='w-5 h-5 sm:w-6 sm:h-6 text-purple-600 flex-shrink-0' />
+                    <div>
+                      <div className='font-semibold text-slate-900 text-sm sm:text-base'>PIX</div>
+                      <div className='text-xs sm:text-sm text-emerald-600 font-medium'>5% OFF</div>
+                    </div>
+                  </div>
+                </label>
+
+                <label
+                  className={`flex items-start sm:items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    paymentMethod === 'card'
+                      ? 'border-purple-600 bg-purple-50'
+                      : 'border-slate-200 hover:border-purple-300'
+                  }`}
+                >
+                  <input
+                    type='radio'
+                    name='payment'
+                    value='card'
+                    checked={paymentMethod === 'card'}
+                    onChange={(e) => setPaymentMethod(e.target.value as 'pix' | 'card' | 'cash')}
+                    className='mr-3 mt-1 sm:mt-0 text-purple-600 focus:ring-purple-600'
+                  />
+                  <div className='flex items-center gap-2 sm:gap-3'>
+                    <CreditCard className='w-5 h-5 sm:w-6 sm:h-6 text-purple-600 flex-shrink-0' />
+                    <div>
+                      <div className='font-semibold text-slate-900 text-sm sm:text-base'>
+                        Cartão
+                      </div>
+                      <div className='text-xs sm:text-sm text-slate-500'>Crédito/Débito</div>
+                    </div>
+                  </div>
+                </label>
+
+                <label
+                  className={`flex items-start sm:items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                    paymentMethod === 'cash'
+                      ? 'border-purple-600 bg-purple-50'
+                      : 'border-slate-200 hover:border-purple-300'
+                  }`}
+                >
+                  <input
+                    type='radio'
+                    name='payment'
+                    value='cash'
+                    checked={paymentMethod === 'cash'}
+                    onChange={(e) => setPaymentMethod(e.target.value as 'pix' | 'card' | 'cash')}
+                    className='mr-3 mt-1 sm:mt-0 text-purple-600 focus:ring-purple-600'
+                  />
+                  <div className='flex items-center gap-2 sm:gap-3'>
+                    <Banknote className='w-5 h-5 sm:w-6 sm:h-6 text-purple-600 flex-shrink-0' />
+                    <div>
+                      <div className='font-semibold text-slate-900 text-sm sm:text-base'>
+                        Dinheiro
+                      </div>
+                      <div className='text-xs sm:text-sm text-slate-500'>Na entrega</div>
                     </div>
                   </div>
                 </label>
@@ -401,15 +486,15 @@ const Checkout = () => {
                 )}
               </div>
 
-              {/* Shipping/Returns */}
+              {/* PIX Discount */}
               <div className='mb-5 sm:mb-6'>
                 <button
                   onClick={() => setShippingExpanded(!shippingExpanded)}
                   className='flex items-center justify-between w-full text-left hover:text-purple-600 transition-colors'
                 >
                   <h4 className='text-xs sm:text-sm font-semibold text-slate-900 flex items-center gap-2'>
-                    <Package className='w-4 h-4 text-purple-600' />
-                    Frete e devolução gratuitos
+                    <Wallet className='w-4 h-4 text-purple-600' />
+                    Ganhe 5% de desconto ao pagar com PIX
                   </h4>
                   {shippingExpanded ? (
                     <ChevronUp className='w-4 h-4 text-slate-400' />
@@ -419,7 +504,10 @@ const Checkout = () => {
                 </button>
                 {shippingExpanded && (
                   <div className='mt-3 text-xs sm:text-sm text-slate-600 bg-emerald-50 rounded-lg p-3'>
-                    <p>Frete grátis para compras acima de R$ 100,00.</p>
+                    <p>
+                      Ao escolher PIX como forma de pagamento, você ganha automaticamente 5% de
+                      desconto no valor total da sua compra!
+                    </p>
                   </div>
                 )}
               </div>
