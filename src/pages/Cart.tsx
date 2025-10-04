@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { formatToBRL } from '../utils/priceUtils';
+import { formatOrderForWhatsApp } from '../utils/orderFormatter';
+import WhatsappIcon from '../components/icon/WhatsappIcon';
 
 const Cart = () => {
   const { items, totalItems, totalPrice, removeFromCart, updateQuantity } = useCart();
@@ -30,6 +32,21 @@ const Cart = () => {
       setIsApplyingCoupon(false);
       alert('Cupom aplicado com sucesso!');
     }, 1000);
+  };
+
+  const handleWhatsAppOrder = () => {
+    const orderData = {
+      items,
+      subtotal: totalPrice,
+      deliveryOption,
+      deliveryFee: deliveryOption === 'delivery' ? 5 : 0,
+    };
+
+    const formattedMessage = formatOrderForWhatsApp(orderData);
+    const whatsappMessage = encodeURIComponent(formattedMessage);
+    const whatsappLink = `https://api.whatsapp.com/send?phone=${import.meta.env.VITE_PHONE_NUMBER}&text=${whatsappMessage}`;
+
+    window.open(whatsappLink, '_blank');
   };
 
   const deliveryFee = deliveryOption === 'delivery' ? 5 : 0;
@@ -93,7 +110,10 @@ const Cart = () => {
                   <div className='p-4 sm:p-4 border-b border-slate-800 bg-slate-900 text-slate-50'>
                     <div className='flex items-start justify-between'>
                       <div className='flex items-center gap-3 sm:gap-4'>
-                        <div className='w-14 h-14 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl overflow-hidden ring-2 ring-slate-100 flex-shrink-0'>
+                        <Link
+                          to={`/produtos/${item.productId}`}
+                          className='w-14 h-14 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl overflow-hidden ring-2 ring-slate-100 flex-shrink-0 hover:ring-sky-300 transition-all duration-200'
+                        >
                           <img
                             src={
                               item.snapshot.mainThumbnailUrl ||
@@ -101,13 +121,18 @@ const Cart = () => {
                               'https://via.placeholder.com/64'
                             }
                             alt={item.snapshot.name}
-                            className='w-full h-full object-cover'
+                            className='w-full h-full object-cover hover:scale-105 transition-transform duration-200'
                           />
-                        </div>
+                        </Link>
                         <div className='flex-1 min-w-0'>
-                          <h3 className='font-light text-slate-50 text-md leading-tight line-clamp-2'>
-                            {item.snapshot.name}
-                          </h3>
+                          <Link
+                            to={`/produtos/${item.productId}`}
+                            className='block hover:text-sky-200 transition-colors duration-200'
+                          >
+                            <h3 className='font-light text-slate-50 text-md leading-tight line-clamp-2'>
+                              {item.snapshot.name}
+                            </h3>
+                          </Link>
                           <div className='flex items-center gap-2 mt-1'>
                             <span className='text-xs text-slate-100 font-light'>Tamanho:</span>
                             <span className='px-2 sm:px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-xs font-medium'>
@@ -299,7 +324,15 @@ const Cart = () => {
 
                 {/* Botões de Ação */}
                 <div className='space-y-3'>
-                  <button className='w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-3 sm:py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm sm:text-base'>
+                  <button
+                    onClick={handleWhatsAppOrder}
+                    className='w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-3 sm:py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm sm:text-base flex items-center justify-center gap-2'
+                  >
+                    <WhatsappIcon width={20} height={20} />
+                    Comprar pelo WhatsApp
+                  </button>
+
+                  <button className='w-full bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white py-3 sm:py-4 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-sm sm:text-base'>
                     Finalizar Compra
                   </button>
 
