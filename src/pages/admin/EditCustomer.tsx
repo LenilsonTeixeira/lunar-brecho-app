@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, User, Phone, MapPin, ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
+import { customerService, ApiError, CustomerRequest } from '@/services';
 
 interface CustomerPhone {
   id: number;
   number: string;
 }
-
 interface CustomerAddress {
   id: number;
   street: string;
@@ -19,46 +19,59 @@ interface CustomerAddress {
   isMain: boolean;
 }
 
-interface Customer {
-  id: number;
-  name: string;
-  phones: CustomerPhone[];
-  addresses: CustomerAddress[];
-}
-
 const EditCustomer = () => {
   const navigate = useNavigate();
   const { customerId } = useParams();
 
-  // Mock data - em uma aplicação real, isso viria de uma API
-  const mockCustomer: Customer = {
-    id: parseInt(customerId || '1'),
-    name: 'Maria Silva Santos',
-    phones: [{ id: 1, number: '(11) 99999-1234' }],
-    addresses: [
-      {
-        id: 1,
-        street: 'Rua das Flores',
-        number: '123',
-        complement: 'Apto 101',
-        neighborhood: 'Vila Madalena',
-        city: 'São Paulo',
-        state: 'SP',
-        zipCode: '01234-567',
-        isMain: true,
-      },
-    ],
-  };
-
-  const [customer] = useState<Customer>(mockCustomer);
-  const [customerName, setCustomerName] = useState(mockCustomer.name);
-  const [phones, setPhones] = useState<CustomerPhone[]>(mockCustomer.phones);
-  const [addresses, setAddresses] = useState<CustomerAddress[]>(mockCustomer.addresses);
+  const [customerName, setCustomerName] = useState('');
+  const [phones, setPhones] = useState<CustomerPhone[]>([{ id: 1, number: '' }]);
+  const [addresses, setAddresses] = useState<CustomerAddress[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Em uma aplicação real, aqui você faria uma chamada para a API
-    // para buscar os dados do cliente pelo customerId
-    console.log('Carregando cliente:', customerId);
+    const fetchCustomer = async () => {
+      if (!customerId) return;
+      setError(null);
+      try {
+        setLoading(true);
+        const data = await customerService.getCustomer(customerId);
+        setCustomerName(data.name);
+        // phones: backend tem single phone, mantemos apenas um input principal
+        setPhones([{ id: 1, number: data.phone }]);
+        const converted: CustomerAddress[] = (data.addresses || []).map((a, idx) => ({
+          id: idx + 1,
+          street: a.street || '',
+          number: a.number || '',
+          complement: a.complement || '',
+          neighborhood: a.neighborhood || '',
+          city: a.city || '',
+          state: a.state || '',
+          zipCode: a.zipCode || '',
+          isMain: !!a.isDefault,
+        }));
+        if (converted.length === 0) {
+          converted.push({
+            id: 1,
+            street: '',
+            number: '',
+            complement: '',
+            neighborhood: '',
+            city: '',
+            state: '',
+            zipCode: '',
+            isMain: true,
+          });
+        }
+        setAddresses(converted);
+      } catch (err) {
+        if (err instanceof ApiError) setError(err.message);
+        else setError('Erro de conexão.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCustomer();
   }, [customerId]);
 
   const addPhone = () => {
@@ -137,23 +150,18 @@ const EditCustomer = () => {
     return value;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
 
-    // Validar se todos os campos obrigatórios estão preenchidos
     if (!customerName.trim()) {
-      alert('Por favor, preencha o nome do cliente.');
+      setError('Por favor, preencha o nome do cliente.');
       return;
     }
-
-    // Validar telefones
-    const invalidPhones = phones.filter((p) => !p.number.trim());
-    if (invalidPhones.length > 0) {
-      alert('Por favor, preencha todos os telefones.');
+    if (!phones[0]?.number.trim()) {
+      setError('Informe ao menos um telefone.');
       return;
     }
-
-    // Validar endereços
     const invalidAddresses = addresses.filter(
       (a) =>
         !a.street.trim() ||
@@ -164,23 +172,36 @@ const EditCustomer = () => {
         !a.zipCode.trim(),
     );
     if (invalidAddresses.length > 0) {
-      alert('Por favor, preencha todos os campos obrigatórios dos endereços.');
+      setError('Preencha todos os campos obrigatórios dos endereços.');
       return;
     }
 
-    // Simular atualização do cliente
-    const updatedCustomer = {
-      ...customer,
-      name: customerName,
-      phones,
-      addresses,
+    const request: CustomerRequest = {
+      name: customerName.trim(),
+      phone: phones[0].number.replace(/\D/g, ''),
+      addresses: addresses.map((a) => ({
+        street: a.street,
+        number: a.number,
+        complement: a.complement || undefined,
+        neighborhood: a.neighborhood || undefined,
+        city: a.city || undefined,
+        state: a.state || undefined,
+        zipCode: a.zipCode || undefined,
+        type: a.isMain ? 'HOME' : 'OUTRO',
+        isDefault: a.isMain,
+      })),
     };
 
-    console.log('Cliente atualizado:', updatedCustomer);
-    alert('Cliente atualizado com sucesso!');
-
-    // Navegar de volta para a lista de clientes
-    navigate('/admin/clientes');
+    try {
+      setLoading(true);
+      await customerService.updateCustomer(customerId!, request);
+      navigate('/admin/clientes');
+    } catch (err) {
+      if (err instanceof ApiError) setError(err.message);
+      else setError('Erro de conexão.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -197,12 +218,18 @@ const EditCustomer = () => {
             </button>
           </div>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
-            Editar Cliente #{customer.id}
+            Editar Cliente #{customerId}
           </h1>
           <p className='text-sm sm:text-base text-slate-600'>
             Modifique as informações do cliente abaixo
           </p>
         </div>
+
+        {error && (
+          <div className='bg-red-50 border border-red-200 rounded-lg p-4 mb-4'>
+            <p className='text-sm text-red-700'>{error}</p>
+          </div>
+        )}
 
         <form
           onSubmit={handleSubmit}
@@ -467,9 +494,10 @@ const EditCustomer = () => {
           <div className='pt-4'>
             <button
               type='submit'
-              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              disabled={loading}
+              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed'
             >
-              Atualizar Cliente
+              {loading ? 'Salvando...' : 'Atualizar Cliente'}
             </button>
           </div>
         </form>

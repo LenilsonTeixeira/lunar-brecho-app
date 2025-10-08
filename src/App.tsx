@@ -3,6 +3,7 @@ import Header from './components/layout/Header';
 import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import Checkout from './pages/Checkout';
+import OrderConfirmation from './pages/OrderConfirmation';
 import Footer from './components/footer/Footer';
 import { ProductProvider } from './contexts/ProductContext';
 import { CartProvider } from './contexts/CartContext';
@@ -81,6 +82,7 @@ const App = () => {
                 <Route path='/' element={<Home />} />
                 <Route path='/produtos/:productId' element={<ProductDetail />} />
                 <Route path='/checkout' element={<Checkout />} />
+                <Route path='/order-confirmation' element={<OrderConfirmation />} />
                 <Route path='/admin/login' element={<Login />} />
                 <Route path='/admin/register' element={<Register />} />
                 <Route path='/admin' element={<Layout />}>

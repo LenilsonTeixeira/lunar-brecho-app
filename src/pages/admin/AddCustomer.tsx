@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { Plus, X, Star, StarOff } from 'lucide-react';
+import { useNavigate } from 'react-router';
+import { customerService, ApiError, CustomerRequest } from '@/services';
 
 const AddCustomer = () => {
+  const navigate = useNavigate();
+  const [fullName, setFullName] = useState('');
   const [phones, setPhones] = useState([{ id: 1, phone: '' }]);
   const [addresses, setAddresses] = useState([
     {
@@ -16,6 +20,9 @@ const AddCustomer = () => {
       isMain: true,
     },
   ]);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const addPhone = () => {
     const newId = Math.max(...phones.map((p) => p.id), 0) + 1;
@@ -79,7 +86,75 @@ const AddCustomer = () => {
           </p>
         </div>
 
-        <form className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'>
+        {error && (
+          <div className='bg-red-50 border border-red-200 rounded-lg p-4 mb-4'>
+            <p className='text-sm text-red-700'>{error}</p>
+          </div>
+        )}
+
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setError(null);
+            if (!fullName.trim()) {
+              setError('Por favor, informe o nome completo.');
+              return;
+            }
+            if (!phones[0]?.phone.trim()) {
+              setError('Informe ao menos um telefone.');
+              return;
+            }
+            const main = addresses.find((a) => a.isMain);
+            if (!main) {
+              setError('Selecione um endereço principal.');
+              return;
+            }
+            const requiredMissing = addresses.some(
+              (a) =>
+                !a.street.trim() ||
+                !a.number.trim() ||
+                !a.neighborhood.trim() ||
+                !a.city.trim() ||
+                !a.state.trim() ||
+                !a.cep.trim(),
+            );
+            if (requiredMissing) {
+              setError('Preencha todos os campos obrigatórios dos endereços.');
+              return;
+            }
+
+            const request: CustomerRequest = {
+              name: fullName.trim(),
+              phone: phones[0].phone.replace(/\D/g, ''),
+              addresses: addresses.map((a) => ({
+                street: a.street,
+                number: a.number,
+                complement: a.complement || undefined,
+                neighborhood: a.neighborhood || undefined,
+                city: a.city || undefined,
+                state: a.state || undefined,
+                zipCode: a.cep || undefined,
+                type: a.isMain ? 'HOME' : 'OUTRO',
+                isDefault: a.isMain,
+              })),
+            };
+
+            try {
+              setLoading(true);
+              await customerService.createCustomer(request);
+              navigate('/admin/clientes');
+            } catch (err) {
+              if (err instanceof ApiError) {
+                setError(err.message);
+              } else {
+                setError('Erro de conexão. Tente novamente.');
+              }
+            } finally {
+              setLoading(false);
+            }
+          }}
+          className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'
+        >
           {/* User Name */}
           <div className='flex flex-col gap-2'>
             <label
@@ -91,6 +166,8 @@ const AddCustomer = () => {
             <input
               id='user-name'
               type='text'
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               placeholder='Digite o nome completo'
               className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
               required
@@ -382,9 +459,10 @@ const AddCustomer = () => {
           <div className='pt-4'>
             <button
               type='submit'
-              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              disabled={loading}
+              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed'
             >
-              Adicionar Cliente
+              {loading ? 'Salvando...' : 'Adicionar Cliente'}
             </button>
           </div>
         </form>

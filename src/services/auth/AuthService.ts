@@ -23,10 +23,12 @@ export class AuthService extends BaseApiService {
     });
   }
 
-  async refreshToken(refreshToken: RefreshTokenRequest): Promise<RefreshTokenResponse> {
+  async refreshToken(payload: RefreshTokenRequest): Promise<RefreshTokenResponse> {
     return this.request<RefreshTokenResponse>('/auth/refresh', {
       method: 'POST',
-      body: JSON.stringify({ refreshToken }),
+      // Sinaliza para o BaseApiService não tentar renovar novamente
+      skipAuthRefresh: true,
+      body: JSON.stringify(payload),
     });
   }
 }

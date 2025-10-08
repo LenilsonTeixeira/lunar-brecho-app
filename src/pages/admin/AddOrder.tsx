@@ -192,21 +192,6 @@ const AddOrder = () => {
 
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
               <div className='flex flex-col gap-2'>
-                <label className='text-sm font-semibold text-slate-700' htmlFor='customer-name'>
-                  Nome Completo *
-                </label>
-                <input
-                  id='customer-name'
-                  type='text'
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder='Digite o nome completo'
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                  required
-                />
-              </div>
-
-              <div className='flex flex-col gap-2'>
                 <label className='text-sm font-semibold text-slate-700' htmlFor='customer-phone'>
                   Telefone *
                 </label>
@@ -216,6 +201,20 @@ const AddOrder = () => {
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   placeholder='(11) 99999-9999'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  required
+                />
+              </div>
+              <div className='flex flex-col gap-2'>
+                <label className='text-sm font-semibold text-slate-700' htmlFor='customer-name'>
+                  Nome Completo *
+                </label>
+                <input
+                  id='customer-name'
+                  type='text'
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder='Digite o nome completo'
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 />

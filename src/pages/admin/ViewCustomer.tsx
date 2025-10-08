@@ -1,8 +1,10 @@
 import { ArrowLeft, User, MapPin, ShoppingBag, TrendingUp, DollarSign } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
+import { useEffect, useState } from 'react';
+import { customerService, ApiError } from '@/services';
 
-interface Customer {
-  id: number;
+interface CustomerViewModel {
+  id: string;
   name: string;
   phone: string;
   address: string;
@@ -15,16 +17,38 @@ const ViewCustomer = () => {
   const navigate = useNavigate();
   const { customerId } = useParams();
 
-  // Mock data - em uma aplicação real, isso viria de uma API
-  const mockCustomer: Customer = {
-    id: parseInt(customerId || '1'),
-    name: 'Maria Silva Santos',
-    phone: '(11) 99999-1234',
-    address: 'Rua das Flores, 123 - Vila Madalena, São Paulo - SP',
-    totalPurchases: 8,
-    totalSpent: 2450.75,
-    lastPurchase: '2024-01-25T16:30:00Z',
-  };
+  const [customer, setCustomer] = useState<CustomerViewModel | null>(null);
+  const [fetchError, setError] = useState<string | null>(null);
+  const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      if (!customerId) return;
+      setError(null);
+      try {
+        setLoading(true);
+        const data = await customerService.getCustomer(customerId);
+        const address = data.addresses?.find((a) => a.isDefault) || data.addresses?.[0];
+        const addressStr = address
+          ? `${address.street || ''}, ${address.number || ''} - ${address.neighborhood || ''}, ${
+              address.city || ''
+            } - ${address.state || ''}`
+          : 'Não informado';
+        setCustomer({
+          id: data.id,
+          name: data.name,
+          phone: data.phone,
+          address: addressStr,
+        });
+      } catch (err) {
+        if (err instanceof ApiError) setError(err.message);
+        else setError('Erro de conexão.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [customerId]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -44,6 +68,22 @@ const ViewCustomer = () => {
     });
   };
 
+  if (isLoading) {
+    return (
+      <div className='py-6 flex flex-col justify-center items-center bg-slate-50 min-h-screen'>
+        <div className='text-slate-600'>Carregando cliente...</div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className='py-6 flex flex-col justify-center items-center bg-slate-50 min-h-screen'>
+        <div className='text-red-600'>Erro: {fetchError}</div>
+      </div>
+    );
+  }
+
   return (
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
       <div className='w-full max-w-7xl mx-auto'>
@@ -58,7 +98,7 @@ const ViewCustomer = () => {
             </button>
           </div>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
-            Cliente #{mockCustomer.id}
+            Cliente #{customerId}
           </h1>
           <p className='text-sm sm:text-base text-slate-600'>Detalhes completos do cliente</p>
         </div>
@@ -77,14 +117,14 @@ const ViewCustomer = () => {
                   Nome Completo
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{mockCustomer.name}</span>
+                  <span className='text-slate-800'>{customer?.name || '—'}</span>
                 </div>
               </div>
 
               <div>
                 <label className='text-sm font-semibold text-slate-700 mb-2 block'>Telefone</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{mockCustomer.phone}</span>
+                  <span className='text-slate-800'>{customer?.phone || '—'}</span>
                 </div>
               </div>
             </div>
@@ -97,7 +137,7 @@ const ViewCustomer = () => {
               <h3 className='text-lg font-semibold text-slate-800'>Endereço</h3>
             </div>
             <div className='p-3 bg-white rounded-lg border border-slate-200'>
-              <span className='text-slate-800'>{mockCustomer.address}</span>
+              <span className='text-slate-800'>{customer?.address || '—'}</span>
             </div>
           </div>
 
@@ -113,9 +153,7 @@ const ViewCustomer = () => {
                 <div className='w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2'>
                   <ShoppingBag className='w-6 h-6 text-purple-600' />
                 </div>
-                <p className='text-2xl font-bold text-slate-800'>
-                  {mockCustomer.totalPurchases || 0}
-                </p>
+                <p className='text-2xl font-bold text-slate-800'>{0}</p>
                 <p className='text-xs text-slate-600'>Total de Compras</p>
               </div>
 
@@ -123,9 +161,7 @@ const ViewCustomer = () => {
                 <div className='w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2'>
                   <DollarSign className='w-6 h-6 text-green-600' />
                 </div>
-                <p className='text-lg font-bold text-green-600'>
-                  {formatCurrency(mockCustomer.totalSpent || 0)}
-                </p>
+                <p className='text-lg font-bold text-green-600'>{formatCurrency(0)}</p>
                 <p className='text-xs text-slate-600'>Total Gasto</p>
               </div>
 
@@ -133,9 +169,7 @@ const ViewCustomer = () => {
                 <div className='w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2'>
                   <ShoppingBag className='w-6 h-6 text-blue-600' />
                 </div>
-                <p className='text-sm font-bold text-slate-800'>
-                  {formatDate(mockCustomer.lastPurchase)}
-                </p>
+                <p className='text-sm font-bold text-slate-800'>{formatDate(undefined)}</p>
                 <p className='text-xs text-slate-600'>Última Compra</p>
               </div>
             </div>
@@ -145,13 +179,13 @@ const ViewCustomer = () => {
           <div className='pt-6 border-t border-slate-200'>
             <div className='flex flex-col sm:flex-row justify-end gap-3 sm:gap-4'>
               <button
-                onClick={() => navigate(`/admin/clientes/historico/${mockCustomer.id}`)}
+                onClick={() => navigate(`/admin/clientes/historico/${customerId}`)}
                 className='w-full sm:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl'
               >
                 Ver Histórico
               </button>
               <button
-                onClick={() => navigate(`/admin/clientes/editar/${mockCustomer.id}`)}
+                onClick={() => navigate(`/admin/clientes/editar/${customerId}`)}
                 className='w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
               >
                 Editar Cliente

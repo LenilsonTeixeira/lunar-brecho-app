@@ -1,180 +1,49 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { customerService, ApiError, CustomerResponse, CustomerListResponse } from '@/services';
 
 const ListCustomers = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [customers, setCustomers] = useState<CustomerResponse[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
-  // Mock data - substitua por dados reais da sua API
-  const users = [
-    {
-      id: 1,
-      name: 'Maria Silva Santos',
-      phone: '(11) 99999-1234',
-      address: 'Rua das Flores, 123 - Vila Madalena, São Paulo - SP',
-      totalPurchases: 8,
-      totalSpent: 2450.75,
-    },
-    {
-      id: 2,
-      name: 'João Pedro Oliveira',
-      phone: '(11) 98888-5678',
-      address: 'Av. Paulista, 1000 - Bela Vista, São Paulo - SP',
-      totalPurchases: 3,
-      totalSpent: 890.5,
-    },
-    {
-      id: 3,
-      name: 'Ana Costa Ferreira',
-      phone: '(11) 97777-9012',
-      address: 'Rua Augusta, 500 - Consolação, São Paulo - SP',
-      totalPurchases: 12,
-      totalSpent: 3200.0,
-    },
-    {
-      id: 4,
-      name: 'Carlos Eduardo Lima',
-      phone: '(11) 96666-3456',
-      address: 'Rua Oscar Freire, 200 - Jardins, São Paulo - SP',
-      totalPurchases: 5,
-      totalSpent: 1500.25,
-    },
-    {
-      id: 5,
-      name: 'Fernanda Rodrigues Alves',
-      phone: '(11) 95555-7890',
-      address: 'Rua Teodoro Sampaio, 800 - Pinheiros, São Paulo - SP',
-      totalPurchases: 2,
-      totalSpent: 450.0,
-    },
-    {
-      id: 6,
-      name: 'Lucas Mendes Pereira',
-      phone: '(11) 94444-1234',
-      address: 'Rua Harmonia, 300 - Vila Madalena, São Paulo - SP',
-      totalPurchases: 7,
-      totalSpent: 1800.75,
-    },
-    {
-      id: 7,
-      name: 'Juliana Santos Costa',
-      phone: '(11) 93333-5678',
-      address: 'Rua Cardeal Arcoverde, 150 - Pinheiros, São Paulo - SP',
-      totalPurchases: 4,
-      totalSpent: 950.3,
-    },
-    {
-      id: 8,
-      name: 'Roberto Almeida Silva',
-      phone: '(11) 92222-9012',
-      address: 'Rua Fradique Coutinho, 600 - Vila Madalena, São Paulo - SP',
-      totalPurchases: 1,
-      totalSpent: 200.0,
-    },
-    {
-      id: 9,
-      name: 'Patrícia Lima Oliveira',
-      phone: '(11) 91111-3456',
-      address: 'Rua Aspicuelta, 400 - Vila Madalena, São Paulo - SP',
-      totalPurchases: 6,
-      totalSpent: 1200.0,
-    },
-    {
-      id: 10,
-      name: 'Ricardo Ferreira Costa',
-      phone: '(11) 90000-7890',
-      address: 'Rua Wisard, 250 - Vila Madalena, São Paulo - SP',
-      totalPurchases: 9,
-      totalSpent: 2800.5,
-    },
-    {
-      id: 11,
-      name: 'Camila Rodrigues Santos',
-      phone: '(11) 89999-1234',
-      address: 'Rua Mourato Coelho, 700 - Vila Madalena, São Paulo - SP',
-      totalPurchases: 3,
-      totalSpent: 750.0,
-    },
-    {
-      id: 12,
-      name: 'Diego Alves Mendes',
-      phone: '(11) 88888-5678',
-      address: 'Rua Purpurina, 350 - Vila Madalena, São Paulo - SP',
-      totalPurchases: 0,
-      totalSpent: 0,
-    },
-    {
-      id: 13,
-      name: 'Amanda Costa Silva',
-      phone: '(11) 87777-9012',
-      address: 'Rua Girassol, 450 - Vila Madalena, São Paulo - SP',
-      totalPurchases: 2,
-      totalSpent: 400.0,
-    },
-    {
-      id: 14,
-      name: 'Thiago Oliveira Lima',
-      phone: '(11) 86666-3456',
-      address: 'Rua Corifeu de Azevedo Marques, 550 - Pinheiros, São Paulo - SP',
-      totalPurchases: 5,
-      totalSpent: 1100.75,
-    },
-    {
-      id: 15,
-      name: 'Vanessa Santos Pereira',
-      phone: '(11) 85555-7890',
-      address: 'Rua dos Pinheiros, 750 - Pinheiros, São Paulo - SP',
-      totalPurchases: 4,
-      totalSpent: 900.25,
-    },
-    {
-      id: 16,
-      name: 'Marcelo Lima Costa',
-      phone: '(11) 84444-1234',
-      address: 'Rua Artur de Azevedo, 850 - Pinheiros, São Paulo - SP',
-      totalPurchases: 1,
-      totalSpent: 300.0,
-    },
-    {
-      id: 17,
-      name: 'Carolina Ferreira Alves',
-      phone: '(11) 83333-5678',
-      address: 'Rua Heitor Penteado, 950 - Sumaré, São Paulo - SP',
-      totalPurchases: 6,
-      totalSpent: 1600.0,
-    },
-    {
-      id: 18,
-      name: 'Gabriel Mendes Silva',
-      phone: '(11) 82222-9012',
-      address: 'Rua Simão Álvares, 1050 - Sumaré, São Paulo - SP',
-      totalPurchases: 3,
-      totalSpent: 650.5,
-    },
-    {
-      id: 19,
-      name: 'Isabela Rodrigues Costa',
-      phone: '(11) 81111-3456',
-      address: 'Rua Cônego Eugênio Leite, 1150 - Pinheiros, São Paulo - SP',
-      totalPurchases: 8,
-      totalSpent: 2200.0,
-    },
-    {
-      id: 20,
-      name: 'Bruno Almeida Santos',
-      phone: '(11) 80000-7890',
-      address: 'Rua Butantã, 1250 - Pinheiros, São Paulo - SP',
-      totalPurchases: 2,
-      totalSpent: 500.0,
-    },
-  ];
+  useEffect(() => {
+    loadCustomers();
+  }, [currentPage]);
 
-  const filteredUsers = users.filter((user) => {
+  const loadCustomers = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res: CustomerListResponse = await customerService.getCustomers(currentPage, 10);
+      setCustomers(res.content);
+      setTotalPages(res.totalPages);
+      setTotalElements(res.totalElements);
+    } catch (err) {
+      console.error('Erro ao carregar clientes:', err);
+      if (err instanceof ApiError) setError(err.message);
+      else setError('Erro de conexão.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredUsers = customers.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.phone.includes(searchTerm) ||
-      user.address.toLowerCase().includes(searchTerm.toLowerCase());
+      user.phone?.includes(searchTerm) ||
+      (user.addresses &&
+        user.addresses.some((a) =>
+          `${a.street || ''} ${a.number || ''} ${a.neighborhood || ''} ${a.city || ''}`
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()),
+        ));
 
     return matchesSearch;
   });
@@ -233,6 +102,13 @@ const ListCustomers = () => {
           </div>
         </div>
 
+        {/* Error */}
+        {error && (
+          <div className='bg-red-50 border border-red-200 rounded-lg p-4 mb-6'>
+            <p className='text-sm text-red-700'>{error}</p>
+          </div>
+        )}
+
         {/* Users Table */}
         <div className='bg-slate-50 rounded-xl shadow-lg overflow-hidden'>
           <div className='overflow-x-auto'>
@@ -257,73 +133,84 @@ const ListCustomers = () => {
                 </tr>
               </thead>
               <tbody className='divide-y divide-slate-200'>
-                {filteredUsers.map((user) => (
-                  <tr
-                    key={user.id}
-                    className='hover:bg-slate-50 transition-colors duration-200 shadow-sm'
-                  >
-                    <td className='px-6 py-4'>
-                      <div className='flex items-center gap-3'>
-                        <div>
-                          <p className='text-xs sm:text-sm font-medium text-slate-800'>
-                            {user.name}
-                          </p>
-                          <p className='text-xs text-slate-500'>ID: {user.id}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className='px-6 py-4 text-xs sm:text-sm text-slate-700'>{user.phone}</td>
-                    <td className='px-6 py-4'>
-                      <p
-                        className='text-xs sm:text-sm text-slate-700 max-w-xs truncate'
-                        title={user.address}
-                      >
-                        {user.address}
-                      </p>
-                    </td>
-                    <td className='px-6 py-4 text-center'>
-                      <div className='flex flex-col items-center gap-1'>
-                        <span className='text-xs sm:text-sm text-slate-800'>
-                          {user.totalPurchases || 0}
-                        </span>
-                        <div className='text-xs text-slate-500'>
-                          {formatCurrency(user.totalSpent || 0)}
-                        </div>
-                      </div>
-                    </td>
-                    <td className='px-6 py-4'>
-                      <div className='flex items-center gap-1 sm:gap-2'>
-                        <button
-                          onClick={() => navigate(`/admin/clientes/historico/${user.id}`)}
-                          className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
-                          title='Histórico'
-                        >
-                          <ShoppingBag className='w-3 h-3 sm:w-4 sm:h-4' />
-                        </button>
-                        <button
-                          onClick={() => navigate(`/admin/clientes/visualizar/${user.id}`)}
-                          className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
-                          title='Visualizar'
-                        >
-                          <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
-                        </button>
-                        <button
-                          onClick={() => navigate(`/admin/clientes/editar/${user.id}`)}
-                          className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
-                          title='Editar'
-                        >
-                          <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
-                        </button>
-                        <button
-                          className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
-                          title='Excluir'
-                        >
-                          <Trash2 className='w-3 h-3 sm:w-4 sm:h-4' />
-                        </button>
-                      </div>
+                {loading && (
+                  <tr>
+                    <td colSpan={5} className='py-12 text-center text-slate-500'>
+                      Carregando...
                     </td>
                   </tr>
-                ))}
+                )}
+                {!loading &&
+                  filteredUsers.length > 0 &&
+                  filteredUsers.map((user) => (
+                    <tr
+                      key={user.id}
+                      className='hover:bg-slate-50 transition-colors duration-200 shadow-sm'
+                    >
+                      <td className='px-6 py-4'>
+                        <div className='flex items-center gap-3'>
+                          <div>
+                            <p className='text-xs sm:text-sm font-medium text-slate-800'>
+                              {user.name}
+                            </p>
+                            <p className='text-xs text-slate-500'>ID: {user.externalId}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className='px-6 py-4 text-xs sm:text-sm text-slate-700'>{user.phone}</td>
+                      <td className='px-6 py-4'>
+                        <p className='text-xs sm:text-sm text-slate-700 max-w-xs truncate'>
+                          {user.addresses && user.addresses[0]
+                            ? `${user.addresses[0].street || ''}, ${user.addresses[0].number || ''} - ${user.addresses[0].neighborhood || ''}, ${user.addresses[0].city || ''}`
+                            : '—'}
+                        </p>
+                      </td>
+                      <td className='px-6 py-4 text-center'>
+                        <div className='flex flex-col items-center gap-1'>
+                          <span className='text-xs sm:text-sm text-slate-800'>{0}</span>
+                          <div className='text-xs text-slate-500'>{formatCurrency(0)}</div>
+                        </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='flex items-center gap-1 sm:gap-2'>
+                          <button
+                            onClick={() => navigate(`/admin/clientes/historico/${user.id}`)}
+                            className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
+                            title='Histórico'
+                          >
+                            <ShoppingBag className='w-3 h-3 sm:w-4 sm:h-4' />
+                          </button>
+                          <button
+                            onClick={() => navigate(`/admin/clientes/visualizar/${user.id}`)}
+                            className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
+                            title='Visualizar'
+                          >
+                            <Eye className='w-3 h-3 sm:w-4 sm:h-4' />
+                          </button>
+                          <button
+                            onClick={() => navigate(`/admin/clientes/editar/${user.id}`)}
+                            className='p-1.5 sm:p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200'
+                            title='Editar'
+                          >
+                            <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
+                          </button>
+                          <button
+                            className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
+                            title='Excluir'
+                          >
+                            <Trash2 className='w-3 h-3 sm:w-4 sm:h-4' />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                {!loading && filteredUsers.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className='py-12 text-center text-slate-500'>
+                      Nenhum cliente encontrado
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -345,19 +232,27 @@ const ListCustomers = () => {
         </div>
 
         {/* Pagination */}
-        {filteredUsers.length > 0 && (
+        {totalPages > 1 && (
           <div className='mt-6 flex items-center justify-between bg-white rounded-xl shadow-lg p-4'>
             <div className='text-xs sm:text-sm text-slate-600'>
-              Mostrando {filteredUsers.length} de {users.length} clientes
+              Página {currentPage + 1} de {totalPages} ({totalElements} clientes)
             </div>
             <div className='flex items-center gap-2'>
-              <button className='px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200'>
+              <button
+                onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                disabled={currentPage === 0}
+                className='px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
+              >
                 Anterior
               </button>
               <span className='px-2 sm:px-3 py-2 bg-purple-600 text-white text-xs sm:text-sm rounded-lg'>
-                1
+                {currentPage + 1}
               </span>
-              <button className='px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200'>
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+                disabled={currentPage >= totalPages - 1}
+                className='px-2 sm:px-3 py-2 text-xs sm:text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
+              >
                 Próximo
               </button>
             </div>

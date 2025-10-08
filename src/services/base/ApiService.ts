@@ -46,7 +46,8 @@ export class BaseApiService {
 
       if (!response.ok) {
         // Se for erro 401 (token expirado) e não for uma tentativa de retry
-        if (response.status === 401 && !isRetry) {
+        // e não estiver marcado para pular lógica de refresh
+        if (response.status === 401 && !isRetry && !options?.skipAuthRefresh) {
           try {
             // Tenta renovar o token
             const newToken = await this.refreshAccessToken();

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router';
 import {
   ArrowLeft,
   ChevronDown,
@@ -15,30 +15,138 @@ import {
   Banknote,
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
+import { useCartDrawer } from '../contexts/CartDrawerContext';
 import { formatToBRL } from '../utils/priceUtils';
+import { customerService } from '../services';
 
 const Checkout = () => {
   const { items, totalPrice } = useCart();
+  const { openCartDrawer } = useCartDrawer();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | 'cash'>('pix');
-  const [email, setEmail] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [zipCode, setZipCode] = useState('');
-  const [address, setAddress] = useState('');
-  const [newsletterOptIn, setNewsletterOptIn] = useState(false);
+  const [manualAddress, setManualAddress] = useState(false);
+  const [street, setStreet] = useState('');
+  const [number, setNumber] = useState('');
+  const [neighborhood, setNeighborhood] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [complement, setComplement] = useState('');
   const [securePaymentExpanded, setSecurePaymentExpanded] = useState(false);
   const [helpExpanded, setHelpExpanded] = useState(false);
   const [shippingExpanded, setShippingExpanded] = useState(false);
+  const [customerId, setCustomerId] = useState<string | null>(null);
+  const [isLoadingCustomer, setIsLoadingCustomer] = useState(false);
+
+  // Restaurar dados ao voltar da tela de confirmação
+  useEffect(() => {
+    if (location.state && location.state.orderData) {
+      const data = location.state.orderData;
+      setWhatsapp(data.whatsapp);
+      setFirstName(data.firstName);
+      setLastName(data.lastName);
+      setDeliveryMethod(data.deliveryMethod);
+      setPaymentMethod(data.paymentMethod);
+      setStreet(data.street);
+      setNumber(data.number);
+      setNeighborhood(data.neighborhood);
+      setCity(data.city);
+      setState(data.state);
+      setZipCode(data.zipCode);
+      setComplement(data.complement);
+    }
+  }, [location.state]);
 
   const deliveryFee = deliveryMethod === 'delivery' ? 5 : 0;
-  const finalTotal = totalPrice + deliveryFee;
+  const pixDiscount = paymentMethod === 'pix' ? 0.05 : 0; // 5% de desconto
+  const subtotal = totalPrice;
+  const discountAmount = subtotal * pixDiscount;
+  const totalWithDiscount = subtotal - discountAmount;
+  const finalTotal = totalWithDiscount + deliveryFee;
 
   const handleZipCodeValidation = () => {
     // Simular validação de CEP
-    if (zipCode.length === 8) {
-      setAddress('Rua Exemplo, 123');
+    if (zipCode.length === 8 || zipCode.length === 9) {
+      // Preencher campos automaticamente baseado no CEP
+      setStreet('Rua Exemplo');
+      setNeighborhood('Centro');
+      setCity('São Paulo');
+      setState('SP');
     }
+  };
+
+  const sanitizePhone = (value: string) => value.replace(/\D/g, '');
+
+  const handleWhatsappBlur = async () => {
+    const number = sanitizePhone(whatsapp);
+    if (!number) return;
+    try {
+      setIsLoadingCustomer(true);
+      const customer = await customerService.getCustomerByPhone(number);
+      if (customer) {
+        setCustomerId(customer.id);
+        if (customer.name) {
+          const parts = customer.name.trim().split(/\s+/);
+          setFirstName(parts[0] || '');
+          setLastName(parts.slice(1).join(' ') || '');
+        }
+        const address = customer.addresses?.find((a) => a.isDefault) || customer.addresses?.[0];
+        if (address) {
+          setDeliveryMethod('delivery');
+          setStreet(address.street || '');
+          setNumber(address.number || '');
+          setNeighborhood(address.neighborhood || '');
+          setCity(address.city || '');
+          setState(address.state || '');
+          setZipCode(address.zipCode || '');
+          setComplement(address.complement || '');
+        }
+      } else {
+        setCustomerId(null);
+      }
+    } catch (error) {
+      console.error('Erro buscando cliente por telefone', error);
+    } finally {
+      setIsLoadingCustomer(false);
+    }
+  };
+
+  const handleProceedToConfirmation = () => {
+    // Validação básica dos campos obrigatórios
+    if (!whatsapp || !firstName || !lastName) {
+      alert('Por favor, preencha todos os campos obrigatórios de contato.');
+      return;
+    }
+
+    if (deliveryMethod === 'delivery' && (!street || !number || !neighborhood || !city || !state)) {
+      alert('Por favor, preencha todos os campos obrigatórios de endereço.');
+      return;
+    }
+
+    // Preparar dados do pedido para passar para a tela de confirmação
+    const orderData = {
+      whatsapp,
+      firstName,
+      lastName,
+      deliveryMethod,
+      paymentMethod,
+      street: deliveryMethod === 'delivery' ? street : '',
+      number: deliveryMethod === 'delivery' ? number : '',
+      neighborhood: deliveryMethod === 'delivery' ? neighborhood : '',
+      city: deliveryMethod === 'delivery' ? city : '',
+      state: deliveryMethod === 'delivery' ? state : '',
+      zipCode: deliveryMethod === 'delivery' ? zipCode : '',
+      complement: deliveryMethod === 'delivery' ? complement : '',
+      customerId,
+    };
+
+    // Navegar para a tela de confirmação passando os dados
+    navigate('/order-confirmation', { state: { orderData } });
   };
 
   if (items.length === 0) {
@@ -105,64 +213,260 @@ const Checkout = () => {
         <div className='grid lg:grid-cols-3 gap-6 sm:gap-8'>
           {/* Left Column - Form */}
           <div className='lg:col-span-2 space-y-6 sm:space-y-8'>
-            {/* Delivery Method */}
+            {/* Contact and Delivery */}
             <div className='bg-white border border-slate-200 rounded-xl p-5 sm:p-6 shadow-sm'>
-              <h2 className='text-base sm:text-lg font-bold text-slate-900 mb-4 sm:mb-5'>
-                1. Como gostaria de receber seu pedido?
+              <h2 className='text-base sm:text-lg font-bold text-slate-900 mb-5 sm:mb-6'>
+                1. Contato e Entrega
               </h2>
-              <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
-                <label
-                  className={`flex items-start sm:items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                    deliveryMethod === 'delivery'
-                      ? 'border-purple-600 bg-purple-50'
-                      : 'border-slate-200 hover:border-purple-300'
-                  }`}
-                >
-                  <input
-                    type='radio'
-                    name='delivery'
-                    value='delivery'
-                    checked={deliveryMethod === 'delivery'}
-                    onChange={(e) => setDeliveryMethod(e.target.value as 'delivery' | 'pickup')}
-                    className='mr-3 mt-1 sm:mt-0 text-purple-600 focus:ring-purple-600'
-                  />
-                  <div className='flex items-center gap-2 sm:gap-3'>
-                    <Truck className='w-5 h-5 sm:w-6 sm:h-6 text-purple-600 flex-shrink-0' />
-                    <div>
-                      <div className='font-semibold text-slate-900 text-sm sm:text-base'>
-                        Entregar no seu endereço
-                      </div>
-                      <div className='text-xs sm:text-sm text-slate-500'>Taxa de R$ 5,00</div>
-                    </div>
-                  </div>
-                </label>
 
-                <label
-                  className={`flex items-start sm:items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                    deliveryMethod === 'pickup'
-                      ? 'border-purple-600 bg-purple-50'
-                      : 'border-slate-200 hover:border-purple-300'
-                  }`}
-                >
-                  <input
-                    type='radio'
-                    name='delivery'
-                    value='pickup'
-                    checked={deliveryMethod === 'pickup'}
-                    onChange={(e) => setDeliveryMethod(e.target.value as 'delivery' | 'pickup')}
-                    className='mr-3 mt-1 sm:mt-0 text-purple-600 focus:ring-purple-600'
-                  />
-                  <div className='flex items-center gap-2 sm:gap-3'>
-                    <Store className='w-5 h-5 sm:w-6 sm:h-6 text-purple-600 flex-shrink-0' />
-                    <div>
-                      <div className='font-semibold text-slate-900 text-sm sm:text-base'>
-                        Retirar na loja
-                      </div>
-                      <div className='text-xs sm:text-sm text-slate-500'>Grátis</div>
-                    </div>
-                  </div>
-                </label>
+              {/* WhatsApp */}
+              <div className='mb-5'>
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>WhatsApp*</label>
+                <input
+                  type='tel'
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
+                  onBlur={handleWhatsappBlur}
+                  className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
+                  placeholder='(99) 99999-9999'
+                />
+                {isLoadingCustomer && (
+                  <p className='text-xs text-slate-500 mt-1'>Buscando cliente...</p>
+                )}
               </div>
+
+              {/* Name Fields */}
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5'>
+                <div>
+                  <label className='block text-sm font-semibold text-slate-700 mb-2'>Nome*</label>
+                  <input
+                    type='text'
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
+                    placeholder='Seu nome'
+                  />
+                </div>
+                <div>
+                  <label className='block text-sm font-semibold text-slate-700 mb-2'>
+                    Sobrenome*
+                  </label>
+                  <input
+                    type='text'
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
+                    placeholder='Seu sobrenome'
+                  />
+                </div>
+              </div>
+
+              {/* Delivery Method */}
+              <div className='mb-5'>
+                <h3 className='text-sm font-semibold text-slate-700 mb-3'>
+                  Como gostaria de receber seu pedido?
+                </h3>
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4'>
+                  <label
+                    className={`flex items-start sm:items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                      deliveryMethod === 'delivery'
+                        ? 'border-purple-600 bg-purple-50'
+                        : 'border-slate-200 hover:border-purple-300'
+                    }`}
+                  >
+                    <input
+                      type='radio'
+                      name='delivery'
+                      value='delivery'
+                      checked={deliveryMethod === 'delivery'}
+                      onChange={(e) => setDeliveryMethod(e.target.value as 'delivery' | 'pickup')}
+                      className='mr-3 mt-1 sm:mt-0 text-purple-600 focus:ring-purple-600'
+                    />
+                    <div className='flex items-center gap-2 sm:gap-3'>
+                      <Truck className='w-5 h-5 sm:w-6 sm:h-6 text-purple-600 flex-shrink-0' />
+                      <div>
+                        <div className='font-semibold text-slate-900 text-sm sm:text-base'>
+                          Entregar no seu endereço
+                        </div>
+                        <div className='text-xs sm:text-sm text-slate-500'>Taxa de R$ 5,00</div>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label
+                    className={`flex items-start sm:items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                      deliveryMethod === 'pickup'
+                        ? 'border-purple-600 bg-purple-50'
+                        : 'border-slate-200 hover:border-purple-300'
+                    }`}
+                  >
+                    <input
+                      type='radio'
+                      name='delivery'
+                      value='pickup'
+                      checked={deliveryMethod === 'pickup'}
+                      onChange={(e) => setDeliveryMethod(e.target.value as 'delivery' | 'pickup')}
+                      className='mr-3 mt-1 sm:mt-0 text-purple-600 focus:ring-purple-600'
+                    />
+                    <div className='flex items-center gap-2 sm:gap-3'>
+                      <Store className='w-5 h-5 sm:w-6 sm:h-6 text-purple-600 flex-shrink-0' />
+                      <div>
+                        <div className='font-semibold text-slate-900 text-sm sm:text-base'>
+                          Retirar na loja
+                        </div>
+                        <div className='text-xs sm:text-sm text-slate-500'>Grátis</div>
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Delivery Address - Conditional */}
+              {deliveryMethod === 'delivery' && (
+                <div className='mt-5'>
+                  <div className='flex items-center gap-2 mb-4'>
+                    <MapPin className='w-4 h-4 text-purple-600' />
+                    <h3 className='text-sm font-semibold text-slate-700'>Endereço de entrega</h3>
+                  </div>
+
+                  {!manualAddress && (
+                    <>
+                      <div>
+                        <label className='block text-sm font-semibold text-slate-700 mb-2'>
+                          CEP*
+                        </label>
+                        <div className='flex flex-col sm:flex-row gap-2'>
+                          <input
+                            type='text'
+                            value={zipCode}
+                            onChange={(e) => setZipCode(e.target.value)}
+                            className='flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
+                            placeholder='00000-000'
+                            maxLength={9}
+                          />
+                          <button
+                            onClick={handleZipCodeValidation}
+                            className='px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-semibold text-sm sm:text-base shadow-md hover:shadow-lg whitespace-nowrap'
+                          >
+                            VALIDAR CEP
+                          </button>
+                        </div>
+                      </div>
+
+                      <label className='flex items-start gap-2 mt-3 cursor-pointer'>
+                        <input
+                          type='checkbox'
+                          checked={manualAddress}
+                          onChange={(e) => setManualAddress(e.target.checked)}
+                          className='mt-1 text-purple-600 focus:ring-purple-600'
+                        />
+                        <span className='text-xs sm:text-sm text-slate-600'>
+                          Não sei meu CEP — digitar endereço manualmente
+                        </span>
+                      </label>
+                    </>
+                  )}
+
+                  {manualAddress && (
+                    <label className='flex items-start gap-2 mb-4 cursor-pointer'>
+                      <input
+                        type='checkbox'
+                        checked={manualAddress}
+                        onChange={(e) => setManualAddress(e.target.checked)}
+                        className='mt-1 text-purple-600 focus:ring-purple-600'
+                      />
+                      <span className='text-xs sm:text-sm text-slate-600'>
+                        Não sei meu CEP — digitar endereço manualmente
+                      </span>
+                    </label>
+                  )}
+
+                  {/* Campos de endereço - aparecem após validar CEP ou ao marcar manual */}
+                  {(street || manualAddress) && (
+                    <div className='space-y-4 mt-4'>
+                      <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+                        <div className='sm:col-span-2'>
+                          <label className='block text-sm font-semibold text-slate-700 mb-2'>
+                            Rua*
+                          </label>
+                          <input
+                            type='text'
+                            value={street}
+                            onChange={(e) => setStreet(e.target.value)}
+                            className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
+                            placeholder='Nome da rua'
+                          />
+                        </div>
+                        <div>
+                          <label className='block text-sm font-semibold text-slate-700 mb-2'>
+                            Número*
+                          </label>
+                          <input
+                            type='text'
+                            value={number}
+                            onChange={(e) => setNumber(e.target.value)}
+                            className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
+                            placeholder='123'
+                          />
+                        </div>
+                      </div>
+
+                      <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+                        <div>
+                          <label className='block text-sm font-semibold text-slate-700 mb-2'>
+                            Bairro*
+                          </label>
+                          <input
+                            type='text'
+                            value={neighborhood}
+                            onChange={(e) => setNeighborhood(e.target.value)}
+                            className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
+                            placeholder='Bairro'
+                          />
+                        </div>
+                        <div>
+                          <label className='block text-sm font-semibold text-slate-700 mb-2'>
+                            Cidade*
+                          </label>
+                          <input
+                            type='text'
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
+                            placeholder='Cidade'
+                          />
+                        </div>
+                        <div>
+                          <label className='block text-sm font-semibold text-slate-700 mb-2'>
+                            Estado*
+                          </label>
+                          <input
+                            type='text'
+                            value={state}
+                            onChange={(e) => setState(e.target.value)}
+                            className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
+                            placeholder='SP'
+                            maxLength={2}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className='block text-sm font-semibold text-slate-700 mb-2'>
+                          Complemento
+                        </label>
+                        <input
+                          type='text'
+                          value={complement}
+                          onChange={(e) => setComplement(e.target.value)}
+                          className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
+                          placeholder='Apto, bloco, etc.'
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Payment Method */}
@@ -248,123 +552,6 @@ const Checkout = () => {
                 </label>
               </div>
             </div>
-
-            {/* Contact Information */}
-            <div className='bg-white border border-slate-200 rounded-xl p-5 sm:p-6 shadow-sm'>
-              <h3 className='text-xs sm:text-sm font-semibold text-slate-500 mb-2'>
-                Campos obrigatórios *
-              </h3>
-              <h4 className='text-base sm:text-lg font-bold text-slate-900 mb-2'>
-                Informações de contato
-              </h4>
-              <p className='text-xs sm:text-sm text-slate-600 mb-5 sm:mb-6'>
-                Insira seu e-mail. Se você já tiver uma conta, poderá fazer o login. Se você não
-                tiver uma conta, poderá prosseguir como visitante e optar por concluir seu cadastro
-                após a finalização da compra.
-              </p>
-
-              <div className='space-y-4 sm:space-y-5'>
-                <div>
-                  <label className='block text-sm font-semibold text-slate-700 mb-2'>E-mail*</label>
-                  <input
-                    type='email'
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
-                    placeholder='seu@email.com'
-                  />
-                </div>
-
-                <label className='flex items-start gap-3'>
-                  <input
-                    type='checkbox'
-                    checked={newsletterOptIn}
-                    onChange={(e) => setNewsletterOptIn(e.target.checked)}
-                    className='mt-1 text-purple-600 focus:ring-purple-600'
-                  />
-                  <span className='text-xs sm:text-sm text-slate-600'>
-                    Desejo receber a newsletter e outras comunicações de marketing, conforme
-                    estabelecido na{' '}
-                    <span className='font-semibold text-slate-900'>Política de Privacidade</span>.
-                    Você pode cancelar sua inscrição a qualquer momento clicando no link de
-                    cancelamento de assinatura em qualquer comunicação eletrônica comercial ou
-                    enviando um e-mail para contato@lunarbrecho.com.
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            {/* Delivery Address */}
-            {deliveryMethod === 'delivery' && (
-              <div className='bg-white border border-slate-200 rounded-xl p-5 sm:p-6 shadow-sm'>
-                <h4 className='text-base sm:text-lg font-bold text-slate-900 mb-2'>
-                  Endereço de entrega
-                </h4>
-                <div className='flex items-center gap-2 mb-5 sm:mb-6'>
-                  <MapPin className='w-4 h-4 text-purple-600' />
-                  <span className='text-xs sm:text-sm text-slate-600 font-medium'>
-                    Local: Brasil
-                  </span>
-                </div>
-
-                <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                  <div>
-                    <label className='block text-sm font-semibold text-slate-700 mb-2'>Nome*</label>
-                    <input
-                      type='text'
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
-                    />
-                  </div>
-                  <div>
-                    <label className='block text-sm font-semibold text-slate-700 mb-2'>
-                      Sobrenome*
-                    </label>
-                    <input
-                      type='text'
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
-                    />
-                  </div>
-                </div>
-
-                <div className='mt-4'>
-                  <label className='block text-sm font-semibold text-slate-700 mb-2'>CEP*</label>
-                  <div className='flex flex-col sm:flex-row gap-2'>
-                    <input
-                      type='text'
-                      value={zipCode}
-                      onChange={(e) => setZipCode(e.target.value)}
-                      className='flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
-                      placeholder='00000-000'
-                      maxLength={9}
-                    />
-                    <button
-                      onClick={handleZipCodeValidation}
-                      className='px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-semibold text-sm sm:text-base shadow-md hover:shadow-lg whitespace-nowrap'
-                    >
-                      VALIDAR CEP
-                    </button>
-                  </div>
-                </div>
-
-                {address && (
-                  <div className='mt-4'>
-                    <label className='block text-sm font-semibold text-slate-700 mb-2'>
-                      Endereço*
-                    </label>
-                    <input
-                      type='text'
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
-                    />
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           {/* Right Column - Order Summary */}
@@ -407,14 +594,14 @@ const Checkout = () => {
               <div className='space-y-2.5 sm:space-y-3 mb-5 sm:mb-6 bg-slate-50 rounded-lg p-3 sm:p-4'>
                 <div className='flex justify-between text-xs sm:text-sm text-slate-600'>
                   <span>Subtotal</span>
-                  <span className='font-medium'>{formatToBRL(totalPrice / 0.95)}</span>
+                  <span className='font-medium'>{formatToBRL(subtotal)}</span>
                 </div>
-                <div className='flex justify-between text-xs sm:text-sm text-emerald-600'>
-                  <span className='font-medium'>Desconto PIX (5%)</span>
-                  <span className='font-semibold'>
-                    -{formatToBRL(totalPrice / 0.95 - totalPrice)}
-                  </span>
-                </div>
+                {paymentMethod === 'pix' && (
+                  <div className='flex justify-between text-xs sm:text-sm text-emerald-600'>
+                    <span className='font-medium'>Desconto PIX (5%)</span>
+                    <span className='font-semibold'>-{formatToBRL(discountAmount)}</span>
+                  </div>
+                )}
                 <div className='flex justify-between text-xs sm:text-sm text-slate-600'>
                   <span>{deliveryMethod === 'delivery' ? 'Envio padrão' : 'Retirada na loja'}</span>
                   <span className='font-medium'>
@@ -512,8 +699,20 @@ const Checkout = () => {
                 )}
               </div>
 
+              {/* View Cart Button */}
+              <button
+                onClick={openCartDrawer}
+                className='w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 sm:py-3 rounded-lg font-medium transition-colors mb-3 sm:mb-4 text-sm sm:text-base border border-slate-200'
+              >
+                <Package className='w-4 h-4 sm:w-5 sm:h-5' />
+                Ver Carrinho de Compras
+              </button>
+
               {/* Continue Button */}
-              <button className='w-full bg-gray-900 hover:bg-gray-800 text-white py-3 sm:py-3.5 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg text-sm sm:text-base'>
+              <button
+                onClick={handleProceedToConfirmation}
+                className='w-full bg-gray-900 hover:bg-gray-800 text-white py-3 sm:py-3.5 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg text-sm sm:text-base'
+              >
                 PROSSEGUIR PARA O PAGAMENTO
               </button>
             </div>

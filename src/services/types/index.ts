@@ -139,3 +139,55 @@ export class ApiError extends Error {
     this.status = status;
   }
 }
+
+// Customer types
+export interface CustomerAddressRequest {
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  type: 'HOME' | 'WORK' | 'OUTRO';
+  isDefault: boolean;
+}
+
+export interface CustomerRequest {
+  name: string;
+  email?: string;
+  phone: string;
+  cpf?: string;
+  addresses: CustomerAddressRequest[];
+}
+
+export interface CustomerAddressResponse {
+  id: string;
+  street: string;
+  number: string;
+  complement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  type: 'HOME' | 'WORK' | 'OUTRO';
+  isDefault: boolean;
+}
+
+export interface CustomerResponse {
+  id: string;
+  externalId?: string;
+  name: string;
+  email?: string;
+  phone: string;
+  cpf?: string;
+  addresses: CustomerAddressResponse[];
+}
+
+export interface CustomerListResponse {
+  content: CustomerResponse[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
