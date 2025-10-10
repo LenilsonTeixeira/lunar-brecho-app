@@ -17,11 +17,13 @@ import {
   Shield,
   Clock,
   ChevronRight,
+  MessageCircle,
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { formatToBRL } from '../utils/priceUtils';
-import { customerService } from '../services';
-import { CustomerRequest } from '../services/types';
+import { customerService, orderService } from '../services';
+import { CustomerRequest, OrderRequest } from '../services/types';
+import { formatOrderForWhatsApp } from '../utils/orderFormatter';
 
 const OrderConfirmation = () => {
   const { items, totalPrice, clearCart } = useCart();
@@ -165,10 +167,10 @@ const OrderConfirmation = () => {
   };
 
   const handleConfirmOrder = async () => {
-    // Criar/Atualizar cliente antes de confirmar pedido
     try {
+      // Criar/Atualizar cliente antes de confirmar pedido
       const fullName = `${orderData.firstName} ${orderData.lastName}`.trim();
-      const request: CustomerRequest = {
+      const customerRequest: CustomerRequest = {
         name: fullName,
         phone: orderData.whatsapp.replace(/\D/g, ''),
         addresses:
@@ -189,49 +191,98 @@ const OrderConfirmation = () => {
             : [],
       };
 
-      if (orderData.customerId) {
-        await customerService.updateCustomer(orderData.customerId, request);
+      let customerId = orderData.customerId;
+      if (customerId) {
+        await customerService.updateCustomer(customerId, customerRequest);
       } else {
-        const created = await customerService.createCustomer(request);
-        setOrderData((prev) => ({ ...prev, customerId: created.id }));
+        const created = await customerService.createCustomer(customerRequest);
+        customerId = created.id;
       }
-    } catch (e) {
-      console.error('Erro ao sincronizar cliente', e);
-      // segue com o fluxo mesmo se falhar para não travar a compra
+
+      // Criar pedido no backend
+      const orderRequest: OrderRequest = {
+        customer: {
+          id: customerId,
+          fullName: fullName,
+          email: '', // Não temos email no formulário atual
+          phone: orderData.whatsapp.replace(/\D/g, ''),
+        },
+        items: items.map((item) => {
+          const itemPrice = calculateItemPrice(item.snapshot);
+          return {
+            id: item.productId,
+            externalId: item.productExternalId,
+            name: item.snapshot.name,
+            mainImageUrl: item.snapshot.mainImageUrl || '',
+            mainImageThumbnailUrl: item.snapshot.mainThumbnailUrl || '',
+            brand: item.snapshot.brand || '',
+            size: item.snapshot.size,
+            quantity: item.quantity,
+            discountApplied:
+              item.snapshot.discountType === 'PERCENTAGE'
+                ? (item.snapshot.basePrice * (item.snapshot.discountValue || 0)) / 100
+                : item.snapshot.discountValue || 0,
+            unitPrice: itemPrice,
+            subtotal: itemPrice * item.quantity,
+          };
+        }),
+        financialSummary: {
+          subtotal: subtotal,
+          totalAmount: finalTotal,
+          deliveryFee: deliveryFee,
+          discountAmount: discountAmount,
+        },
+        status: 'PENDING',
+        deliveryType: orderData.deliveryMethod === 'delivery' ? 'HOME_DELIVERY' : 'PICKUP',
+        deliveryAddress: {
+          id: '', // Será gerado pelo backend
+          street: orderData.street,
+          number: orderData.number,
+          complement: orderData.complement || '',
+          neighborhood: orderData.neighborhood || '',
+          city: orderData.city || '',
+          state: orderData.state || '',
+          zipCode: orderData.zipCode || '',
+        },
+        paymentMethod:
+          orderData.paymentMethod === 'pix'
+            ? 'PIX'
+            : orderData.paymentMethod === 'card'
+              ? 'CREDIT_CARD'
+              : 'CASH',
+      };
+
+      const createdOrder = await orderService.createOrder(orderRequest);
+
+      // Formatar mensagem para WhatsApp usando o orderFormatter
+      const formattedMessage = formatOrderForWhatsApp(createdOrder);
+
+      // eslint-disable-next-line no-console
+      console.log('Pedido criado:', createdOrder);
+      // eslint-disable-next-line no-console
+      console.log('Mensagem WhatsApp:', formattedMessage);
+
+      // Enviar mensagem para WhatsApp
+      const phoneNumber = orderData.whatsapp.replace(/\D/g, '');
+      const encodedMessage = encodeURIComponent(formattedMessage);
+      const whatsappUrl = `https://api.whatsapp.com/send?phone=55${phoneNumber}&text=${encodedMessage}`;
+
+      // Debug: Log the message and URL
+      // eslint-disable-next-line no-console
+      console.log('Mensagem original:', formattedMessage);
+      // eslint-disable-next-line no-console
+      console.log('URL WhatsApp:', whatsappUrl);
+
+      // Abrir WhatsApp
+      window.open(whatsappUrl, '_blank');
+
+      clearCart();
+      alert('Pedido confirmado com sucesso! WhatsApp aberto para envio da mensagem.');
+      navigate('/');
+    } catch (error) {
+      console.error('Erro ao confirmar pedido:', error);
+      alert('Erro ao confirmar pedido. Tente novamente.');
     }
-
-    const orderSummary = `
-🛍️ *NOVO PEDIDO - LUNAR BRECHÓ*
-
-👤 *Cliente:*
-Nome: ${orderData.firstName} ${orderData.lastName}
-WhatsApp: ${orderData.whatsapp}
-
-📦 *Itens:*
-${items
-  .map((item) => {
-    const itemPrice = calculateItemPrice(item.snapshot);
-    return `• ${item.snapshot.name} - Tamanho: ${item.snapshot.size} - Qtd: ${item.quantity} - ${formatToBRL(itemPrice * item.quantity)}`;
-  })
-  .join('\n')}
-
-🚚 *Entrega:*
-${
-  orderData.deliveryMethod === 'delivery'
-    ? `Entregar no endereço:\n${orderData.street}, ${orderData.number}${orderData.complement ? ` - ${orderData.complement}` : ''}\n${orderData.neighborhood}, ${orderData.city} - ${orderData.state}\nCEP: ${orderData.zipCode}`
-    : 'Retirar na loja'
-}
-
-💳 *Pagamento:* ${getPaymentMethodName()}
-${orderData.paymentMethod === 'pix' ? '✨ Desconto de 5% aplicado!' : ''}
-
-💰 *Total:* ${formatToBRL(finalTotal)}
-    `.trim();
-
-    console.log('Pedido confirmado:', orderSummary);
-    clearCart();
-    alert('Pedido confirmado com sucesso! Em breve entraremos em contato pelo WhatsApp.');
-    navigate('/');
   };
 
   const getPaymentMethodName = () => {
@@ -652,9 +703,10 @@ ${orderData.paymentMethod === 'pix' ? '✨ Desconto de 5% aplicado!' : ''}
 
               <button
                 onClick={handleConfirmOrder}
-                className='w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3.5 rounded-xl font-semibold transition-all shadow-lg shadow-purple-600/25 hover:shadow-xl hover:shadow-purple-600/30 transform hover:-translate-y-0.5'
+                className='w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3.5 rounded-xl font-semibold transition-all shadow-lg shadow-purple-600/25 hover:shadow-xl hover:shadow-purple-600/30 transform hover:-translate-y-0.5 flex items-center justify-center gap-2'
               >
-                Confirmar Pedido
+                <MessageCircle className='w-5 h-5' />
+                Confirmar e Enviar WhatsApp
               </button>
 
               {/* Security Info */}

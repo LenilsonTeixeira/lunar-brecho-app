@@ -1,136 +1,142 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, Package, User, MapPin, CreditCard, Store, Truck, ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
+import { orderService } from '../../services/order/OrderService';
+import { OrderResponse, OrderRequest } from '../../services/types';
 
-interface OrderProduct {
-  id: number;
+interface OrderItem {
+  id: string;
+  externalId: string;
   name: string;
-  code: string;
+  brand: string;
   size: string;
   quantity: number;
-  price: number;
-}
-
-interface OrderAddress {
-  cep: string;
-  street: string;
-  number: string;
-  complement: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-}
-
-interface Order {
-  id: number;
-  orderNumber: string;
-  customer: string;
-  customerPhone: string;
-  products: OrderProduct[];
-  total: number;
-  status: string;
-  orderDate: string;
-  paymentMethod: string;
-  deliveryAddress: string;
-  deliveryType: 'pickup' | 'delivery';
-  address?: OrderAddress;
+  unitPrice: number;
+  subtotal: number;
 }
 
 const EditOrder = () => {
   const navigate = useNavigate();
   const { orderId } = useParams();
+  const [order, setOrder] = useState<OrderResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
-  // Mock data - em uma aplicação real, isso viria de uma API
-  const mockOrder: Order = {
-    id: parseInt(orderId || '1'),
-    orderNumber: `#${orderId}`,
-    customer: 'Maria Silva Santos',
-    customerPhone: '(34) 99668-3137',
-    products: [
-      {
-        id: 1,
-        name: 'Vestido Floral Vintage',
-        code: 'VD001',
-        size: 'M',
-        quantity: 1,
-        price: 59.9,
-      },
-      {
-        id: 2,
-        name: 'Blusa Básica Algodão',
-        code: 'BL002',
-        size: 'P',
-        quantity: 2,
-        price: 35.0,
-      },
-    ],
-    total: 129.9,
-    status: 'pendente',
-    orderDate: '2024-01-22',
-    paymentMethod: 'PIX',
-    deliveryAddress: 'Rua das Flores, 123 - Centro, Uberlândia/MG',
-    deliveryType: 'delivery',
-    address: {
-      cep: '38400-000',
-      street: 'Rua das Flores',
-      number: '123',
-      complement: 'Apto 101',
-      neighborhood: 'Centro',
-      city: 'Uberlândia',
-      state: 'MG',
-    },
-  };
-
-  const [order] = useState<Order>(mockOrder);
-  const [deliveryType, setDeliveryType] = useState<'pickup' | 'delivery'>(mockOrder.deliveryType);
-  const [customerName, setCustomerName] = useState(mockOrder.customer);
-  const [customerPhone, setCustomerPhone] = useState(mockOrder.customerPhone);
-  const [paymentMethod, setPaymentMethod] = useState(mockOrder.paymentMethod);
-  const [orderStatus, setOrderStatus] = useState(mockOrder.status);
-
-  const [products, setProducts] = useState<OrderProduct[]>(mockOrder.products);
-
-  const [deliveryAddress, setDeliveryAddress] = useState<OrderAddress>(
-    mockOrder.address || {
-      cep: '',
-      street: '',
-      number: '',
-      complement: '',
-      neighborhood: '',
-      city: '',
-      state: '',
-    },
+  const [deliveryType, setDeliveryType] = useState<'PICKUP' | 'HOME_DELIVERY'>('HOME_DELIVERY');
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CASH'>(
+    'PIX',
   );
+  const [orderStatus, setOrderStatus] = useState<
+    'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED'
+  >('PENDING');
+
+  const [items, setItems] = useState<OrderItem[]>([]);
+
+  const [deliveryAddress, setDeliveryAddress] = useState({
+    street: '',
+    number: '',
+    complement: '',
+    neighborhood: '',
+    city: '',
+    state: '',
+    zipCode: '',
+  });
 
   useEffect(() => {
-    // Em uma aplicação real, aqui você faria uma chamada para a API
-    // para buscar os dados do pedido pelo orderId
-    console.log('Carregando pedido:', orderId);
+    if (orderId) {
+      loadOrder();
+    }
   }, [orderId]);
 
-  const addProduct = () => {
-    const newId = Math.max(...products.map((p) => p.id), 0) + 1;
-    setProducts([
-      ...products,
+  const loadOrder = async () => {
+    if (!orderId) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      const orderData = await orderService.getOrder(orderId);
+      setOrder(orderData);
+
+      // Preencher formulário com dados do pedido
+      setCustomerName(orderData.customer.fullName);
+      setCustomerPhone(orderData.customer.phone);
+      setCustomerEmail(orderData.customer.email);
+      setPaymentMethod(orderData.paymentMethod);
+      setOrderStatus(orderData.status);
+      setDeliveryType(orderData.deliveryType);
+
+      setItems(
+        orderData.items.map((item) => ({
+          id: item.id,
+          externalId: item.externalId,
+          name: item.name,
+          brand: item.brand,
+          size: item.size,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          subtotal: item.subtotal,
+        })),
+      );
+
+      if (orderData.deliveryAddress) {
+        setDeliveryAddress({
+          street: orderData.deliveryAddress.street,
+          number: orderData.deliveryAddress.number,
+          complement: orderData.deliveryAddress.complement,
+          neighborhood: orderData.deliveryAddress.neighborhood,
+          city: orderData.deliveryAddress.city,
+          state: orderData.deliveryAddress.state,
+          zipCode: orderData.deliveryAddress.zipCode,
+        });
+      }
+    } catch (err) {
+      setError('Erro ao carregar pedido');
+      console.error('Erro ao carregar pedido:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addItem = () => {
+    const newId = `temp-${Date.now()}`;
+    setItems([
+      ...items,
       {
         id: newId,
+        externalId: '',
         name: '',
-        code: '',
+        brand: '',
         size: '',
         quantity: 1,
-        price: 0,
+        unitPrice: 0,
+        subtotal: 0,
       },
     ]);
   };
 
-  const removeProduct = (id: number) => {
-    if (products.length > 1) {
-      setProducts(products.filter((p) => p.id !== id));
+  const removeItem = (id: string) => {
+    if (items.length > 1) {
+      setItems(items.filter((item) => item.id !== id));
     }
   };
 
-  const updateProduct = (id: number, field: string, value: string | number) => {
-    setProducts(products.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
+  const updateItem = (id: string, field: string, value: string | number) => {
+    setItems(
+      items.map((item) => {
+        if (item.id === id) {
+          const updatedItem = { ...item, [field]: value };
+          if (field === 'quantity' || field === 'unitPrice') {
+            updatedItem.subtotal = updatedItem.quantity * updatedItem.unitPrice;
+          }
+          return updatedItem;
+        }
+        return item;
+      }),
+    );
   };
 
   const updateAddress = (field: string, value: string) => {
@@ -138,8 +144,8 @@ const EditOrder = () => {
   };
 
   const calculateTotal = () => {
-    return products.reduce((total, product) => {
-      return total + product.quantity * product.price;
+    return items.reduce((total, item) => {
+      return total + item.subtotal;
     }, 0);
   };
 
@@ -150,19 +156,21 @@ const EditOrder = () => {
     }).format(price);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!order) return;
+
     // Validar se todos os campos obrigatórios estão preenchidos
-    if (!customerName.trim() || !customerPhone.trim() || !paymentMethod) {
+    if (!customerName.trim() || !customerPhone.trim() || !customerEmail.trim()) {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
-    if (deliveryType === 'delivery') {
-      const requiredFields = ['cep', 'street', 'number', 'neighborhood', 'city', 'state'];
+    if (deliveryType === 'HOME_DELIVERY') {
+      const requiredFields = ['street', 'number', 'neighborhood', 'city', 'state', 'zipCode'];
       const missingFields = requiredFields.filter(
-        (field) => !deliveryAddress[field as keyof OrderAddress],
+        (field) => !deliveryAddress[field as keyof typeof deliveryAddress],
       );
 
       if (missingFields.length > 0) {
@@ -171,38 +179,125 @@ const EditOrder = () => {
       }
     }
 
-    // Validar produtos
-    const invalidProducts = products.filter(
-      (p) => !p.name.trim() || !p.code.trim() || p.price <= 0,
+    // Validar itens
+    const invalidItems = items.filter(
+      (item) => !item.name.trim() || !item.externalId.trim() || item.unitPrice <= 0,
     );
-    if (invalidProducts.length > 0) {
-      alert('Por favor, preencha corretamente todos os produtos.');
+    if (invalidItems.length > 0) {
+      alert('Por favor, preencha corretamente todos os itens.');
       return;
     }
 
-    // Simular atualização do pedido
-    const updatedOrder = {
-      ...order,
-      customer: customerName,
-      customerPhone,
-      products,
-      total: calculateTotal(),
-      status: orderStatus,
-      paymentMethod,
-      deliveryAddress:
-        deliveryType === 'delivery'
-          ? `${deliveryAddress.street}, ${deliveryAddress.number} - ${deliveryAddress.neighborhood}, ${deliveryAddress.city}/${deliveryAddress.state}`
-          : 'Retirada na Loja',
-      deliveryType,
-      address: deliveryType === 'delivery' ? deliveryAddress : undefined,
-    };
+    try {
+      setSaving(true);
 
-    console.log('Pedido atualizado:', updatedOrder);
-    alert('Pedido atualizado com sucesso!');
+      const orderRequest: OrderRequest = {
+        id: order.id,
+        externalId: order.externalId,
+        customer: {
+          id: order.customer.id,
+          fullName: customerName,
+          email: customerEmail,
+          phone: customerPhone,
+        },
+        items: items.map((item) => ({
+          id: item.id,
+          externalId: item.externalId,
+          name: item.name,
+          mainImageUrl: '',
+          mainImageThumbnailUrl: '',
+          brand: item.brand,
+          size: item.size,
+          quantity: item.quantity,
+          discountApplied: 0,
+          unitPrice: item.unitPrice,
+          subtotal: item.subtotal,
+        })),
+        financialSummary: {
+          subtotal: calculateTotal(),
+          totalAmount: calculateTotal(),
+          deliveryFee: 0,
+          discountAmount: 0,
+        },
+        status: orderStatus,
+        deliveryType,
+        deliveryAddress:
+          deliveryType === 'HOME_DELIVERY'
+            ? {
+                id: order.deliveryAddress?.id || '',
+                street: deliveryAddress.street,
+                number: deliveryAddress.number,
+                complement: deliveryAddress.complement,
+                neighborhood: deliveryAddress.neighborhood,
+                city: deliveryAddress.city,
+                state: deliveryAddress.state,
+                zipCode: deliveryAddress.zipCode,
+              }
+            : {
+                id: '',
+                street: '',
+                number: '',
+                complement: '',
+                neighborhood: '',
+                city: '',
+                state: '',
+                zipCode: '',
+              },
+        paymentMethod,
+      };
 
-    // Navegar de volta para a lista de pedidos
-    navigate('/admin/pedidos');
+      await orderService.updateOrder(order.id, orderRequest);
+      alert('Pedido atualizado com sucesso!');
+      navigate('/admin/pedidos');
+    } catch (error) {
+      console.error('Erro ao atualizar pedido:', error);
+      alert('Erro ao atualizar pedido. Tente novamente.');
+    } finally {
+      setSaving(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className='py-6 flex flex-col justify-between bg-slate-50'>
+        <div className='w-full max-w-7xl mx-auto'>
+          <div className='flex items-center justify-center py-12'>
+            <div className='text-center'>
+              <div className='w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center'>
+                <Package className='w-8 h-8 text-slate-400 animate-pulse' />
+              </div>
+              <h3 className='text-lg font-medium text-slate-800 mb-2'>Carregando pedido...</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !order) {
+    return (
+      <div className='py-6 flex flex-col justify-between bg-slate-50'>
+        <div className='w-full max-w-7xl mx-auto'>
+          <div className='flex items-center justify-center py-12'>
+            <div className='text-center'>
+              <div className='w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center'>
+                <Package className='w-8 h-8 text-red-400' />
+              </div>
+              <h3 className='text-lg font-medium text-slate-800 mb-2'>
+                {error || 'Pedido não encontrado'}
+              </h3>
+              <button
+                onClick={() => navigate('/admin/pedidos')}
+                className='px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors'
+              >
+                Voltar para pedidos
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
@@ -218,7 +313,7 @@ const EditOrder = () => {
             </button>
           </div>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
-            Editar Pedido {order.orderNumber}
+            Editar Pedido #{order.externalId}
           </h1>
           <p className='text-sm sm:text-base text-slate-600'>
             Modifique as informações do pedido abaixo
@@ -236,7 +331,7 @@ const EditOrder = () => {
               <h3 className='text-lg font-semibold text-slate-800'>Informações do Cliente</h3>
             </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm font-semibold text-slate-700' htmlFor='customer-name'>
                   Nome Completo *
@@ -266,6 +361,21 @@ const EditOrder = () => {
                   required
                 />
               </div>
+
+              <div className='flex flex-col gap-2'>
+                <label className='text-sm font-semibold text-slate-700' htmlFor='customer-email'>
+                  Email *
+                </label>
+                <input
+                  id='customer-email'
+                  type='email'
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  placeholder='email@exemplo.com'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  required
+                />
+              </div>
             </div>
           </div>
 
@@ -278,48 +388,55 @@ const EditOrder = () => {
               </div>
               <button
                 type='button'
-                onClick={addProduct}
+                onClick={addItem}
                 className='flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all duration-300'
               >
                 <Plus className='w-4 h-4' />
-                Adicionar Produto
+                Adicionar Item
               </button>
             </div>
 
             <div className='space-y-4'>
-              {products.map((productItem, index) => (
-                <div
-                  key={productItem.id}
-                  className='p-4 bg-white rounded-lg border border-slate-200'
-                >
+              {items.map((item, index) => (
+                <div key={item.id} className='p-4 bg-white rounded-lg border border-slate-200'>
                   <div className='flex items-center justify-between mb-3'>
-                    <h4 className='text-sm font-semibold text-slate-800'>Produto {index + 1}</h4>
+                    <h4 className='text-sm font-semibold text-slate-800'>Item {index + 1}</h4>
                   </div>
 
                   <div className='grid grid-cols-1 md:grid-cols-12 gap-4'>
                     <div className='md:col-span-2 flex flex-col gap-2'>
                       <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        Código do Produto *
+                        Código do Item *
                       </label>
                       <input
                         type='text'
-                        value={productItem.code}
-                        onChange={(e) => updateProduct(productItem.id, 'code', e.target.value)}
+                        value={item.externalId}
+                        onChange={(e) => updateItem(item.id, 'externalId', e.target.value)}
                         className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                         required
                       />
                     </div>
 
-                    <div className='md:col-span-5 flex flex-col gap-2'>
+                    <div className='md:col-span-3 flex flex-col gap-2'>
                       <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        Nome do Produto *
+                        Nome do Item *
                       </label>
                       <input
                         type='text'
-                        value={productItem.name}
-                        onChange={(e) => updateProduct(productItem.id, 'name', e.target.value)}
+                        value={item.name}
+                        onChange={(e) => updateItem(item.id, 'name', e.target.value)}
                         className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                         required
+                      />
+                    </div>
+
+                    <div className='md:col-span-2 flex flex-col gap-2'>
+                      <label className='text-xs sm:text-sm font-medium text-slate-600'>Marca</label>
+                      <input
+                        type='text'
+                        value={item.brand}
+                        onChange={(e) => updateItem(item.id, 'brand', e.target.value)}
+                        className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                       />
                     </div>
 
@@ -329,8 +446,8 @@ const EditOrder = () => {
                       </label>
                       <input
                         type='text'
-                        value={productItem.size}
-                        onChange={(e) => updateProduct(productItem.id, 'size', e.target.value)}
+                        value={item.size}
+                        onChange={(e) => updateItem(item.id, 'size', e.target.value)}
                         className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                       />
                     </div>
@@ -340,9 +457,9 @@ const EditOrder = () => {
                       <input
                         type='number'
                         min='1'
-                        value={productItem.quantity}
+                        value={item.quantity}
                         onChange={(e) =>
-                          updateProduct(productItem.id, 'quantity', parseInt(e.target.value) || 1)
+                          updateItem(item.id, 'quantity', parseInt(e.target.value) || 1)
                         }
                         className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                         required
@@ -357,9 +474,9 @@ const EditOrder = () => {
                         type='number'
                         min='0'
                         step='0.01'
-                        value={productItem.price}
+                        value={item.unitPrice}
                         onChange={(e) =>
-                          updateProduct(productItem.id, 'price', parseFloat(e.target.value) || 0)
+                          updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)
                         }
                         className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                         required
@@ -370,12 +487,12 @@ const EditOrder = () => {
                       <label className='text-xs sm:text-sm font-medium text-slate-600'>
                         &nbsp;
                       </label>
-                      {products.length > 1 && (
+                      {items.length > 1 && (
                         <button
                           type='button'
-                          onClick={() => removeProduct(productItem.id)}
+                          onClick={() => removeItem(item.id)}
                           className='p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300'
-                          aria-label='Remover produto'
+                          aria-label='Remover item'
                         >
                           <X className='w-4 h-4' />
                         </button>
@@ -385,7 +502,7 @@ const EditOrder = () => {
 
                   <div className='mt-3 text-right'>
                     <span className='text-sm font-medium text-slate-600'>
-                      Subtotal: {formatPrice(productItem.quantity * productItem.price)}
+                      Subtotal: {formatPrice(item.subtotal)}
                     </span>
                   </div>
                 </div>
@@ -415,9 +532,9 @@ const EditOrder = () => {
                 <input
                   type='radio'
                   name='deliveryType'
-                  value='delivery'
-                  checked={deliveryType === 'delivery'}
-                  onChange={(e) => setDeliveryType(e.target.value as 'delivery' | 'pickup')}
+                  value='HOME_DELIVERY'
+                  checked={deliveryType === 'HOME_DELIVERY'}
+                  onChange={(e) => setDeliveryType(e.target.value as 'HOME_DELIVERY' | 'PICKUP')}
                   className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
                 />
                 <div className='flex items-center gap-2'>
@@ -430,9 +547,9 @@ const EditOrder = () => {
                 <input
                   type='radio'
                   name='deliveryType'
-                  value='pickup'
-                  checked={deliveryType === 'pickup'}
-                  onChange={(e) => setDeliveryType(e.target.value as 'delivery' | 'pickup')}
+                  value='PICKUP'
+                  checked={deliveryType === 'PICKUP'}
+                  onChange={(e) => setDeliveryType(e.target.value as 'HOME_DELIVERY' | 'PICKUP')}
                   className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
                 />
                 <div className='flex items-center gap-2'>
@@ -442,7 +559,7 @@ const EditOrder = () => {
               </label>
             </div>
 
-            {deliveryType === 'pickup' && (
+            {deliveryType === 'PICKUP' && (
               <div className='mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
                 <div className='flex items-start gap-3'>
                   <Store className='w-5 h-5 text-blue-600 mt-0.5' />
@@ -459,7 +576,7 @@ const EditOrder = () => {
           </div>
 
           {/* Delivery Address - Conditional */}
-          {deliveryType === 'delivery' && (
+          {deliveryType === 'HOME_DELIVERY' && (
             <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
               <div className='flex items-center gap-3 mb-4'>
                 <MapPin className='w-5 h-5 text-purple-600' />
@@ -470,14 +587,14 @@ const EditOrder = () => {
                 {/* CEP and Street */}
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
                   <div className='flex flex-col gap-2'>
-                    <label className='text-sm font-medium text-slate-600' htmlFor='cep'>
+                    <label className='text-sm font-medium text-slate-600' htmlFor='zipCode'>
                       CEP *
                     </label>
                     <input
-                      id='cep'
+                      id='zipCode'
                       type='text'
-                      value={deliveryAddress.cep}
-                      onChange={(e) => updateAddress('cep', e.target.value)}
+                      value={deliveryAddress.zipCode}
+                      onChange={(e) => updateAddress('zipCode', e.target.value)}
                       placeholder='00000-000'
                       className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                       required
@@ -628,16 +745,19 @@ const EditOrder = () => {
                 <select
                   id='payment-method'
                   value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  onChange={(e) =>
+                    setPaymentMethod(
+                      e.target.value as 'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CASH',
+                    )
+                  }
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 >
                   <option value=''>Selecione a forma de pagamento</option>
                   <option value='PIX'>PIX</option>
-                  <option value='Cartão de Crédito'>Cartão de Crédito</option>
-                  <option value='Cartão de Débito'>Cartão de Débito</option>
-                  <option value='Dinheiro'>Dinheiro</option>
-                  <option value='Transferência Bancária'>Transferência Bancária</option>
+                  <option value='CREDIT_CARD'>Cartão de Crédito</option>
+                  <option value='DEBIT_CARD'>Cartão de Débito</option>
+                  <option value='CASH'>Dinheiro</option>
                 </select>
               </div>
 
@@ -648,20 +768,24 @@ const EditOrder = () => {
                 <select
                   id='order-status'
                   value={orderStatus}
-                  onChange={(e) => setOrderStatus(e.target.value)}
+                  onChange={(e) =>
+                    setOrderStatus(
+                      e.target.value as 'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED',
+                    )
+                  }
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 >
-                  <option value='pendente'>Pendente</option>
-                  <option value='aprovado'>Aprovado</option>
-                  <option value='enviado'>Enviado</option>
-                  <option value='entregue'>Entregue</option>
-                  <option value='cancelado'>Cancelado</option>
+                  <option value='PENDING'>Pendente</option>
+                  <option value='APPROVED'>Aprovado</option>
+                  <option value='SENT'>Enviado</option>
+                  <option value='DELIVERED'>Entregue</option>
+                  <option value='CANCELLED'>Cancelado</option>
                 </select>
               </div>
             </div>
 
-            {deliveryType === 'pickup' && (
+            {deliveryType === 'PICKUP' && (
               <div className='mt-4 p-4 bg-green-50 border border-green-200 rounded-lg'>
                 <div className='flex items-start gap-3'>
                   <Store className='w-5 h-5 text-green-600 mt-0.5' />
@@ -691,9 +815,10 @@ const EditOrder = () => {
           <div className='pt-4'>
             <button
               type='submit'
-              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              disabled={saving}
+              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
             >
-              Atualizar Pedido
+              {saving ? 'Salvando...' : 'Atualizar Pedido'}
             </button>
           </div>
         </form>

@@ -191,3 +191,79 @@ export interface CustomerListResponse {
   size: number;
   number: number;
 }
+
+// Order types
+export interface OrderCustomer {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+}
+
+export interface OrderItem {
+  id: string;
+  externalId: string;
+  name: string;
+  mainImageUrl: string;
+  mainImageThumbnailUrl: string;
+  brand: string;
+  size: string;
+  quantity: number;
+  discountApplied: number;
+  unitPrice: number;
+  subtotal: number;
+}
+
+export interface OrderFinancialSummary {
+  subtotal: number;
+  totalAmount: number;
+  deliveryFee: number;
+  discountAmount: number;
+}
+
+export interface OrderDeliveryAddress {
+  id: string;
+  street: string;
+  number: string;
+  complement: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  zipCode: string;
+}
+
+export interface OrderRequest {
+  id?: string;
+  externalId?: string;
+  customer: OrderCustomer;
+  items: OrderItem[];
+  financialSummary: OrderFinancialSummary;
+  status: 'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED';
+  deliveryType: 'HOME_DELIVERY' | 'PICKUP';
+  deliveryAddress: OrderDeliveryAddress;
+  paymentMethod: 'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CASH';
+}
+
+export interface OrderResponse {
+  id: string;
+  externalId: string;
+  customer: OrderCustomer;
+  items: OrderItem[];
+  financialSummary: OrderFinancialSummary;
+  status: 'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED';
+  deliveryType: 'HOME_DELIVERY' | 'PICKUP';
+  deliveryAddress: OrderDeliveryAddress;
+  paymentMethod: 'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CASH';
+}
+
+export interface OrderListResponse {
+  content: OrderResponse[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+}
+
+export interface OrderStatusUpdateRequest {
+  status: 'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED';
+}

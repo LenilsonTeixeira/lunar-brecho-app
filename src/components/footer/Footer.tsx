@@ -13,11 +13,10 @@ type FooterProps = {
 };
 
 const defaultLinks: FooterLink[] = [
-  { label: 'Trocas ou Devoluções', href: '#' },
+  { label: 'Trocas ou Devoluções', href: '/trocas-devolucoes' },
   { label: 'Entregas', href: '#' },
-  { label: 'Loja Física', href: '#' },
-  { label: 'Política de Reserva', href: '#' },
-  { label: 'Contato', href: '#' },
+  { label: 'Informações Gerais', href: '/informacoes-gerais' },
+  { label: 'Contato', href: '/contato' },
 ];
 
 const Footer = ({

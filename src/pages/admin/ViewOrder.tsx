@@ -1,50 +1,36 @@
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Package, User, MapPin, CreditCard, Store, Truck } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
-import { Order } from '../../types/order';
+import { orderService } from '../../services/order/OrderService';
+import { OrderResponse } from '../../services/types';
 
 const ViewOrder = () => {
   const navigate = useNavigate();
   const { orderId } = useParams();
+  const [order, setOrder] = useState<OrderResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data - em uma aplicação real, isso viria de uma API
-  const mockOrder: Order = {
-    id: parseInt(orderId || '1'),
-    orderNumber: `#${orderId}`,
-    customer: 'Maria Silva Santos',
-    customerPhone: '(34) 99668-3137',
-    products: [
-      {
-        id: 1,
-        name: 'Vestido Floral Vintage',
-        code: 'VD001',
-        size: 'M',
-        quantity: 1,
-        price: 59.9,
-      },
-      {
-        id: 2,
-        name: 'Blusa Básica Algodão',
-        code: 'BL002',
-        size: 'P',
-        quantity: 2,
-        price: 35.0,
-      },
-    ],
-    total: 129.9,
-    status: 'pendente',
-    orderDate: '2024-01-22',
-    paymentMethod: 'PIX',
-    deliveryAddress: 'Rua das Flores, 123 - Centro, Uberlândia/MG',
-    deliveryType: 'delivery',
-    address: {
-      cep: '38400-000',
-      street: 'Rua das Flores',
-      number: '123',
-      complement: 'Apto 101',
-      neighborhood: 'Centro',
-      city: 'Uberlândia',
-      state: 'MG',
-    },
+  useEffect(() => {
+    if (orderId) {
+      loadOrder();
+    }
+  }, [orderId]);
+
+  const loadOrder = async () => {
+    if (!orderId) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      const orderData = await orderService.getOrder(orderId);
+      setOrder(orderData);
+    } catch (err) {
+      setError('Erro ao carregar pedido');
+      console.error('Erro ao carregar pedido:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -54,33 +40,81 @@ const ViewOrder = () => {
     }).format(price);
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Não informado';
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pendente':
+      case 'PENDING':
         return 'bg-yellow-300 text-slate-950';
-      case 'aprovado':
+      case 'APPROVED':
         return 'bg-blue-300 text-slate-950';
-      case 'enviado':
+      case 'SENT':
         return 'bg-purple-300 text-slate-950';
-      case 'entregue':
+      case 'DELIVERED':
         return 'bg-green-300 text-slate-950';
-      case 'cancelado':
+      case 'CANCELLED':
         return 'bg-red-300 text-slate-950';
       default:
         return 'bg-slate-300 text-slate-950';
     }
   };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return 'Pendente';
+      case 'APPROVED':
+        return 'Aprovado';
+      case 'SENT':
+        return 'Enviado';
+      case 'DELIVERED':
+        return 'Entregue';
+      case 'CANCELLED':
+        return 'Cancelado';
+      default:
+        return status;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className='py-6 flex flex-col justify-between bg-slate-50'>
+        <div className='w-full max-w-7xl mx-auto'>
+          <div className='flex items-center justify-center py-12'>
+            <div className='text-center'>
+              <div className='w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center'>
+                <Package className='w-8 h-8 text-slate-400 animate-pulse' />
+              </div>
+              <h3 className='text-lg font-medium text-slate-800 mb-2'>Carregando pedido...</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !order) {
+    return (
+      <div className='py-6 flex flex-col justify-between bg-slate-50'>
+        <div className='w-full max-w-7xl mx-auto'>
+          <div className='flex items-center justify-center py-12'>
+            <div className='text-center'>
+              <div className='w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center'>
+                <Package className='w-8 h-8 text-red-400' />
+              </div>
+              <h3 className='text-lg font-medium text-slate-800 mb-2'>
+                {error || 'Pedido não encontrado'}
+              </h3>
+              <button
+                onClick={() => navigate('/admin/pedidos')}
+                className='px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors'
+              >
+                Voltar para pedidos
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
@@ -96,7 +130,7 @@ const ViewOrder = () => {
             </button>
           </div>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
-            Pedido {mockOrder.orderNumber}
+            Pedido #{order.externalId}
           </h1>
           <p className='text-sm sm:text-base text-slate-600'>Detalhes completos do pedido</p>
         </div>
@@ -110,9 +144,9 @@ const ViewOrder = () => {
             </div>
             <div className='flex items-center justify-between'>
               <span
-                className={`px-3 py-2 rounded-lg text-sm font-medium ${getStatusColor(mockOrder.status)}`}
+                className={`px-3 py-2 rounded-lg text-sm font-medium ${getStatusColor(order.status)}`}
               >
-                {mockOrder.status.charAt(0).toUpperCase() + mockOrder.status.slice(1)}
+                {getStatusLabel(order.status)}
               </span>
             </div>
           </div>
@@ -130,14 +164,14 @@ const ViewOrder = () => {
                   Nome do Cliente
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{mockOrder.customer}</span>
+                  <span className='text-slate-800'>{order.customer.fullName}</span>
                 </div>
               </div>
 
               <div>
                 <label className='text-sm font-semibold text-slate-700 mb-2 block'>Telefone</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{mockOrder.customerPhone}</span>
+                  <span className='text-slate-800'>{order.customer.phone}</span>
                 </div>
               </div>
             </div>
@@ -151,7 +185,7 @@ const ViewOrder = () => {
             </div>
             <div className='p-3 bg-white rounded-lg border border-slate-200'>
               <div className='flex items-center gap-3'>
-                {mockOrder.deliveryType === 'delivery' ? (
+                {order.deliveryType === 'HOME_DELIVERY' ? (
                   <>
                     <Truck className='w-4 h-4 text-purple-600' />
                     <span className='text-slate-800'>Entrega em Domicílio</span>
@@ -167,7 +201,7 @@ const ViewOrder = () => {
           </div>
 
           {/* Endereço de Entrega - Apenas se for delivery */}
-          {mockOrder.deliveryType === 'delivery' && mockOrder.address && (
+          {order.deliveryType === 'HOME_DELIVERY' && order.deliveryAddress && (
             <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
               <div className='flex items-center gap-3 mb-4'>
                 <MapPin className='w-5 h-5 text-purple-600' />
@@ -176,15 +210,17 @@ const ViewOrder = () => {
               <div className='p-3 bg-white rounded-lg border border-slate-200'>
                 <div className='space-y-1'>
                   <p className='text-slate-800'>
-                    {mockOrder.address.street}, {mockOrder.address.number}
+                    {order.deliveryAddress.street}, {order.deliveryAddress.number}
                   </p>
                   <p className='text-slate-600'>
-                    {mockOrder.address.neighborhood} - {mockOrder.address.city}/
-                    {mockOrder.address.state}
+                    {order.deliveryAddress.neighborhood} - {order.deliveryAddress.city}/
+                    {order.deliveryAddress.state}
                   </p>
-                  <p className='text-slate-600 font-mono'>CEP: {mockOrder.address.cep}</p>
-                  {mockOrder.address.complement && (
-                    <p className='text-slate-600'>Complemento: {mockOrder.address.complement}</p>
+                  <p className='text-slate-600 font-mono'>CEP: {order.deliveryAddress.zipCode}</p>
+                  {order.deliveryAddress.complement && (
+                    <p className='text-slate-600'>
+                      Complemento: {order.deliveryAddress.complement}
+                    </p>
                   )}
                 </div>
               </div>
@@ -198,7 +234,7 @@ const ViewOrder = () => {
               <h3 className='text-lg font-semibold text-slate-800'>Produtos do Pedido</h3>
             </div>
             <div className='space-y-3'>
-              {mockOrder.products.map((product, index) => (
+              {order.items.map((item, index) => (
                 <div key={index} className='p-4 bg-white rounded-lg border border-slate-200'>
                   <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-3'>
@@ -206,28 +242,52 @@ const ViewOrder = () => {
                         <span className='text-xs text-purple-600'>{index + 1}</span>
                       </div>
                       <div>
-                        <p className='text-slate-800 font-medium'>{product.name}</p>
+                        <p className='text-slate-800 font-medium'>{item.name}</p>
                         <p className='text-sm text-slate-600'>
-                          Código: {product.code} | Tamanho: {product.size} | Qtd: {product.quantity}{' '}
-                          | Unit: {formatPrice(product.price)}
+                          Código: {item.externalId} | Marca: {item.brand} | Tamanho: {item.size} |
+                          Qtd: {item.quantity} | Unit: {formatPrice(item.unitPrice)}
                         </p>
                       </div>
                     </div>
                     <div className='text-right'>
-                      <p className='text-slate-800 font-semibold'>
-                        {formatPrice(product.quantity * product.price)}
-                      </p>
+                      <p className='text-slate-800 font-semibold'>{formatPrice(item.subtotal)}</p>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
             <div className='mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200'>
-              <div className='flex justify-between items-center'>
-                <span className='text-lg font-semibold text-slate-800'>Total do Pedido</span>
-                <span className='text-xl font-bold text-purple-600'>
-                  {formatPrice(mockOrder.total)}
-                </span>
+              <div className='space-y-2'>
+                <div className='flex justify-between items-center'>
+                  <span className='text-sm text-slate-600'>Subtotal:</span>
+                  <span className='text-sm text-slate-600'>
+                    {formatPrice(order.financialSummary.subtotal)}
+                  </span>
+                </div>
+                {order.financialSummary.deliveryFee > 0 && (
+                  <div className='flex justify-between items-center'>
+                    <span className='text-sm text-slate-600'>Taxa de entrega:</span>
+                    <span className='text-sm text-slate-600'>
+                      {formatPrice(order.financialSummary.deliveryFee)}
+                    </span>
+                  </div>
+                )}
+                {order.financialSummary.discountAmount > 0 && (
+                  <div className='flex justify-between items-center'>
+                    <span className='text-sm text-slate-600'>Desconto:</span>
+                    <span className='text-sm text-green-600'>
+                      -{formatPrice(order.financialSummary.discountAmount)}
+                    </span>
+                  </div>
+                )}
+                <div className='border-t border-purple-200 pt-2'>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-lg font-semibold text-slate-800'>Total do Pedido</span>
+                    <span className='text-xl font-bold text-purple-600'>
+                      {formatPrice(order.financialSummary.totalAmount)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -245,23 +305,23 @@ const ViewOrder = () => {
                   Forma de Pagamento
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{mockOrder.paymentMethod}</span>
+                  <span className='text-slate-800'>{order.paymentMethod}</span>
                 </div>
               </div>
 
               <div>
                 <label className='text-sm font-semibold text-slate-700 mb-2 block'>
-                  Data do Pedido
+                  Email do Cliente
                 </label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{formatDate(mockOrder.orderDate)}</span>
+                  <span className='text-slate-800'>{order.customer.email}</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Informações de Retirada - Apenas se for pickup */}
-          {mockOrder.deliveryType === 'pickup' && (
+          {order.deliveryType === 'PICKUP' && (
             <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
               <div className='flex items-center gap-3 mb-4'>
                 <Store className='w-5 h-5 text-purple-600' />
@@ -296,7 +356,7 @@ const ViewOrder = () => {
                 Voltar
               </button>
               <button
-                onClick={() => navigate(`/admin/pedidos/editar/${mockOrder.id}`)}
+                onClick={() => navigate(`/admin/pedidos/editar/${order.id}`)}
                 className='w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
               >
                 Editar Pedido

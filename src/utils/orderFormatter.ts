@@ -1,58 +1,130 @@
-import { CartItem } from '../types/cart';
+import { OrderResponse } from '../services/types';
 import { formatToBRL } from './priceUtils';
+import { ENV } from '../config/env';
 
 /**
  * Formata os dados de um pedido em uma string para o WhatsApp.
  * @param orderData - Os dados do pedido.
  * @returns A mensagem formatada.
  */
-export const formatOrderForWhatsApp = (orderData: {
-  id?: string;
-  customer?: {
-    name: string;
-    phone: string;
-  };
-  address?: {
-    street: string;
-    number: string;
-    details?: string;
-    cep: string;
-    neighborhood: string;
-    city: string;
-    state: string;
-    reference?: string;
-  };
-  items: CartItem[];
-  subtotal: number;
-  deliveryOption?: 'pickup' | 'delivery';
-  deliveryFee?: number;
-}) => {
+export const formatOrderForWhatsApp = (orderData: OrderResponse) => {
   const itemsText = orderData.items
-    .map((item) => `${item.quantity}x ${item.snapshot.name} (${item.snapshot.size})`)
+    .map((item) => `${item.quantity}x ${item.name} (${item.size}) - ${formatToBRL(item.subtotal)}`)
     .join('\n');
 
   const deliveryText =
-    orderData.deliveryOption === 'delivery'
-      ? `\n*Taxa de Entrega:* ${formatToBRL(orderData.deliveryFee || 0)}`
+    orderData.deliveryType === 'HOME_DELIVERY'
+      ? `\n*Taxa de Entrega:* ${formatToBRL(orderData.financialSummary.deliveryFee)}`
       : '\n*Retirada na Loja*';
 
-  const message = `
-🛍️ *Pedido Lunar Brechó*
+  const discountText =
+    orderData.financialSummary.discountAmount > 0
+      ? `\n*Desconto:* -${formatToBRL(orderData.financialSummary.discountAmount)}`
+      : '';
 
-${orderData.customer ? `*Cliente:* ${orderData.customer.name} - (${orderData.customer.phone})\n` : ''}${
-    orderData.address
-      ? `*Endereço:* ${orderData.address.street}, ${orderData.address.number}${orderData.address.details ? ` - (${orderData.address.details})` : ''}
-CEP: ${orderData.address.cep} - Bairro: ${orderData.address.neighborhood}
-${orderData.address.city}-${orderData.address.state}${orderData.address.reference ? `\n- (${orderData.address.reference})` : ''}\n`
-      : ''
-  }*Itens:*
+  const message = `
+🛍️ *NOVO PEDIDO - LUNAR BRECHÓ 🌙*
+
+👤 *Cliente:*
+Nome: ${orderData.customer.fullName}
+WhatsApp: ${orderData.customer.phone}
+${orderData.customer.email ? `Email: ${orderData.customer.email}` : ''}
+
+📦 *Itens:*
 ${itemsText}
 
-*Subtotal:* ${formatToBRL(orderData.subtotal)}${deliveryText}
-*Total:* ${formatToBRL(orderData.subtotal + (orderData.deliveryFee || 0))}
+🚚 *Entrega:*
+${
+  orderData.deliveryType === 'HOME_DELIVERY'
+    ? `Entregar no endereço:
+${orderData.deliveryAddress.street}, ${orderData.deliveryAddress.number}${orderData.deliveryAddress.complement ? ` - ${orderData.deliveryAddress.complement}` : ''}
+${orderData.deliveryAddress.neighborhood}, ${orderData.deliveryAddress.city} - ${orderData.deliveryAddress.state}
+CEP: ${orderData.deliveryAddress.zipCode}`
+    : 'Retirar na loja'
+}
+
+💳 *Pagamento:* ${getPaymentMethodName(orderData.paymentMethod)}
+${orderData.paymentMethod === 'PIX' ? '✨ Desconto de 5% aplicado!' : ''}
+${
+  orderData.paymentMethod === 'PIX'
+    ? `
+🔑 *Chave PIX para pagamento:*
+${ENV.PIX_KEY}
+
+💡 *Instruções:*
+1. Copie a chave PIX acima
+2. Abra seu app de pagamento (banco/PIX)
+3. Cole a chave e confirme o pagamento
+4. Envie o comprovante por aqui`
+    : ''
+}
+
+💰 *Resumo Financeiro:*
+*Subtotal:* ${formatToBRL(orderData.financialSummary.subtotal)}${discountText}${deliveryText}
+*Total:* ${formatToBRL(orderData.financialSummary.totalAmount)}
+
+📋 *Status:* ${getStatusName(orderData.status)}
+${orderData.externalId ? `*Pedido:* ${orderData.externalId}` : ''}
+
+⏰ *Pedido realizado em:* ${formatOrderTimestamp()}
+
+✅ *Aguardando confirmação*
   `;
 
   return message.trim();
+};
+
+/**
+ * Converte o método de pagamento para nome legível.
+ */
+const getPaymentMethodName = (paymentMethod: string): string => {
+  switch (paymentMethod) {
+    case 'PIX':
+      return 'PIX';
+    case 'CREDIT_CARD':
+      return 'Cartão de Crédito';
+    case 'DEBIT_CARD':
+      return 'Cartão de Débito';
+    case 'CASH':
+      return 'Dinheiro';
+    default:
+      return paymentMethod;
+  }
+};
+
+/**
+ * Converte o status do pedido para nome legível.
+ */
+const getStatusName = (status: string): string => {
+  switch (status) {
+    case 'PENDING':
+      return 'Pendente';
+    case 'APPROVED':
+      return 'Aprovado';
+    case 'SENT':
+      return 'Enviado';
+    case 'DELIVERED':
+      return 'Entregue';
+    case 'CANCELLED':
+      return 'Cancelado';
+    default:
+      return status;
+  }
+};
+
+/**
+ * Formata a data e hora atual no padrão brasileiro.
+ */
+const formatOrderTimestamp = (): string => {
+  const now = new Date();
+  const day = now.getDate().toString().padStart(2, '0');
+  const month = (now.getMonth() + 1).toString().padStart(2, '0');
+  const year = now.getFullYear();
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+
+  return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
 };
 
 /**

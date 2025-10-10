@@ -1,76 +1,94 @@
 import { useState } from 'react';
 import { Plus, X, Package, User, MapPin, CreditCard, Store, Truck } from 'lucide-react';
+import { useNavigate } from 'react-router';
+import { orderService } from '../../services/order/OrderService';
+import { OrderRequest } from '../../services/types';
 
-interface OrderProduct {
-  id: number;
+interface OrderItem {
+  id: string;
+  externalId: string;
   name: string;
-  code: string;
+  brand: string;
   size: string;
   quantity: number;
-  price: number;
-}
-
-interface OrderAddress {
-  cep: string;
-  street: string;
-  number: string;
-  complement: string;
-  neighborhood: string;
-  city: string;
-  state: string;
+  unitPrice: number;
+  subtotal: number;
 }
 
 const AddOrder = () => {
-  const [deliveryType, setDeliveryType] = useState<'pickup' | 'delivery'>('delivery');
+  const navigate = useNavigate();
+  const [saving, setSaving] = useState(false);
+
+  const [deliveryType, setDeliveryType] = useState<'PICKUP' | 'HOME_DELIVERY'>('HOME_DELIVERY');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [orderStatus, setOrderStatus] = useState('pendente');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CASH'>(
+    'PIX',
+  );
+  const [orderStatus, setOrderStatus] = useState<
+    'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED'
+  >('PENDING');
 
-  const [products, setProducts] = useState<OrderProduct[]>([
+  const [items, setItems] = useState<OrderItem[]>([
     {
-      id: 1,
+      id: 'temp-1',
+      externalId: '',
       name: '',
-      code: '',
+      brand: '',
       size: '',
       quantity: 1,
-      price: 0,
+      unitPrice: 0,
+      subtotal: 0,
     },
   ]);
 
-  const [deliveryAddress, setDeliveryAddress] = useState<OrderAddress>({
-    cep: '',
+  const [deliveryAddress, setDeliveryAddress] = useState({
     street: '',
     number: '',
     complement: '',
     neighborhood: '',
     city: '',
     state: '',
+    zipCode: '',
   });
 
-  const addProduct = () => {
-    const newId = Math.max(...products.map((p) => p.id), 0) + 1;
-    setProducts([
-      ...products,
+  const addItem = () => {
+    const newId = `temp-${Date.now()}`;
+    setItems([
+      ...items,
       {
         id: newId,
+        externalId: '',
         name: '',
-        code: '',
+        brand: '',
         size: '',
         quantity: 1,
-        price: 0,
+        unitPrice: 0,
+        subtotal: 0,
       },
     ]);
   };
 
-  const removeProduct = (id: number) => {
-    if (products.length > 1) {
-      setProducts(products.filter((p) => p.id !== id));
+  const removeItem = (id: string) => {
+    if (items.length > 1) {
+      setItems(items.filter((item) => item.id !== id));
     }
   };
 
-  const updateProduct = (id: number, field: string, value: string | number) => {
-    setProducts(products.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
+  const updateItem = (id: string, field: string, value: string | number) => {
+    setItems(
+      items.map((item) => {
+        if (item.id === id) {
+          const updatedItem = { ...item, [field]: value };
+          if (field === 'quantity' || field === 'unitPrice') {
+            updatedItem.subtotal = updatedItem.quantity * updatedItem.unitPrice;
+          }
+          return updatedItem;
+        }
+        return item;
+      }),
+    );
   };
 
   const updateAddress = (field: string, value: string) => {
@@ -78,8 +96,8 @@ const AddOrder = () => {
   };
 
   const calculateTotal = () => {
-    return products.reduce((total, product) => {
-      return total + product.quantity * product.price;
+    return items.reduce((total, item) => {
+      return total + item.subtotal;
     }, 0);
   };
 
@@ -90,19 +108,19 @@ const AddOrder = () => {
     }).format(price);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validar se todos os campos obrigatórios estão preenchidos
-    if (!customerName.trim() || !customerPhone.trim() || !paymentMethod) {
+    if (!customerName.trim() || !customerPhone.trim() || !customerEmail.trim()) {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
-    if (deliveryType === 'delivery') {
-      const requiredFields = ['cep', 'street', 'number', 'neighborhood', 'city', 'state'];
+    if (deliveryType === 'HOME_DELIVERY') {
+      const requiredFields = ['street', 'number', 'neighborhood', 'city', 'state', 'zipCode'];
       const missingFields = requiredFields.filter(
-        (field) => !deliveryAddress[field as keyof OrderAddress],
+        (field) => !deliveryAddress[field as keyof typeof deliveryAddress],
       );
 
       if (missingFields.length > 0) {
@@ -111,62 +129,80 @@ const AddOrder = () => {
       }
     }
 
-    // Validar produtos
-    const invalidProducts = products.filter(
-      (p) => !p.name.trim() || !p.code.trim() || p.price <= 0,
+    // Validar itens
+    const invalidItems = items.filter(
+      (item) => !item.name.trim() || !item.externalId.trim() || item.unitPrice <= 0,
     );
-    if (invalidProducts.length > 0) {
-      alert('Por favor, preencha corretamente todos os produtos.');
+    if (invalidItems.length > 0) {
+      alert('Por favor, preencha corretamente todos os itens.');
       return;
     }
 
-    // Simular criação do pedido
-    const newOrder = {
-      id: Date.now(),
-      orderNumber: `#${Date.now()}`,
-      customer: customerName,
-      customerPhone,
-      products,
-      total: calculateTotal(),
-      status: orderStatus,
-      orderDate: new Date().toISOString(),
-      paymentMethod,
-      deliveryAddress:
-        deliveryType === 'delivery'
-          ? `${deliveryAddress.street}, ${deliveryAddress.number} - ${deliveryAddress.neighborhood}, ${deliveryAddress.city}/${deliveryAddress.state}`
-          : 'Retirada na Loja',
-      deliveryType,
-      address: deliveryType === 'delivery' ? deliveryAddress : undefined,
-    };
+    try {
+      setSaving(true);
 
-    console.log('Novo pedido criado:', newOrder);
-    alert('Pedido criado com sucesso!');
+      const orderRequest: OrderRequest = {
+        customer: {
+          id: '', // Será gerado pelo backend
+          fullName: customerName,
+          email: customerEmail,
+          phone: customerPhone,
+        },
+        items: items.map((item) => ({
+          id: item.id,
+          externalId: item.externalId,
+          name: item.name,
+          mainImageUrl: '',
+          mainImageThumbnailUrl: '',
+          brand: item.brand,
+          size: item.size,
+          quantity: item.quantity,
+          discountApplied: 0,
+          unitPrice: item.unitPrice,
+          subtotal: item.subtotal,
+        })),
+        financialSummary: {
+          subtotal: calculateTotal(),
+          totalAmount: calculateTotal(),
+          deliveryFee: 0,
+          discountAmount: 0,
+        },
+        status: orderStatus,
+        deliveryType,
+        deliveryAddress:
+          deliveryType === 'HOME_DELIVERY'
+            ? {
+                id: '',
+                street: deliveryAddress.street,
+                number: deliveryAddress.number,
+                complement: deliveryAddress.complement,
+                neighborhood: deliveryAddress.neighborhood,
+                city: deliveryAddress.city,
+                state: deliveryAddress.state,
+                zipCode: deliveryAddress.zipCode,
+              }
+            : {
+                id: '',
+                street: '',
+                number: '',
+                complement: '',
+                neighborhood: '',
+                city: '',
+                state: '',
+                zipCode: '',
+              },
+        paymentMethod,
+      };
 
-    // Limpar formulário
-    setCustomerName('');
-    setCustomerPhone('');
-    setPaymentMethod('');
-    setOrderStatus('pendente');
-    setDeliveryType('delivery');
-    setProducts([
-      {
-        id: 1,
-        name: '',
-        code: '',
-        size: '',
-        quantity: 1,
-        price: 0,
-      },
-    ]);
-    setDeliveryAddress({
-      cep: '',
-      street: '',
-      number: '',
-      complement: '',
-      neighborhood: '',
-      city: '',
-      state: '',
-    });
+      await orderService.createOrder(orderRequest);
+      alert('Pedido criado com sucesso!');
+      navigate('/admin/pedidos');
+    } catch (error) {
+      console.error('Erro ao criar pedido:', error);
+      alert('Erro ao criar pedido. Tente novamente.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -190,7 +226,21 @@ const AddOrder = () => {
               <h3 className='text-lg font-semibold text-slate-800'>Informações do Cliente</h3>
             </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+              <div className='flex flex-col gap-2'>
+                <label className='text-sm font-semibold text-slate-700' htmlFor='customer-name'>
+                  Nome Completo *
+                </label>
+                <input
+                  id='customer-name'
+                  type='text'
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder='Digite o nome completo'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  required
+                />
+              </div>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm font-semibold text-slate-700' htmlFor='customer-phone'>
                   Telefone *
@@ -206,15 +256,15 @@ const AddOrder = () => {
                 />
               </div>
               <div className='flex flex-col gap-2'>
-                <label className='text-sm font-semibold text-slate-700' htmlFor='customer-name'>
-                  Nome Completo *
+                <label className='text-sm font-semibold text-slate-700' htmlFor='customer-email'>
+                  Email *
                 </label>
                 <input
-                  id='customer-name'
-                  type='text'
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder='Digite o nome completo'
+                  id='customer-email'
+                  type='email'
+                  value={customerEmail}
+                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  placeholder='email@exemplo.com'
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 />
@@ -231,48 +281,55 @@ const AddOrder = () => {
               </div>
               <button
                 type='button'
-                onClick={addProduct}
+                onClick={addItem}
                 className='flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all duration-300'
               >
                 <Plus className='w-4 h-4' />
-                Adicionar Produto
+                Adicionar Item
               </button>
             </div>
 
             <div className='space-y-4'>
-              {products.map((productItem, index) => (
-                <div
-                  key={productItem.id}
-                  className='p-4 bg-white rounded-lg border border-slate-200'
-                >
+              {items.map((item, index) => (
+                <div key={item.id} className='p-4 bg-white rounded-lg border border-slate-200'>
                   <div className='flex items-center justify-between mb-3'>
-                    <h4 className='text-sm font-semibold text-slate-800'>Produto {index + 1}</h4>
+                    <h4 className='text-sm font-semibold text-slate-800'>Item {index + 1}</h4>
                   </div>
 
                   <div className='grid grid-cols-1 md:grid-cols-12 gap-4'>
                     <div className='md:col-span-2 flex flex-col gap-2'>
                       <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        Código do Produto *
+                        Código do Item *
                       </label>
                       <input
                         type='text'
-                        value={productItem.code}
-                        onChange={(e) => updateProduct(productItem.id, 'code', e.target.value)}
+                        value={item.externalId}
+                        onChange={(e) => updateItem(item.id, 'externalId', e.target.value)}
                         className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                         required
                       />
                     </div>
 
-                    <div className='md:col-span-5 flex flex-col gap-2'>
+                    <div className='md:col-span-3 flex flex-col gap-2'>
                       <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        Nome do Produto *
+                        Nome do Item *
                       </label>
                       <input
                         type='text'
-                        value={productItem.name}
-                        onChange={(e) => updateProduct(productItem.id, 'name', e.target.value)}
+                        value={item.name}
+                        onChange={(e) => updateItem(item.id, 'name', e.target.value)}
                         className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                         required
+                      />
+                    </div>
+
+                    <div className='md:col-span-2 flex flex-col gap-2'>
+                      <label className='text-xs sm:text-sm font-medium text-slate-600'>Marca</label>
+                      <input
+                        type='text'
+                        value={item.brand}
+                        onChange={(e) => updateItem(item.id, 'brand', e.target.value)}
+                        className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                       />
                     </div>
 
@@ -282,8 +339,8 @@ const AddOrder = () => {
                       </label>
                       <input
                         type='text'
-                        value={productItem.size}
-                        onChange={(e) => updateProduct(productItem.id, 'size', e.target.value)}
+                        value={item.size}
+                        onChange={(e) => updateItem(item.id, 'size', e.target.value)}
                         className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                       />
                     </div>
@@ -293,9 +350,9 @@ const AddOrder = () => {
                       <input
                         type='number'
                         min='1'
-                        value={productItem.quantity}
+                        value={item.quantity}
                         onChange={(e) =>
-                          updateProduct(productItem.id, 'quantity', parseInt(e.target.value) || 1)
+                          updateItem(item.id, 'quantity', parseInt(e.target.value) || 1)
                         }
                         className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                         required
@@ -310,9 +367,9 @@ const AddOrder = () => {
                         type='number'
                         min='0'
                         step='0.01'
-                        value={productItem.price}
+                        value={item.unitPrice}
                         onChange={(e) =>
-                          updateProduct(productItem.id, 'price', parseFloat(e.target.value) || 0)
+                          updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)
                         }
                         className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                         required
@@ -323,12 +380,12 @@ const AddOrder = () => {
                       <label className='text-xs sm:text-sm font-medium text-slate-600'>
                         &nbsp;
                       </label>
-                      {products.length > 1 && (
+                      {items.length > 1 && (
                         <button
                           type='button'
-                          onClick={() => removeProduct(productItem.id)}
+                          onClick={() => removeItem(item.id)}
                           className='p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300'
-                          aria-label='Remover produto'
+                          aria-label='Remover item'
                         >
                           <X className='w-4 h-4' />
                         </button>
@@ -338,7 +395,7 @@ const AddOrder = () => {
 
                   <div className='mt-3 text-right'>
                     <span className='text-sm font-medium text-slate-600'>
-                      Subtotal: {formatPrice(productItem.quantity * productItem.price)}
+                      Subtotal: {formatPrice(item.subtotal)}
                     </span>
                   </div>
                 </div>
@@ -368,9 +425,9 @@ const AddOrder = () => {
                 <input
                   type='radio'
                   name='deliveryType'
-                  value='delivery'
-                  checked={deliveryType === 'delivery'}
-                  onChange={(e) => setDeliveryType(e.target.value as 'delivery' | 'pickup')}
+                  value='HOME_DELIVERY'
+                  checked={deliveryType === 'HOME_DELIVERY'}
+                  onChange={(e) => setDeliveryType(e.target.value as 'HOME_DELIVERY' | 'PICKUP')}
                   className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
                 />
                 <div className='flex items-center gap-2'>
@@ -383,9 +440,9 @@ const AddOrder = () => {
                 <input
                   type='radio'
                   name='deliveryType'
-                  value='pickup'
-                  checked={deliveryType === 'pickup'}
-                  onChange={(e) => setDeliveryType(e.target.value as 'delivery' | 'pickup')}
+                  value='PICKUP'
+                  checked={deliveryType === 'PICKUP'}
+                  onChange={(e) => setDeliveryType(e.target.value as 'HOME_DELIVERY' | 'PICKUP')}
                   className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
                 />
                 <div className='flex items-center gap-2'>
@@ -395,7 +452,7 @@ const AddOrder = () => {
               </label>
             </div>
 
-            {deliveryType === 'pickup' && (
+            {deliveryType === 'PICKUP' && (
               <div className='mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
                 <div className='flex items-start gap-3'>
                   <Store className='w-5 h-5 text-blue-600 mt-0.5' />
@@ -412,7 +469,7 @@ const AddOrder = () => {
           </div>
 
           {/* Delivery Address - Conditional */}
-          {deliveryType === 'delivery' && (
+          {deliveryType === 'HOME_DELIVERY' && (
             <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
               <div className='flex items-center gap-3 mb-4'>
                 <MapPin className='w-5 h-5 text-purple-600' />
@@ -423,14 +480,14 @@ const AddOrder = () => {
                 {/* CEP and Street */}
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
                   <div className='flex flex-col gap-2'>
-                    <label className='text-sm font-medium text-slate-600' htmlFor='cep'>
+                    <label className='text-sm font-medium text-slate-600' htmlFor='zipCode'>
                       CEP *
                     </label>
                     <input
-                      id='cep'
+                      id='zipCode'
                       type='text'
-                      value={deliveryAddress.cep}
-                      onChange={(e) => updateAddress('cep', e.target.value)}
+                      value={deliveryAddress.zipCode}
+                      onChange={(e) => updateAddress('zipCode', e.target.value)}
                       placeholder='00000-000'
                       className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                       required
@@ -581,16 +638,19 @@ const AddOrder = () => {
                 <select
                   id='payment-method'
                   value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  onChange={(e) =>
+                    setPaymentMethod(
+                      e.target.value as 'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CASH',
+                    )
+                  }
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 >
                   <option value=''>Selecione a forma de pagamento</option>
                   <option value='PIX'>PIX</option>
-                  <option value='Cartão de Crédito'>Cartão de Crédito</option>
-                  <option value='Cartão de Débito'>Cartão de Débito</option>
-                  <option value='Dinheiro'>Dinheiro</option>
-                  <option value='Transferência Bancária'>Transferência Bancária</option>
+                  <option value='CREDIT_CARD'>Cartão de Crédito</option>
+                  <option value='DEBIT_CARD'>Cartão de Débito</option>
+                  <option value='CASH'>Dinheiro</option>
                 </select>
               </div>
 
@@ -601,20 +661,24 @@ const AddOrder = () => {
                 <select
                   id='order-status'
                   value={orderStatus}
-                  onChange={(e) => setOrderStatus(e.target.value)}
+                  onChange={(e) =>
+                    setOrderStatus(
+                      e.target.value as 'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED',
+                    )
+                  }
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 >
-                  <option value='pendente'>Pendente</option>
-                  <option value='aprovado'>Aprovado</option>
-                  <option value='enviado'>Enviado</option>
-                  <option value='entregue'>Entregue</option>
-                  <option value='cancelado'>Cancelado</option>
+                  <option value='PENDING'>Pendente</option>
+                  <option value='APPROVED'>Aprovado</option>
+                  <option value='SENT'>Enviado</option>
+                  <option value='DELIVERED'>Entregue</option>
+                  <option value='CANCELLED'>Cancelado</option>
                 </select>
               </div>
             </div>
 
-            {deliveryType === 'pickup' && (
+            {deliveryType === 'PICKUP' && (
               <div className='mt-4 p-4 bg-green-50 border border-green-200 rounded-lg'>
                 <div className='flex items-start gap-3'>
                   <Store className='w-5 h-5 text-green-600 mt-0.5' />
@@ -644,9 +708,10 @@ const AddOrder = () => {
           <div className='pt-4'>
             <button
               type='submit'
-              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+              disabled={saving}
+              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
             >
-              Criar Pedido
+              {saving ? 'Criando...' : 'Criar Pedido'}
             </button>
           </div>
         </form>

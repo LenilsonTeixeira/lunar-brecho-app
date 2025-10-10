@@ -4,6 +4,9 @@ import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import Checkout from './pages/Checkout';
 import OrderConfirmation from './pages/OrderConfirmation';
+import GeneralInfo from './pages/GeneralInfo';
+import ExchangesReturns from './pages/ExchangesReturns';
+import Contact from './pages/Contact';
 import Footer from './components/footer/Footer';
 import { ProductProvider } from './contexts/ProductContext';
 import { CartProvider } from './contexts/CartContext';
@@ -83,6 +86,9 @@ const App = () => {
                 <Route path='/produtos/:productId' element={<ProductDetail />} />
                 <Route path='/checkout' element={<Checkout />} />
                 <Route path='/order-confirmation' element={<OrderConfirmation />} />
+                <Route path='/informacoes-gerais' element={<GeneralInfo />} />
+                <Route path='/trocas-devolucoes' element={<ExchangesReturns />} />
+                <Route path='/contato' element={<Contact />} />
                 <Route path='/admin/login' element={<Login />} />
                 <Route path='/admin/register' element={<Register />} />
                 <Route path='/admin' element={<Layout />}>
