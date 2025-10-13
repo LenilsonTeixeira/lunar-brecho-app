@@ -25,7 +25,7 @@ const Footer = ({
   instagramHandle = 'brecholunaritba',
 }: FooterProps) => {
   return (
-    <footer className='bg-slate-900 text-slate-50 w-full py-4 sm:py-6 px-4 mt-16 sm:mt-20'>
+    <footer className='bg-slate-900 text-slate-50 w-full py-4 sm:py-6 px-4'>
       <div className='max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6'>
         <p className='text-xs sm:text-sm text-slate-400 text-center sm:text-left'>
           &copy; {year} Todos os direitos reservados.
