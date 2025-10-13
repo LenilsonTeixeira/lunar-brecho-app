@@ -42,6 +42,7 @@ const Checkout = () => {
   const [shippingExpanded, setShippingExpanded] = useState(false);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [isLoadingCustomer, setIsLoadingCustomer] = useState(false);
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
 
   // Restaurar dados ao voltar da tela de confirmação
   useEffect(() => {
@@ -69,14 +70,38 @@ const Checkout = () => {
   const totalWithDiscount = subtotal - discountAmount;
   const finalTotal = totalWithDiscount + deliveryFee;
 
-  const handleZipCodeValidation = () => {
-    // Simular validação de CEP
-    if (zipCode.length === 8 || zipCode.length === 9) {
-      // Preencher campos automaticamente baseado no CEP
-      setStreet('Rua Exemplo');
-      setNeighborhood('Centro');
-      setCity('São Paulo');
-      setState('SP');
+  const handleZipCodeValidation = async () => {
+    const cleanZipCode = zipCode.replace(/\D/g, '');
+
+    if (cleanZipCode.length !== 8) {
+      alert('CEP deve conter 8 dígitos');
+      return;
+    }
+
+    try {
+      setIsLoadingCep(true);
+      const response = await fetch(`https://viacep.com.br/ws/${cleanZipCode}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
+        alert('CEP não encontrado. Verifique o número digitado.');
+        return;
+      }
+
+      // Preencher campos automaticamente com os dados da API
+      setStreet(data.logradouro || '');
+      setNeighborhood(data.bairro || '');
+      setCity(data.localidade || '');
+      setState(data.uf || '');
+      setComplement(data.complemento || '');
+
+      // Formatar CEP com hífen
+      setZipCode(data.cep || cleanZipCode);
+    } catch (error) {
+      console.error('Erro ao consultar CEP:', error);
+      alert('Erro ao consultar CEP. Tente novamente.');
+    } finally {
+      setIsLoadingCep(false);
     }
   };
 
@@ -346,9 +371,10 @@ const Checkout = () => {
                           />
                           <button
                             onClick={handleZipCodeValidation}
-                            className='px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-semibold text-sm sm:text-base shadow-md hover:shadow-lg whitespace-nowrap'
+                            disabled={isLoadingCep}
+                            className='px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-semibold text-sm sm:text-base shadow-md hover:shadow-lg whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed'
                           >
-                            VALIDAR CEP
+                            {isLoadingCep ? 'VALIDANDO...' : 'VALIDAR CEP'}
                           </button>
                         </div>
                       </div>
