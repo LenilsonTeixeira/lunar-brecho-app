@@ -1,0 +1,315 @@
+name: CI/CD Pipeline - Vite React to AWS EC2
+
+# Define quando a pipeline será executada
+on:
+  push:
+    branches: [main, release-deploy]
+  pull_request:
+    branches: [main]
+
+# Variáveis de ambiente globais
+env:
+  NODE_VERSION: '20'
+  APP_NAME: 'lunar-brecho-app'
+
+jobs:
+  # Job de Build e Qualidade de Código
+  build-and-quality:
+    name: Build and Quality Check
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout do código fonte
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Busca todo o histórico para análise de mudanças
+
+      # 2. Setup do Node.js 20
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm' # Cache automático de dependências npm
+
+      # 3. Cache adicional de node_modules para acelerar builds
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      # 4. Limpar cache se necessário (opcional)
+      - name: Clear npm cache if needed
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          npm cache clean --force
+          echo "npm cache cleared for main branch"
+
+      # 5. Instalar dependências
+      - name: Install dependencies
+        run: npm ci # ci é mais rápido e consistente que install
+
+      # 6. Executar linter
+      - name: Run ESLint
+        run: npm run lint
+        continue-on-error: false # Falha o build se houver erros de lint
+
+      # 7. Verificar formatação de código
+      - name: Check code formatting
+        run: npm run format -- --check
+        continue-on-error: true # Apenas avisa, não falha o build
+
+      # 8. Build da aplicação para produção
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      # 9. Verificar se o build foi bem-sucedido
+      - name: Verify build output
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "❌ Build falhou - diretório dist não foi criado"
+            exit 1
+          fi
+          echo "✅ Build bem-sucedido"
+          echo "📦 Conteúdo do diretório dist:"
+          ls -la dist/
+
+      # 10. Upload do artefato de build para uso no deploy
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-dist
+          path: dist/
+          retention-days: 7 # Mantém por 7 dias
+
+      # 11. Limpeza final do ambiente
+      - name: Cleanup workspace
+        if: always() # Executa sempre, mesmo se houver falhas
+        run: |
+          rm -rf node_modules/.cache
+          echo "Workspace cleaned successfully"
+
+  # Job de Deploy para EC2 (só executa em push para main)
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    environment: prd
+    needs: build-and-quality # Aguarda o job de build terminar
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' || github.ref == 'refs/heads/release-deploy' && github.event_name == 'push'
+
+    steps:
+      # 1. Checkout do código
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Download do artefato de build
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-dist
+          path: dist/
+
+      # 3. Criar arquivo compactado para upload
+      - name: Create deployment package
+        run: |
+          cd dist
+          tar -czf ../app-dist.tar.gz .
+          cd ..
+          echo "📦 Pacote criado: $(ls -lh app-dist.tar.gz)"
+
+      # 4. Upload do arquivo de configuração Nginx
+      - name: Upload Nginx config
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          source: 'infra/nginx-lunar-brecho.conf'
+          target: '/tmp/'
+          strip_components: 0
+
+      # 5. Upload do pacote de build para EC2
+      - name: Upload build to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          source: 'app-dist.tar.gz'
+          target: '/tmp/'
+
+      # 6. Deploy via SSH para EC2
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          script: |
+            echo "🚀 Iniciando deploy do frontend..."
+
+            # Definir diretório da aplicação
+            APP_DIR="/var/www/${{ env.APP_NAME }}"
+            BACKUP_DIR="/var/www/backups/${{ env.APP_NAME }}"
+
+            # Criar backup da versão atual (se existir)
+            if [ -d "$APP_DIR" ]; then
+              echo "💾 Criando backup da versão atual..."
+              sudo mkdir -p "$BACKUP_DIR"
+              TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+              sudo tar -czf "$BACKUP_DIR/backup-$TIMESTAMP.tar.gz" -C "$APP_DIR" . 2>/dev/null || true
+              
+              # Manter apenas os 5 backups mais recentes
+              cd "$BACKUP_DIR"
+              ls -t backup-*.tar.gz | tail -n +6 | xargs -r sudo rm --
+              echo "✅ Backup criado: backup-$TIMESTAMP.tar.gz"
+            fi
+
+            # Criar diretório da aplicação se não existir
+            echo "📁 Preparando diretório da aplicação..."
+            sudo mkdir -p "$APP_DIR"
+
+            # Remover conteúdo antigo
+            echo "🗑️  Removendo versão antiga..."
+            sudo rm -rf "$APP_DIR"/*
+
+            # Verificar se o pacote foi enviado
+            if [ ! -f "/tmp/app-dist.tar.gz" ]; then
+              echo "❌ Arquivo de deploy não encontrado em /tmp/app-dist.tar.gz"
+              exit 1
+            fi
+
+            # Extrair novo build
+            echo "📦 Extraindo novo build..."
+            sudo tar -xzf /tmp/app-dist.tar.gz -C "$APP_DIR"
+
+            # Verificar se a extração foi bem-sucedida
+            if [ ! -f "$APP_DIR/index.html" ]; then
+              echo "❌ Falha na extração - index.html não encontrado"
+              ls -la "$APP_DIR"
+              exit 1
+            fi
+
+            echo "✅ Build extraído com sucesso"
+            echo "📋 Conteúdo do diretório:"
+            ls -la "$APP_DIR"
+
+            # Ajustar permissões
+            echo "🔐 Ajustando permissões..."
+            sudo chown -R www-data:www-data "$APP_DIR"
+            sudo chmod -R 755 "$APP_DIR"
+            sudo find "$APP_DIR" -type f -exec chmod 644 {} \;
+
+            echo "✅ Permissões ajustadas"
+
+            # Atualizar configuração do Nginx se existir
+            if [ -f "/tmp/infra/nginx-lunar-brecho.conf" ]; then
+              echo "⚙️  Atualizando configuração do Nginx..."
+              sudo cp /tmp/infra/nginx-lunar-brecho.conf /etc/nginx/sites-available/${{ env.APP_NAME }}
+              sudo ln -sf /etc/nginx/sites-available/${{ env.APP_NAME }} /etc/nginx/sites-enabled/
+              
+              # Testar configuração do Nginx
+              if sudo nginx -t; then
+                echo "✅ Configuração do Nginx válida"
+                sudo systemctl reload nginx
+                echo "✅ Nginx recarregado"
+              else
+                echo "⚠️  Erro na configuração do Nginx"
+              fi
+            fi
+
+            # Limpar arquivos temporários
+            echo "🧹 Limpando arquivos temporários..."
+            rm -f /tmp/app-dist.tar.gz
+            sudo rm -rf /tmp/infra/
+
+            echo "✅ Deploy concluído com sucesso!"
+
+      # 7. Verificação de saúde da aplicação
+      - name: Health Check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          script: |
+            echo "🔍 Verificando saúde da aplicação..."
+
+            # Aguardar Nginx processar
+            sleep 10
+
+            # Verificar se o Nginx está rodando
+            if ! sudo systemctl is-active --quiet nginx; then
+              echo "❌ Nginx não está ativo!"
+              sudo systemctl status nginx --no-pager
+              exit 1
+            fi
+
+            echo "✅ Nginx está ativo"
+
+            # Testar acesso local ao site
+            max_attempts=5
+            attempt=1
+
+            while [ $attempt -le $max_attempts ]; do
+              echo "🔄 Tentativa $attempt de $max_attempts..."
+
+              # Testar HTTP local
+              response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/ 2>/dev/null || echo "000")
+
+              if [ "$response" = "200" ] || [ "$response" = "304" ]; then
+                echo "✅ Aplicação está respondendo!"
+                echo "📊 Status HTTP: $response"
+                
+                # Verificar se o index.html está sendo servido
+                if curl -s http://localhost/ | grep -q "<!doctype html"; then
+                  echo "✅ index.html sendo servido corretamente"
+                  exit 0
+                fi
+              fi
+
+              echo "⏳ Status: $response - Aguardando 10 segundos..."
+              sleep 10
+              attempt=$((attempt + 1))
+            done
+
+            echo "❌ Aplicação não respondeu após $((max_attempts * 10)) segundos"
+            echo "📋 Status do Nginx:"
+            sudo systemctl status nginx --no-pager
+            echo "📋 Logs do Nginx (últimas 50 linhas):"
+            sudo tail -n 50 /var/log/nginx/error.log
+            exit 1
+
+  # Job de notificação (opcional)
+  notify:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [build-and-quality, deploy]
+    if: always() # Executa sempre, mesmo se outros jobs falharem
+
+    steps:
+      - name: Notify Success
+        if: needs.deploy.result == 'success'
+        run: |
+          echo "🎉 Deploy do frontend realizado com sucesso!"
+          echo "📱 Aplicação: ${{ env.APP_NAME }}"
+          echo "🌐 Acesse em: http://${{ secrets.EC2_HOST }}"
+          # Aqui você pode adicionar notificações para Slack, Discord, etc.
+
+      - name: Notify Failure
+        if: needs.deploy.result == 'failure'
+        run: |
+          echo "❌ Deploy do frontend falhou!"
+          echo "📱 Aplicação: ${{ env.APP_NAME }}"
+          # Aqui você pode adicionar notificações de erro

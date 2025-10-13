@@ -1,5 +1,21 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
 
 @theme {
-  --font-sans: "Poppins", "sans-serif";
+  --font-sans: 'Poppins', 'sans-serif';
+
+  --shadow-card-payment-method:
+    0 -4px 20px rgba(0, 0, 0, 0.15), 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-card-payment-method-colored:
+    0 -4px 20px rgba(0, 0, 0, 0.15), 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 20px var(--tw-shadow-color);
 }

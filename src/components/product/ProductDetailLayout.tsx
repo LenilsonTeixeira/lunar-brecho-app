@@ -1,18 +1,19 @@
+import Container from '../layout/Container';
+
 type LayoutProps = {
-    children: React.ReactNode;
+  children: React.ReactNode;
 };
 
-
 const ProductDetailLayout = ({ children }: LayoutProps) => {
-    return (
-        <div className="flex py-5 justify-between items-center px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] mt-15">
-          <div className="pt-10 transition-opacity ease-in duration-500 opacity-100">
-            <div className="flex gap-12 flex-col sm:gap-12 sm:flex-row">
-              {children}
-            </div>
-          </div>
+  return (
+    <Container>
+      <div className='py-6 sm:py-8 lg:py-12'>
+        <div className='transition-opacity ease-in duration-500 opacity-100'>
+          <div className='flex gap-8 lg:gap-12 flex-col lg:flex-row'>{children}</div>
         </div>
-      );
-}
+      </div>
+    </Container>
+  );
+};
 
-export default ProductDetailLayout
+export default ProductDetailLayout;

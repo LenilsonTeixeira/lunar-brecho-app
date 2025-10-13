@@ -1,10 +1,20 @@
-const ProductObservations = () => {
-    return (
-        <div className="mt-4 mb-4">
-          <p className="mb-1">Observações:</p>
-          <p className="text-slate-800 text-sm">Produto novo</p>
-        </div>
-      );
-}
+import { ProductResponse } from '../../services/types';
 
-export default ProductObservations
+type Props = {
+  product: ProductResponse;
+};
+
+const ProductObservations = ({ product }: Props) => {
+  return (
+    <>
+      {product.observations && (
+        <div>
+          <p className='mb-2 text-base font-medium'>Observações:</p>
+          <p className='text-slate-700 text-sm leading-relaxed'>{product.observations}</p>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default ProductObservations;

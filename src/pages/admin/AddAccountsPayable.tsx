@@ -1,0 +1,262 @@
+import { useState } from 'react';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router';
+
+const AddAccountsPayable = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    description: '',
+    amount: '',
+    dueDate: '',
+    paymentMethod: 'boleto',
+    category: 'supplier',
+    supplierName: '',
+    recurrence: 'once',
+    notes: '',
+  });
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    console.log('Conta a pagar a ser adicionada:', formData);
+    // Navigate back to accounts payable after adding
+    navigate('/admin/contas-pagar');
+  };
+
+  return (
+    <div className='py-6 flex flex-col justify-between bg-slate-50'>
+      <div className='w-full max-w-7xl mx-auto'>
+        <div className='mb-8'>
+          <div className='flex items-center gap-4 mb-4'>
+            <button
+              onClick={() => navigate('/admin/contas-pagar')}
+              className='flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all duration-300'
+            >
+              <ArrowLeft className='w-4 h-4' />
+              Voltar
+            </button>
+          </div>
+          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
+            Adicionar Conta a Pagar
+          </h1>
+          <p className='text-sm sm:text-base text-slate-600'>
+            Preencha as informações da conta a pagar abaixo
+          </p>
+        </div>
+
+        <form
+          onSubmit={handleSubmit}
+          className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'
+        >
+          {/* Informações Básicas */}
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2'>
+              Informações Básicas
+            </h3>
+
+            <div className='flex flex-col gap-2'>
+              <label
+                className='text-sm sm:text-base font-semibold text-slate-700'
+                htmlFor='description'
+              >
+                Descrição *
+              </label>
+              <input
+                id='description'
+                name='description'
+                type='text'
+                placeholder='Ex: Compra de Estoque - Fornecedor ABC'
+                value={formData.description}
+                onChange={handleInputChange}
+                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                required
+              />
+            </div>
+
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='amount'
+                >
+                  Valor (R$) *
+                </label>
+                <input
+                  id='amount'
+                  name='amount'
+                  type='number'
+                  step='0.01'
+                  min='0'
+                  placeholder='0,00'
+                  value={formData.amount}
+                  onChange={handleInputChange}
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                  required
+                />
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='dueDate'
+                >
+                  Data de Vencimento *
+                </label>
+                <input
+                  id='dueDate'
+                  name='dueDate'
+                  type='date'
+                  value={formData.dueDate}
+                  onChange={handleInputChange}
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Informações de Pagamento */}
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2'>
+              Informações de Pagamento
+            </h3>
+
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='paymentMethod'
+                >
+                  Forma de Pagamento *
+                </label>
+                <select
+                  id='paymentMethod'
+                  name='paymentMethod'
+                  value={formData.paymentMethod}
+                  onChange={handleInputChange}
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                  required
+                >
+                  <option value='boleto'>Boleto</option>
+                  <option value='pix'>PIX</option>
+                  <option value='transfer'>Transferência</option>
+                  <option value='card'>Cartão</option>
+                  <option value='money'>Dinheiro</option>
+                </select>
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='category'
+                >
+                  Categoria *
+                </label>
+                <select
+                  id='category'
+                  name='category'
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                  required
+                >
+                  <option value='supplier'>Fornecedor</option>
+                  <option value='logistics'>Logística</option>
+                  <option value='marketing'>Marketing</option>
+                  <option value='system'>Sistema</option>
+                  <option value='taxes'>Impostos</option>
+                  <option value='rent'>Aluguel</option>
+                  <option value='utilities'>Serviços</option>
+                  <option value='other'>Outros</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Informações Adicionais */}
+          <div className='space-y-4'>
+            <h3 className='text-lg font-semibold text-slate-800 border-b border-slate-200 pb-2'>
+              Informações Adicionais
+            </h3>
+
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='supplierName'
+                >
+                  Nome do Fornecedor
+                </label>
+                <input
+                  id='supplierName'
+                  name='supplierName'
+                  type='text'
+                  placeholder='Nome do fornecedor (opcional)'
+                  value={formData.supplierName}
+                  onChange={handleInputChange}
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='recurrence'
+                >
+                  Recorrência
+                </label>
+                <select
+                  id='recurrence'
+                  name='recurrence'
+                  value={formData.recurrence}
+                  onChange={handleInputChange}
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white'
+                >
+                  <option value='once'>Único</option>
+                  <option value='monthly'>Mensal</option>
+                  <option value='yearly'>Anual</option>
+                </select>
+              </div>
+            </div>
+
+            <div className='flex flex-col gap-2'>
+              <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='notes'>
+                Observações
+              </label>
+              <textarea
+                id='notes'
+                name='notes'
+                rows={4}
+                placeholder='Observações adicionais (opcional)'
+                value={formData.notes}
+                onChange={handleInputChange}
+                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-300 bg-white resize-none'
+              />
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className='pt-4'>
+            <button
+              type='submit'
+              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+            >
+              Adicionar Conta a Pagar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default AddAccountsPayable;
