@@ -626,7 +626,7 @@ const AddOrder = () => {
             <div className='flex items-center gap-3 mb-4'>
               <CreditCard className='w-5 h-5 text-purple-600' />
               <h3 className='text-lg font-semibold text-slate-800'>
-                {deliveryType === 'pickup' ? 'Pagamento e Retirada' : 'Método de Pagamento'}
+                {deliveryType === 'PICKUP' ? 'Pagamento e Retirada' : 'Método de Pagamento'}
               </h3>
             </div>
 

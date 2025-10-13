@@ -111,6 +111,7 @@ export interface ProductResponse {
   status: 'ACTIVE' | 'INACTIVE';
   variants: ProductVariant[];
   images: ProductImage[];
+  totalCurrentStock?: number;
   createdAt?: string;
   updatedAt?: string;
 }

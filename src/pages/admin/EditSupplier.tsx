@@ -16,6 +16,7 @@ interface SupplierItem {
   contactPerson?: string;
   website?: string;
   notes?: string;
+  status: 'active' | 'inactive';
   createdAt?: string;
   updatedAt?: string;
   productCount?: number;
