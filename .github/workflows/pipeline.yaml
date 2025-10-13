@@ -215,6 +215,14 @@ jobs:
             # Atualizar configuração do Nginx se existir
             if [ -f "/tmp/infra/nginx-lunar-brecho.conf" ]; then
               echo "⚙️  Atualizando configuração do Nginx..."
+              
+              # Desabilitar site padrão se existir para evitar conflitos
+              if [ -f "/etc/nginx/sites-enabled/default" ]; then
+                echo "🗑️  Desabilitando site padrão do Nginx..."
+                sudo rm -f /etc/nginx/sites-enabled/default
+              fi
+              
+              # Copiar nova configuração
               sudo cp /tmp/infra/nginx-lunar-brecho.conf /etc/nginx/sites-available/${{ env.APP_NAME }}
               sudo ln -sf /etc/nginx/sites-available/${{ env.APP_NAME }} /etc/nginx/sites-enabled/
               
@@ -225,6 +233,8 @@ jobs:
                 echo "✅ Nginx recarregado"
               else
                 echo "⚠️  Erro na configuração do Nginx"
+                echo "📋 Testando configuração:"
+                sudo nginx -t
               fi
             fi
 
