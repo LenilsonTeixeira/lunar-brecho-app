@@ -14,7 +14,6 @@ type FooterProps = {
 
 const defaultLinks: FooterLink[] = [
   { label: 'Trocas ou Devoluções', href: '/trocas-devolucoes' },
-  { label: 'Entregas', href: '#' },
   { label: 'Informações Gerais', href: '/informacoes-gerais' },
   { label: 'Contato', href: '/contato' },
 ];

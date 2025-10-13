@@ -51,8 +51,16 @@ const ProductDetail = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const sizeFromUrl = urlParams.get('size');
       const availableSizes = data.variants?.map((v) => v.size) || [];
+
       if (sizeFromUrl && availableSizes.includes(sizeFromUrl)) {
         setSize(sizeFromUrl);
+      } else {
+        // Se não há tamanho na URL, verifica se há apenas um tamanho disponível
+        const availableVariants = data.variants?.filter((v) => (v.stockAvailable || 0) > 0) || [];
+        if (availableVariants.length === 1) {
+          // Seleciona automaticamente o único tamanho disponível
+          setSize(availableVariants[0].size);
+        }
       }
     };
 
