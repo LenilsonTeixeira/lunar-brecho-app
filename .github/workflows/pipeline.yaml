@@ -69,6 +69,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          VITE_API_URL: https://lunarbrecho.com.br/api
 
       # 9. Verificar se o build foi bem-sucedido
       - name: Verify build output
@@ -216,25 +217,31 @@ jobs:
             if [ -f "/tmp/infra/nginx-lunar-brecho.conf" ]; then
               echo "⚙️  Atualizando configuração do Nginx..."
               
-              # Desabilitar site padrão se existir para evitar conflitos
-              if [ -f "/etc/nginx/sites-enabled/default" ]; then
-                echo "🗑️  Desabilitando site padrão do Nginx..."
-                sudo rm -f /etc/nginx/sites-enabled/default
-              fi
+              # Limpar todos os sites habilitados para evitar conflitos
+              echo "🧹 Limpando configurações existentes do Nginx..."
+              sudo rm -f /etc/nginx/sites-enabled/*
+              
+              # Verificar se há arquivos de configuração conflitantes
+              echo "🔍 Verificando configurações conflitantes..."
+              sudo find /etc/nginx -name "*.conf" -exec grep -l "lunarbrecho.com.br" {} \; 2>/dev/null || true
               
               # Copiar nova configuração
               sudo cp /tmp/infra/nginx-lunar-brecho.conf /etc/nginx/sites-available/${{ env.APP_NAME }}
               sudo ln -sf /etc/nginx/sites-available/${{ env.APP_NAME }} /etc/nginx/sites-enabled/
               
               # Testar configuração do Nginx
+              echo "🧪 Testando configuração do Nginx..."
               if sudo nginx -t; then
                 echo "✅ Configuração do Nginx válida"
                 sudo systemctl reload nginx
                 echo "✅ Nginx recarregado"
               else
                 echo "⚠️  Erro na configuração do Nginx"
-                echo "📋 Testando configuração:"
+                echo "📋 Detalhes do erro:"
                 sudo nginx -t
+                echo "📋 Configurações ativas:"
+                sudo ls -la /etc/nginx/sites-enabled/
+                exit 1
               fi
             fi
 
@@ -242,6 +249,22 @@ jobs:
             echo "🧹 Limpando arquivos temporários..."
             rm -f /tmp/app-dist.tar.gz
             sudo rm -rf /tmp/infra/
+
+            # Verificar se o backend está rodando
+            echo "🔍 Verificando status do backend..."
+            if sudo systemctl is-active --quiet lunar-backend 2>/dev/null; then
+              echo "✅ Backend está ativo"
+            elif sudo systemctl is-active --quiet java-backend 2>/dev/null; then
+              echo "✅ Backend Java está ativo"
+            elif netstat -tlnp | grep -q ":8080"; then
+              echo "✅ Serviço rodando na porta 8080"
+            else
+              echo "⚠️  Backend não detectado na porta 8080"
+              echo "📋 Processos na porta 8080:"
+              netstat -tlnp | grep ":8080" || echo "Nenhum processo encontrado"
+              echo "📋 Serviços systemd relacionados:"
+              sudo systemctl list-units --type=service | grep -E "(lunar|backend|java)" || echo "Nenhum serviço encontrado"
+            fi
 
             echo "✅ Deploy concluído com sucesso!"
 

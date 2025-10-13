@@ -1,7 +1,7 @@
 import { ApiError } from '../types';
 import { ENV } from '../../config/env';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = ENV.API_URL || 'http://localhost:8080';
 
 export class BaseApiService {
   protected baseURL: string;
