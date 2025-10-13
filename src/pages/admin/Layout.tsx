@@ -8,7 +8,7 @@ const Layout = () => {
     <FeatureFlagsProvider>
       <div className='h-screen bg-slate-50 flex overflow-hidden'>
         <Sidebar />
-        <div className='flex-1 flex flex-col overflow-hidden'>
+        <div className='flex-1 flex flex-col overflow-hidden lg:ml-0'>
           {/* Fixed Header */}
           <div className='flex-shrink-0'>
             <UserHeader />

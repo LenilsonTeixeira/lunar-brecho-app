@@ -20,7 +20,7 @@ import {
   Flag,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MoonIcon from '../../icon/MoonIcon';
 import { useFeatureFlagsContext } from '@/contexts/FeatureFlagsContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -180,6 +180,32 @@ const Sidebar = () => {
   const toggleSidebar = () => setIsOpen(!isOpen);
   const closeSidebar = () => setIsOpen(false);
 
+  // Close sidebar when screen size changes to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        // lg breakpoint
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Prevent body scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (isOpen && window.innerWidth < 1024) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   const toggleGroup = (groupId: string) => {
     const newCollapsed = new Set(collapsedGroups);
     if (newCollapsed.has(groupId)) {
@@ -222,7 +248,7 @@ const Sidebar = () => {
       {/* Mobile Menu Button */}
       <button
         onClick={toggleSidebar}
-        className='lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-slate-800 text-white shadow-lg hover:bg-slate-700 transition-colors'
+        className='lg:hidden fixed top-4 left-4 z-[60] p-3 rounded-lg bg-slate-800 text-white shadow-lg hover:bg-slate-700 transition-colors'
         aria-label='Toggle menu'
       >
         {isOpen ? <X className='w-6 h-6' /> : <Menu className='w-6 h-6' />}
@@ -230,13 +256,13 @@ const Sidebar = () => {
 
       {/* Overlay for mobile */}
       {isOpen && (
-        <div className='lg:hidden fixed inset-0 bg-black/50 z-40' onClick={closeSidebar} />
+        <div className='lg:hidden fixed inset-0 bg-black/50 z-[50]' onClick={closeSidebar} />
       )}
 
       {/* Sidebar */}
       <div
         className={`
-        fixed lg:static inset-y-0 left-0 z-40
+        fixed lg:static inset-y-0 left-0 z-[55]
         w-64
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
