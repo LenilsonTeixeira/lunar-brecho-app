@@ -40,6 +40,7 @@ const ViewSupplier = () => {
     contactPerson: 'João Silva',
     website: 'https://www.fornecedorabc.com.br',
     notes: 'Fornecedor confiável com produtos de qualidade.',
+    status: 'active',
     createdAt: '2024-01-15T10:30:00Z',
     updatedAt: '2024-03-20T14:45:00Z',
     productCount: 25,
