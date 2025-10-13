@@ -12,7 +12,7 @@ const FooterSocial = ({ instagramHandle }: FooterSocialProps) => {
         to={`https://instagram.com/${instagramHandle}`}
         target='_blank'
         rel='noopener noreferrer'
-        className='flex items-center gap-1 text-pink-400 hover:text-pink-500 transition-colors'
+        className='flex items-center gap-1 text-pink-400 hover:text-pink-500 transition-colors text-xs sm:text-sm'
       >
         <InstagramIcon />
         <span>@{instagramHandle}</span>

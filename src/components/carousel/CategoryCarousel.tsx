@@ -54,17 +54,17 @@ const CategoryCarousel = ({ selectedCategory, onSelectCategory }: CategoryCarous
   return (
     <div className='w-full flex items-center justify-between gap-2 mb-5 mt-3'>
       <button
-        className='md:block hidden z-10 bg-white shadow-md rounded-full p-1 transition hover:scale-110 disabled:opacity-30'
+        className='hidden sm:block z-10 bg-white shadow-md rounded-full p-1 transition hover:scale-110 disabled:opacity-30'
         onClick={() => scroll('left', getScrollAmount())}
         disabled={!canScrollLeft}
         aria-label='Rolar para a esquerda'
       >
-        <ChevronLeft className='w-6 h-6 text-gray-500' />
+        <ChevronLeft className='w-5 h-5 sm:w-6 sm:h-6 text-gray-500' />
       </button>
 
       <div
         ref={scrollRef}
-        className='flex space-x-4 overflow-x-auto scrollbar-hide no-scrollbar px-4 md:px-10 py-2 scroll-smooth snap-x snap-mandatory'
+        className='flex space-x-3 sm:space-x-4 overflow-x-auto scrollbar-hide no-scrollbar px-2 sm:px-4 md:px-10 py-2 scroll-smooth snap-x snap-mandatory'
         tabIndex={0}
         role='list'
         aria-label='Categorias de produtos'
@@ -75,7 +75,7 @@ const CategoryCarousel = ({ selectedCategory, onSelectCategory }: CategoryCarous
             key={category.id}
             ref={index === 0 ? firstItemRef : undefined}
             whileHover={{ scale: 1.08 }}
-            className='flex flex-col items-center cursor-pointer flex-shrink-0 snap-start w-24'
+            className='flex flex-col items-center cursor-pointer flex-shrink-0 snap-start w-20 sm:w-24'
             onClick={() => {
               onSelectCategory(selectedCategory === category.name ? null : category.name);
             }}
@@ -83,7 +83,7 @@ const CategoryCarousel = ({ selectedCategory, onSelectCategory }: CategoryCarous
             aria-selected={selectedCategory === category.name}
           >
             <div
-              className={`w-24 h-24 rounded-full overflow-hidden border shadow-md shadow-slate-600 transition-all ${
+              className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border shadow-md shadow-slate-600 transition-all ${
                 selectedCategory === category.name ? 'border-sky-500 border-2' : 'border-gray-300'
               }`}
             >
@@ -101,7 +101,7 @@ const CategoryCarousel = ({ selectedCategory, onSelectCategory }: CategoryCarous
               />
             </div>
             <span
-              className={`text-sm mt-1 text-center ${
+              className={`text-xs sm:text-sm mt-1 text-center ${
                 selectedCategory === category.name ? 'text-sky-500 font-bold' : 'text-gray-700'
               }`}
             >
@@ -112,12 +112,12 @@ const CategoryCarousel = ({ selectedCategory, onSelectCategory }: CategoryCarous
       </div>
 
       <button
-        className='md:block hidden z-10 bg-white shadow-md rounded-full p-1 transition hover:scale-110 disabled:opacity-30'
+        className='hidden sm:block z-10 bg-white shadow-md rounded-full p-1 transition hover:scale-110 disabled:opacity-30'
         onClick={() => scroll('right', getScrollAmount())}
         disabled={!canScrollRight}
         aria-label='Rolar para a direita'
       >
-        <ChevronRight className='w-6 h-6 text-gray-500' />
+        <ChevronRight className='w-5 h-5 sm:w-6 sm:h-6 text-gray-500' />
       </button>
     </div>
   );

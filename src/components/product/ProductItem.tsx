@@ -52,20 +52,23 @@ const ProductItem = ({ product }: ProductItemProps) => {
   };
 
   return (
-    <Link to={`/produtos/${product.id}`} className='flex flex-col items-start mb-4 md:mb-12 group'>
+    <Link
+      to={`/produtos/${product.id}`}
+      className='flex flex-col items-start mb-3 sm:mb-4 md:mb-6 group'
+    >
       <div className='border-2 border-slate-200 p-1 rounded-lg shadow-sm relative w-full'>
         {/* Label tipo (Novo/Bazar) */}
-        <div className='absolute top-2 left-2 z-10'>
+        <div className='absolute top-1 left-1 sm:top-2 sm:left-2 z-10'>
           <ProductTypeBadge type={product.type} variant='compact' />
         </div>
 
         {/* Botão do Carrinho */}
         <button
           onClick={handleAddToCart}
-          className='absolute top-2 right-2 z-10 bg-white/90 hover:bg-white text-slate-700 hover:text-sky-600 p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300'
+          className='absolute top-1 right-1 sm:top-2 sm:right-2 z-10 bg-white/90 hover:bg-white text-slate-700 hover:text-sky-600 p-1.5 sm:p-2 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300'
           title={product.variants?.length === 1 ? 'Adicionar ao carrinho' : 'Ver produto'}
         >
-          <ShoppingCart className='w-4 h-4' />
+          <ShoppingCart className='w-3 h-3 sm:w-4 sm:h-4' />
         </button>
 
         <div className='aspect-[3/4] overflow-hidden rounded-md'>
@@ -84,11 +87,11 @@ const ProductItem = ({ product }: ProductItemProps) => {
         </div>
       </div>
 
-      <div className='mt-2 text-base flex-1 overflow-hidden font-light w-full text-center'>
+      <div className='mt-2 text-sm sm:text-base flex-1 overflow-hidden font-light w-full text-center line-clamp-2'>
         {product.name}
       </div>
 
-      <div className='flex gap-2 flex-wrap mt-1 w-full justify-center'>
+      <div className='flex gap-1 sm:gap-2 flex-wrap mt-1 w-full justify-center'>
         {product.variants?.map((variant, index) => {
           const stockAvailable = variant.stockAvailable || 0;
           const isOutOfStock = stockAvailable === 0;
@@ -98,7 +101,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
               key={index}
               onClick={(e) => !isOutOfStock && handleSizeClick(e, variant.size)}
               disabled={isOutOfStock}
-              className={`p-1 px-2 rounded-full border-2 text-xs transition-all duration-200 relative ${
+              className={`p-1 px-1.5 sm:px-2 rounded-full border-2 text-xs transition-all duration-200 relative ${
                 isOutOfStock
                   ? 'border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
                   : 'border-slate-200 hover:border-sky-400 hover:bg-sky-50 cursor-pointer'
@@ -118,7 +121,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
         })}
       </div>
 
-      <div className='mt-2 text-lg font-medium text-slate-700 w-full text-center'>
+      <div className='mt-2 text-sm sm:text-lg font-medium text-slate-700 w-full text-center'>
         <span>
           {basePrice.toLocaleString('pt-BR', {
             style: 'currency',
@@ -127,11 +130,11 @@ const ProductItem = ({ product }: ProductItemProps) => {
         </span>
       </div>
 
-      <div className='text-base font-light text-slate-700 w-full text-center'>
+      <div className='text-xs sm:text-base font-light text-slate-700 w-full text-center'>
         <span>{formatToBRL(finalPrice)} no PIX</span>
       </div>
 
-      <div className='text-sm font-light text-slate-700 mt-1 w-full text-center'>
+      <div className='text-xs sm:text-sm font-light text-slate-700 mt-1 w-full text-center'>
         <span>
           ou 6 x de <strong>{formatToBRL(installment)}</strong>
         </span>

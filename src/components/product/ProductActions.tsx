@@ -58,22 +58,22 @@ const ProductActions = ({ product, selectedSize }: Props) => {
     <div className='flex flex-col space-y-3'>
       <button
         onClick={handleWhatsAppProduct}
-        className='bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-4 text-base w-full sm:w-80 cursor-pointer flex items-center justify-center gap-3 transition-colors rounded-lg font-medium'
+        className='bg-emerald-500 hover:bg-emerald-600 text-white px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base w-full cursor-pointer flex items-center justify-center gap-2 sm:gap-3 transition-colors rounded-lg font-medium'
       >
-        <WhatsappIcon width={24} height={24} />
+        <WhatsappIcon width={20} height={20} className='sm:w-6 sm:h-6' />
         Compre pelo WhatsApp
       </button>
 
       <button
         onClick={handleAddToCart}
         disabled={isOutOfStock}
-        className={`px-6 py-4 text-base w-full sm:w-80 cursor-pointer flex items-center justify-center gap-3 transition-colors rounded-lg font-medium ${
+        className={`px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base w-full cursor-pointer flex items-center justify-center gap-2 sm:gap-3 transition-colors rounded-lg font-medium ${
           isOutOfStock
             ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
             : 'bg-sky-500 hover:bg-sky-600 text-white'
         }`}
       >
-        <ShoppingCart className='w-5 h-5' />
+        <ShoppingCart className='w-4 h-4 sm:w-5 sm:h-5' />
         {isOutOfStock ? 'Indisponível' : 'Adicionar ao Carrinho'}
       </button>
     </div>

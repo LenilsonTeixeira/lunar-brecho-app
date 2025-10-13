@@ -10,7 +10,7 @@ const ProductImageGallery = ({ images, alt }: ProductImageGalleryProps) => {
   const [selectedImage, setSelectedImage] = useState(images[0]);
 
   return (
-    <div className='flex-1 flex flex-col-reverse gap-4 lg:flex-row lg:gap-6 items-start'>
+    <div className='flex-1 flex flex-col-reverse gap-3 sm:gap-4 lg:flex-row lg:gap-6 items-start'>
       <Thumbnails
         images={images}
         alt={alt}
@@ -18,7 +18,7 @@ const ProductImageGallery = ({ images, alt }: ProductImageGalleryProps) => {
         selectedImage={selectedImage}
       />
 
-      <div className='w-full lg:w-[80%] border-slate-200 p-2 border rounded-lg shadow-sm relative'>
+      <div className='w-full lg:w-[80%] border-slate-200 p-1 sm:p-2 border rounded-lg shadow-sm relative'>
         <img className='w-full h-auto rounded-md' src={selectedImage} alt={alt} />
       </div>
     </div>

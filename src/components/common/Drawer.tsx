@@ -42,12 +42,12 @@ const Drawer = ({ isOpen, onClose, title, children, className = '' }: DrawerProp
       />
 
       {/* Drawer Panel */}
-      <div className='absolute inset-0 pl-10 focus:outline-none sm:pl-16'>
+      <div className='absolute inset-0 pl-4 focus:outline-none sm:pl-10 md:pl-16'>
         <div
-          className={`group/dialog-panel relative ml-auto block size-full max-w-md transform transition duration-500 ease-in-out ${className}`}
+          className={`group/dialog-panel relative ml-auto block size-full max-w-sm sm:max-w-md transform transition duration-500 ease-in-out ${className}`}
         >
           {/* Close button */}
-          <div className='absolute top-0 left-0 -ml-8 flex pt-4 pr-2 duration-500 ease-in-out sm:-ml-10 sm:pr-4'>
+          <div className='absolute top-0 left-0 -ml-6 flex pt-4 pr-2 duration-500 ease-in-out sm:-ml-8 md:-ml-10 sm:pr-4'>
             <button
               type='button'
               onClick={onClose}
@@ -55,7 +55,7 @@ const Drawer = ({ isOpen, onClose, title, children, className = '' }: DrawerProp
             >
               <span className='absolute -inset-2.5'></span>
               <span className='sr-only'>Fechar painel</span>
-              <X className='size-6' />
+              <X className='size-5 sm:size-6' />
             </button>
           </div>
 

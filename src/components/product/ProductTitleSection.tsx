@@ -34,50 +34,57 @@ const ProductTitleSection = ({ product }: Props) => {
   return (
     <>
       <div className='flex items-start justify-between'>
-        <h1 className='font-medium text-2xl flex-1'>{product.name}</h1>
+        <h1 className='font-medium text-lg sm:text-xl lg:text-2xl flex-1 pr-2'>{product.name}</h1>
         <button
           onClick={handleShare}
-          className='ml-4 p-2 text-sky-600 hover:text-sky-800 hover:bg-sky-50 rounded-full transition-colors'
+          className='ml-2 p-1.5 sm:p-2 text-sky-600 hover:text-sky-800 hover:bg-sky-50 rounded-full transition-colors flex-shrink-0'
           title='Compartilhar produto'
         >
-          <Share2 className='w-5 h-5' />
+          <Share2 className='w-4 h-4 sm:w-5 sm:h-5' />
         </button>
       </div>
       <ProductDetailItem
         value={formatToBRL(product.basePrice)}
-        className='mt-4 text-3xl font-medium'
+        className='mt-4 text-2xl sm:text-3xl font-medium'
       />
       <div className='flex items-center gap-1 mt-2'>
-        <span className='text-sm font-medium text-slate-600'>
+        <span className='text-xs sm:text-sm font-medium text-slate-600'>
           De {formatToBRL(product.basePrice)} por R$ {formatToBRL(finalPrice)} no PIX (5% de
           desconto).
         </span>
       </div>
       <div className='flex items-center gap-1 mt-2'>
-        <CreditCard />
-        <div className='text-base'>
+        <CreditCard className='w-4 h-4 sm:w-5 sm:h-5' />
+        <div className='text-sm sm:text-base'>
           <strong>6 x de {formatToBRL(installment)}</strong>
         </div>
       </div>
       <div className='flex items-center gap-1 mt-2'>
-        <Banknote />
-        <div className='text-base'>
+        <Banknote className='w-4 h-4 sm:w-5 sm:h-5' />
+        <div className='text-sm sm:text-base'>
           <strong>5% de desconto</strong> pagando por PIX
         </div>
       </div>
-      <ProductDetailItem value={product.description || ''} className='mt-6 md:w-4/5 text-base' />
+      <ProductDetailItem
+        value={product.description || ''}
+        className='mt-6 md:w-4/5 text-sm sm:text-base'
+      />
       {product.brand && (
-        <ProductDetailItem label='Marca' value={product.brand} className='mt-4 text-base' />
+        <ProductDetailItem
+          label='Marca'
+          value={product.brand}
+          className='mt-4 text-sm sm:text-base'
+        />
       )}
       <ProductDetailItem
         label='Categoria'
         value={product.category.name}
-        className='mt-3 text-base'
+        className='mt-3 text-sm sm:text-base'
       />
       <ProductDetailItem
         label='Tipo'
         value={product.type === 'NEW' ? 'Novo' : 'Bazar'}
-        className='mt-3 text-base'
+        className='mt-3 text-sm sm:text-base'
       />
     </>
   );
