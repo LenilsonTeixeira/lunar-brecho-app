@@ -260,7 +260,7 @@ const OrderConfirmation = () => {
       const formattedMessage = formatOrderForWhatsApp(createdOrder);
 
       // Enviar mensagem para WhatsApp
-      const phoneNumber = orderData.whatsapp.replace(/\D/g, '');
+      const phoneNumber = '34996962488'; // Número fixo da loja
       const encodedMessage = encodeURIComponent(formattedMessage);
       const whatsappUrl = `https://api.whatsapp.com/send?phone=55${phoneNumber}&text=${encodedMessage}`;
 

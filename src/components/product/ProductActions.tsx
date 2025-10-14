@@ -41,7 +41,7 @@ const ProductActions = ({ product, selectedSize }: Props) => {
   const handleWhatsAppProduct = () => {
     const formattedMessage = formatProductForWhatsApp(product, selectedSize);
     const whatsappMessage = encodeURIComponent(formattedMessage);
-    const whatsappLink = `https://api.whatsapp.com/send?phone=${import.meta.env.VITE_PHONE_NUMBER}&text=${whatsappMessage}`;
+    const whatsappLink = `https://api.whatsapp.com/send?phone=5534996962488&text=${whatsappMessage}`;
 
     window.open(whatsappLink, '_blank');
   };

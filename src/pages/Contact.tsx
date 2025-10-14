@@ -13,7 +13,7 @@ const Contact = () => {
       icon: <Phone className='w-5 h-5 text-emerald-500' />,
       title: 'WhatsApp Lilian',
       description: '(34) 99668-3137',
-      link: 'https://wa.me/5534996962488',
+      link: 'https://wa.me/5534996683137',
     },
     {
       icon: <Instagram className='w-5 h-5 text-pink-500' />,
