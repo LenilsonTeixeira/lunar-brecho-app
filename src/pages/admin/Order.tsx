@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Edit, Trash2, Eye, Plus, Package, RefreshCw } from 'lucide-react';
+import { Search, Edit, Trash2, Eye, Plus, Package, Check, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
 import { orderService } from '../../services/order/OrderService';
@@ -12,6 +12,8 @@ const OrderPage = () => {
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [showStatusModal, setShowStatusModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -34,12 +36,12 @@ const OrderPage = () => {
   };
 
   const statusOptions = [
-    'Todos os Status',
-    'PENDING',
-    'APPROVED',
-    'SENT',
-    'DELIVERED',
-    'CANCELLED',
+    { value: '', label: 'Todos os Status' },
+    { value: 'PENDING', label: 'Pendente' },
+    { value: 'APPROVED', label: 'Aprovado' },
+    { value: 'SHIPPED', label: 'Enviado' },
+    { value: 'DELIVERED', label: 'Entregue' },
+    { value: 'CANCELLED', label: 'Cancelado' },
   ];
 
   const getStatusColor = (status: string) => {
@@ -60,28 +62,35 @@ const OrderPage = () => {
   };
 
   const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'PENDING':
-        return 'Pendente';
-      case 'APPROVED':
-        return 'Aprovado';
-      case 'SENT':
-        return 'Enviado';
-      case 'DELIVERED':
-        return 'Entregue';
-      case 'CANCELLED':
-        return 'Cancelado';
-      default:
-        return status;
+    const statusOption = statusOptions.find((option) => option.value === status);
+    return statusOption ? statusOption.label : status;
+  };
+
+  const handleSelectOrder = (orderId: string) => {
+    setSelectedOrders((prev) =>
+      prev.includes(orderId) ? prev.filter((id) => id !== orderId) : [...prev, orderId],
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedOrders.length === filteredOrders.length) {
+      setSelectedOrders([]);
+    } else {
+      setSelectedOrders(filteredOrders.map((order) => order.id));
     }
   };
 
-  const handleStatusChange = async (orderId: string, newStatus: string) => {
+  const handleBulkStatusChange = async (newStatus: string) => {
     try {
-      await orderService.updateOrderStatus(orderId, { status: newStatus as any });
-      await loadOrders(); // Recarregar dados
+      const promises = selectedOrders.map((orderId) =>
+        orderService.updateOrderStatus(orderId, { status: newStatus as any }),
+      );
+      await Promise.all(promises);
+      await loadOrders();
+      setSelectedOrders([]);
+      setShowStatusModal(false);
     } catch (error) {
-      console.error('Erro ao atualizar status do pedido:', error);
+      console.error('Erro ao atualizar status dos pedidos:', error);
     }
   };
 
@@ -106,10 +115,7 @@ const OrderPage = () => {
       order.externalId.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.customer.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.customer.phone.includes(searchTerm);
-    const matchesStatus =
-      selectedStatus === '' ||
-      selectedStatus === 'Todos os Status' ||
-      order.status === selectedStatus;
+    const matchesStatus = selectedStatus === '' || order.status === selectedStatus;
 
     return matchesSearch && matchesStatus;
   });
@@ -205,8 +211,8 @@ const OrderPage = () => {
                 className='w-full px-4 py-2 sm:py-3 text-sm border border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300'
               >
                 {statusOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
+                  <option key={status.value} value={status.value}>
+                    {status.label}
                   </option>
                 ))}
               </select>
@@ -225,12 +231,51 @@ const OrderPage = () => {
           </div>
         </div>
 
+        {/* Bulk Actions */}
+        {selectedOrders.length > 0 && (
+          <div className='bg-purple-50 border border-purple-200 rounded-xl p-4 mb-6'>
+            <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
+              <div className='flex items-center gap-2'>
+                <Check className='w-5 h-5 text-purple-600' />
+                <span className='text-sm font-medium text-purple-800'>
+                  {selectedOrders.length} pedido{selectedOrders.length > 1 ? 's' : ''} selecionado
+                  {selectedOrders.length > 1 ? 's' : ''}
+                </span>
+              </div>
+              <div className='flex items-center gap-2'>
+                <button
+                  onClick={() => setShowStatusModal(true)}
+                  className='px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-colors duration-200'
+                >
+                  Alterar Status
+                </button>
+                <button
+                  onClick={() => setSelectedOrders([])}
+                  className='px-4 py-2 text-purple-600 border border-purple-300 text-sm font-medium rounded-lg hover:bg-purple-50 transition-colors duration-200'
+                >
+                  <X className='w-4 h-4' />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Orders Table */}
         <div className='bg-slate-50 rounded-xl shadow-lg overflow-hidden'>
           <div className='overflow-x-auto md:overflow-x-visible'>
             <table className='w-full md:min-w-full min-w-[1000px]'>
               <thead className='bg-slate-50 border-b border-slate-200'>
                 <tr>
+                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[50px]'>
+                    <input
+                      type='checkbox'
+                      checked={
+                        selectedOrders.length === filteredOrders.length && filteredOrders.length > 0
+                      }
+                      onChange={handleSelectAll}
+                      className='w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2'
+                    />
+                  </th>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[140px]'>
                     Pedido
                   </th>
@@ -260,6 +305,14 @@ const OrderPage = () => {
                     key={order.id}
                     className='hover:bg-slate-50 transition-colors duration-200 shadow-sm'
                   >
+                    <td className='px-6 py-4'>
+                      <input
+                        type='checkbox'
+                        checked={selectedOrders.includes(order.id)}
+                        onChange={() => handleSelectOrder(order.id)}
+                        className='w-4 h-4 text-purple-600 bg-gray-100 border-gray-300 rounded focus:ring-purple-500 focus:ring-2'
+                      />
+                    </td>
                     <td className='px-6 py-4'>
                       <div>
                         <p className='text-xs sm:text-sm font-medium text-slate-800'>
@@ -351,25 +404,6 @@ const OrderPage = () => {
                         >
                           <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
                         </button>
-                        <div className='relative group'>
-                          <button
-                            className='p-1.5 sm:p-2 text-slate-800 hover:bg-orange-50 rounded-lg transition-colors duration-200'
-                            title='Alterar Status'
-                          >
-                            <RefreshCw className='w-3 h-3 sm:w-4 sm:h-4' />
-                          </button>
-                          <div className='absolute right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 min-w-[120px]'>
-                            {statusOptions.slice(1).map((status) => (
-                              <button
-                                key={status}
-                                onClick={() => handleStatusChange(order.id, status)}
-                                className='w-full px-3 py-2 text-left text-xs sm:text-sm text-slate-700 hover:bg-slate-50 transition-colors duration-200 first:rounded-t-lg last:rounded-b-lg'
-                              >
-                                {getStatusLabel(status)}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
                         <button
                           onClick={() => handleDeleteOrder(order)}
                           className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
@@ -421,6 +455,58 @@ const OrderPage = () => {
           </div>
         )}
       </div>
+
+      {/* Status Change Modal */}
+      {showStatusModal && (
+        <div
+          className='fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4'
+          onClick={() => setShowStatusModal(false)}
+        >
+          <div
+            className='bg-white rounded-xl shadow-2xl max-w-md w-full mx-4'
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className='p-6'>
+              <div className='flex items-center justify-between mb-4'>
+                <h3 className='text-lg font-semibold text-slate-800'>Alterar Status</h3>
+                <button
+                  onClick={() => setShowStatusModal(false)}
+                  className='text-slate-400 hover:text-slate-600 transition-colors p-1'
+                >
+                  <X className='w-5 h-5' />
+                </button>
+              </div>
+
+              <p className='text-sm text-slate-600 mb-6'>
+                Selecione o novo status para {selectedOrders.length} pedido
+                {selectedOrders.length > 1 ? 's' : ''} selecionado
+                {selectedOrders.length > 1 ? 's' : ''}:
+              </p>
+
+              <div className='space-y-3 mb-6'>
+                {statusOptions.slice(1).map((status) => (
+                  <button
+                    key={status.value}
+                    onClick={() => handleBulkStatusChange(status.value)}
+                    className={`w-full px-4 py-3 text-left border rounded-lg transition-all duration-200 ${getStatusColor(status.value)} hover:opacity-80`}
+                  >
+                    <span className='text-sm font-medium'>{status.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className='flex gap-3'>
+                <button
+                  onClick={() => setShowStatusModal(false)}
+                  className='flex-1 px-4 py-2 text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors duration-200'
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirm Delete Dialog */}
       <ConfirmDialog
