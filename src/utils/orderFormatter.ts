@@ -10,9 +10,8 @@ import { ENV } from '../config/env';
 export const formatOrderForWhatsApp = (orderData: OrderResponse) => {
   const itemsText = orderData.items
     .map((item) => {
-      const imageText = item.mainImageThumbnailUrl ? `🖼️ ${item.mainImageThumbnailUrl}` : '';
       return `${item.quantity}x ${item.name} (${item.size}) - ${formatToBRL(item.subtotal)}
-📋 Código: ${item.externalId}${imageText ? `\n${imageText}` : ''}`;
+📋 Código: ${item.externalId}`;
     })
     .join('\n\n');
 
@@ -153,7 +152,6 @@ export const formatProductForWhatsApp = (
 ) => {
   const selectedVariant = product.variants?.find((v) => v.size === selectedSize);
   const price = formatToBRL(product.basePrice * 0.95); // Aplicando desconto PIX
-  const imageText = product.mainThumbnailUrl ? `\n🖼️ ${product.mainThumbnailUrl}` : '';
 
   const message = `
 🛍️ *Produto Lunar Brechó*
@@ -161,7 +159,7 @@ export const formatProductForWhatsApp = (
 *${product.name}*
 Tamanho: ${selectedSize}
 Preço: ${price}
-${product.externalId ? `📋 Código: ${product.externalId}` : ''}${imageText}
+${product.externalId ? `📋 Código: ${product.externalId}` : ''}
 ${selectedVariant ? `📦 Estoque: ${selectedVariant.stockAvailable} unidades` : ''}
 
 Gostaria de mais informações sobre este produto!
