@@ -209,7 +209,7 @@ const OrderConfirmation = () => {
         },
         items: items.map((item) => {
           const itemPrice = calculateItemPrice(item.snapshot);
-          return {
+          const orderItem = {
             id: item.productId,
             externalId: item.productExternalId,
             name: item.snapshot.name,
@@ -225,6 +225,8 @@ const OrderConfirmation = () => {
             unitPrice: itemPrice,
             subtotal: itemPrice * item.quantity,
           };
+
+          return orderItem;
         }),
         financialSummary: {
           subtotal: subtotal,
@@ -256,11 +258,6 @@ const OrderConfirmation = () => {
 
       // Formatar mensagem para WhatsApp usando o orderFormatter
       const formattedMessage = formatOrderForWhatsApp(createdOrder);
-
-      // eslint-disable-next-line no-console
-      console.log('Pedido criado:', createdOrder);
-      // eslint-disable-next-line no-console
-      console.log('Mensagem WhatsApp:', formattedMessage);
 
       // Enviar mensagem para WhatsApp
       const phoneNumber = orderData.whatsapp.replace(/\D/g, '');

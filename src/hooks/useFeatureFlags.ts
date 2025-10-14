@@ -35,15 +35,15 @@ const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
   // Visão Geral - Dashboard desabilitado
   dashboard: false,
 
-  // Apenas produtos e categorias habilitados
+  // Produtos, categorias, clientes e pedidos habilitados por padrão
   products: true,
   categories: true,
+  customers: true,
+  orders: true,
 
   // Demais features desabilitadas
   consignors: false,
   suppliers: false,
-  customers: false,
-  orders: false,
   coupons: false,
   accountsReceivable: false,
   accountsPayable: false,

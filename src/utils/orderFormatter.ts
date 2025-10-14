@@ -9,8 +9,12 @@ import { ENV } from '../config/env';
  */
 export const formatOrderForWhatsApp = (orderData: OrderResponse) => {
   const itemsText = orderData.items
-    .map((item) => `${item.quantity}x ${item.name} (${item.size}) - ${formatToBRL(item.subtotal)}`)
-    .join('\n');
+    .map((item) => {
+      const imageText = item.mainImageThumbnailUrl ? `🖼️ ${item.mainImageThumbnailUrl}` : '';
+      return `${item.quantity}x ${item.name} (${item.size}) - ${formatToBRL(item.subtotal)}
+📋 Código: ${item.externalId}${imageText ? `\n${imageText}` : ''}`;
+    })
+    .join('\n\n');
 
   const deliveryText =
     orderData.deliveryType === 'HOME_DELIVERY'
@@ -30,17 +34,17 @@ Nome: ${orderData.customer.fullName}
 WhatsApp: ${orderData.customer.phone}
 ${orderData.customer.email ? `Email: ${orderData.customer.email}` : ''}
 
-📦 *Itens:*
+📦 *Itens do Pedido:* (${orderData.items.length} ${orderData.items.length === 1 ? 'item' : 'itens'})
 ${itemsText}
 
 🚚 *Entrega:*
 ${
   orderData.deliveryType === 'HOME_DELIVERY'
-    ? `Entregar no endereço:
+    ? `📍 Entregar no endereço:
 ${orderData.deliveryAddress.street}, ${orderData.deliveryAddress.number}${orderData.deliveryAddress.complement ? ` - ${orderData.deliveryAddress.complement}` : ''}
 ${orderData.deliveryAddress.neighborhood}, ${orderData.deliveryAddress.city} - ${orderData.deliveryAddress.state}
 CEP: ${orderData.deliveryAddress.zipCode}`
-    : 'Retirar na loja'
+    : '🏪 Retirar na loja'
 }
 
 💳 *Pagamento:* ${getPaymentMethodName(orderData.paymentMethod)}
@@ -135,8 +139,11 @@ const formatOrderTimestamp = (): string => {
  */
 export const formatProductForWhatsApp = (
   product: {
+    externalId?: string;
     name: string;
     basePrice: number;
+    mainImageUrl?: string;
+    mainThumbnailUrl?: string;
     variants?: Array<{
       size: string;
       stockAvailable?: number;
@@ -146,6 +153,7 @@ export const formatProductForWhatsApp = (
 ) => {
   const selectedVariant = product.variants?.find((v) => v.size === selectedSize);
   const price = formatToBRL(product.basePrice * 0.95); // Aplicando desconto PIX
+  const imageText = product.mainThumbnailUrl ? `\n🖼️ ${product.mainThumbnailUrl}` : '';
 
   const message = `
 🛍️ *Produto Lunar Brechó*
@@ -153,7 +161,8 @@ export const formatProductForWhatsApp = (
 *${product.name}*
 Tamanho: ${selectedSize}
 Preço: ${price}
-${selectedVariant ? `Estoque: ${selectedVariant.stockAvailable} unidades` : ''}
+${product.externalId ? `📋 Código: ${product.externalId}` : ''}${imageText}
+${selectedVariant ? `📦 Estoque: ${selectedVariant.stockAvailable} unidades` : ''}
 
 Gostaria de mais informações sobre este produto!
   `;

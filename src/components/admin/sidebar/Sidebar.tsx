@@ -29,6 +29,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const getSidebarGroups = (
   isFeatureEnabled: (flag: keyof import('@/hooks/useFeatureFlags').FeatureFlags) => boolean,
   isSuperAdmin: boolean,
+  userRole: string,
 ) => [
   {
     id: 'overview',
@@ -92,13 +93,14 @@ const getSidebarGroups = (
         label: 'Clientes',
         icon: <Users />,
         path: '/admin/clientes',
-        enabled: isFeatureEnabled('customers'),
+        enabled:
+          isFeatureEnabled('customers') && (userRole === 'ADMIN' || userRole === 'SUPER_ADMIN'),
       },
       {
         label: 'Pedidos',
         icon: <ShoppingCart />,
         path: '/admin/pedidos',
-        enabled: isFeatureEnabled('orders'),
+        enabled: isFeatureEnabled('orders') && (userRole === 'ADMIN' || userRole === 'SUPER_ADMIN'),
       },
       {
         label: 'Cupons',
@@ -175,7 +177,7 @@ const Sidebar = () => {
   const isSuperAdmin = user?.role === 'SUPER_ADMIN';
 
   // Obtém os grupos do sidebar com base nas feature flags
-  const sidebarGroups = getSidebarGroups(isFeatureEnabled, isSuperAdmin);
+  const sidebarGroups = getSidebarGroups(isFeatureEnabled, isSuperAdmin, user?.role || '');
 
   const toggleSidebar = () => setIsOpen(!isOpen);
   const closeSidebar = () => setIsOpen(false);
