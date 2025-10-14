@@ -238,8 +238,12 @@ const ViewOrder = () => {
                 <div key={index} className='p-4 bg-white rounded-lg border border-slate-200'>
                   <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-3'>
-                      <div className='w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center'>
-                        <span className='text-xs text-purple-600'>{index + 1}</span>
+                      <div className='w-12 h-12 rounded-lg overflow-hidden border border-slate-200 flex-shrink-0'>
+                        <img
+                          src={item.mainImageThumbnailUrl || item.mainImageUrl}
+                          alt={item.name}
+                          className='w-full h-full object-cover'
+                        />
                       </div>
                       <div>
                         <p className='text-slate-800 font-medium'>{item.name}</p>

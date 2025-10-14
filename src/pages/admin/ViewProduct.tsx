@@ -438,25 +438,19 @@ const ViewProduct = () => {
                   className='p-3 sm:p-4 bg-white rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 group'
                 >
                   {/* Cabeçalho do Tamanho */}
-                  <div className='flex items-center justify-between gap-3 mb-3'>
+                  <div className='flex items-center justify-between gap-3'>
                     <div className='flex items-center gap-3'>
-                      <div className='relative'>
-                        <div className='flex items-center gap-2'>
-                          <div className='w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center shadow-md'>
-                            <span className='text-sm font-bold text-white'>{sizeItem.size}</span>
-                          </div>
-                          <div className='hidden sm:block'>
-                            <div className='text-sm font-medium text-slate-700'>
-                              Tamanho {sizeItem.size}
-                            </div>
-                          </div>
-                        </div>
+                      <div className='w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center shadow-md'>
+                        <span className='text-sm font-bold text-white'>{sizeItem.size}</span>
+                      </div>
+                      <div className='text-sm font-medium text-slate-700'>
+                        Tamanho {sizeItem.size}
                       </div>
                     </div>
 
                     {/* Quantidade Disponível */}
                     <div className='text-right'>
-                      <div className='inline-flex items-center gap-2  px-3 py-2'>
+                      <div className='inline-flex items-center gap-2 px-3 py-2'>
                         <div className='text-lg sm:text-xl font-bold text-purple-600'>
                           {sizeItem.stockAvailable}
                         </div>
@@ -464,8 +458,6 @@ const ViewProduct = () => {
                       </div>
                     </div>
                   </div>
-
-                  {/* Somente quantidade disponível exibida, seção simplificada */}
                 </div>
               ))}
             </div>

@@ -25,7 +25,6 @@ import ListCustomers from './pages/admin/ListCustomers';
 import AddCustomer from './pages/admin/AddCustomer';
 import ViewCustomer from './pages/admin/ViewCustomer';
 import EditCustomer from './pages/admin/EditCustomer';
-import CustomerHistory from './pages/admin/CustomerHistory';
 import OrderPage from './pages/admin/Order';
 import AddOrder from './pages/admin/AddOrder';
 import EditOrder from './pages/admin/EditOrder';
@@ -201,14 +200,6 @@ const App = () => {
                         element={
                           <ProtectedRoute>
                             <EditCustomer />
-                          </ProtectedRoute>
-                        }
-                      />
-                      <Route
-                        path='clientes/historico/:customerId'
-                        element={
-                          <ProtectedRoute>
-                            <CustomerHistory />
                           </ProtectedRoute>
                         }
                       />

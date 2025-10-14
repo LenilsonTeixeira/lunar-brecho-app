@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Search, Edit, Trash2, Eye, Plus, ShoppingBag } from 'lucide-react';
+import { Search, Edit, Trash2, Eye, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { customerService, ApiError, CustomerResponse, CustomerListResponse } from '@/services';
 
@@ -47,13 +47,6 @@ const ListCustomers = () => {
 
     return matchesSearch;
   });
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  };
 
   return (
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
@@ -124,9 +117,6 @@ const ListCustomers = () => {
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Endereço
                   </th>
-                  <th className='px-6 py-4 text-center text-xs sm:text-sm font-semibold text-slate-700'>
-                    Compras
-                  </th>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Ações
                   </th>
@@ -135,7 +125,7 @@ const ListCustomers = () => {
               <tbody className='divide-y divide-slate-200'>
                 {loading && (
                   <tr>
-                    <td colSpan={5} className='py-12 text-center text-slate-500'>
+                    <td colSpan={4} className='py-12 text-center text-slate-500'>
                       Carregando...
                     </td>
                   </tr>
@@ -165,21 +155,8 @@ const ListCustomers = () => {
                             : '—'}
                         </p>
                       </td>
-                      <td className='px-6 py-4 text-center'>
-                        <div className='flex flex-col items-center gap-1'>
-                          <span className='text-xs sm:text-sm text-slate-800'>{0}</span>
-                          <div className='text-xs text-slate-500'>{formatCurrency(0)}</div>
-                        </div>
-                      </td>
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-1 sm:gap-2'>
-                          <button
-                            onClick={() => navigate(`/admin/clientes/historico/${user.id}`)}
-                            className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
-                            title='Histórico'
-                          >
-                            <ShoppingBag className='w-3 h-3 sm:w-4 sm:h-4' />
-                          </button>
                           <button
                             onClick={() => navigate(`/admin/clientes/visualizar/${user.id}`)}
                             className='p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors duration-200'
@@ -206,7 +183,7 @@ const ListCustomers = () => {
                   ))}
                 {!loading && filteredUsers.length === 0 && (
                   <tr>
-                    <td colSpan={5} className='py-12 text-center text-slate-500'>
+                    <td colSpan={4} className='py-12 text-center text-slate-500'>
                       Nenhum cliente encontrado
                     </td>
                   </tr>
