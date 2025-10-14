@@ -228,7 +228,7 @@ const OrderPage = () => {
         {/* Orders Table */}
         <div className='bg-slate-50 rounded-xl shadow-lg overflow-hidden'>
           <div className='overflow-x-auto md:overflow-x-visible'>
-            <table className='w-full md:min-w-full min-w-[800px]'>
+            <table className='w-full md:min-w-full min-w-[1000px]'>
               <thead className='bg-slate-50 border-b border-slate-200'>
                 <tr>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[140px]'>
@@ -237,7 +237,7 @@ const OrderPage = () => {
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[200px]'>
                     Cliente
                   </th>
-                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[220px]'>
+                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[300px]'>
                     Produtos
                   </th>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[100px]'>
@@ -276,18 +276,44 @@ const OrderPage = () => {
                       </div>
                     </td>
                     <td className='px-6 py-4'>
-                      <div className='space-y-2'>
+                      <div className='space-y-3'>
                         {order.items.map((item, index) => (
-                          <div
-                            key={index}
-                            className='flex items-center justify-between min-w-[200px]'
-                          >
-                            <span className='text-xs sm:text-sm text-slate-800 flex-1 pr-2'>
-                              {item.name} ({item.brand})
-                            </span>
-                            <span className='text-xs sm:text-sm font-medium text-slate-50 bg-black w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0'>
-                              {item.quantity}
-                            </span>
+                          <div key={index} className='flex items-center gap-3 min-w-[280px]'>
+                            {/* Thumbnail da imagem */}
+                            <div className='flex-shrink-0'>
+                              {item.mainImageThumbnailUrl ? (
+                                <img
+                                  src={item.mainImageThumbnailUrl}
+                                  alt={item.name}
+                                  className='w-12 h-12 rounded-lg object-cover border border-slate-200'
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                <div className='w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center'>
+                                  <Package className='w-5 h-5 text-slate-400' />
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Informações do produto */}
+                            <div className='flex-1 min-w-0'>
+                              <div className='flex items-center gap-2 mb-1'>
+                                <span className='text-xs sm:text-sm font-medium text-slate-800 truncate'>
+                                  {item.name}
+                                </span>
+                                <span className='text-xs sm:text-sm font-medium text-slate-50 bg-black w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0'>
+                                  {item.quantity}
+                                </span>
+                              </div>
+                              <div className='flex items-center gap-2 text-xs text-slate-500'>
+                                <span className='truncate'>{item.brand}</span>
+                                <span className='text-slate-300'>•</span>
+                                <span className='font-mono'>#{item.externalId}</span>
+                              </div>
+                            </div>
                           </div>
                         ))}
                       </div>
