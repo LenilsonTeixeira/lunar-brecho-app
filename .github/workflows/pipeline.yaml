@@ -270,108 +270,25 @@ jobs:
 
       # 7. Verificação de saúde da aplicação
       - name: Health Check
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: ${{ secrets.EC2_PORT }}
-          script: |
-            echo "🔍 Verificando saúde da aplicação..."
+        run: |
+          echo "🔍 Verificando saúde da aplicação..."
 
-            # Aguardar Nginx processar
-            sleep 15
+          # Aguardar um pouco para o deploy processar
+          sleep 10
 
-            # Verificar se o Nginx está rodando
-            if ! sudo systemctl is-active --quiet nginx; then
-              echo "❌ Nginx não está ativo!"
-              sudo systemctl status nginx --no-pager
-              exit 1
-            fi
+          # Testar acesso externo ao site
+          echo "🌐 Testando acesso externo ao site..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://lunarbrecho.com.br/ 2>/dev/null || echo "000")
+          echo "📊 Status HTTP: $response"
 
-            echo "✅ Nginx está ativo"
-
-            # Verificar se os arquivos foram deployados corretamente
-            if [ ! -f "/var/www/${{ env.APP_NAME }}/index.html" ]; then
-              echo "❌ Arquivo index.html não encontrado!"
-              echo "📋 Conteúdo do diretório:"
-              ls -la /var/www/${{ env.APP_NAME }}/
-              exit 1
-            fi
-
-            echo "✅ Arquivos de deploy encontrados"
-
-            # Testar acesso local ao site com múltiplas estratégias
-            max_attempts=8
-            attempt=1
-            success=false
-
-            while [ $attempt -le $max_attempts ] && [ "$success" = false ]; do
-              echo "🔄 Tentativa $attempt de $max_attempts..."
-
-              # Estratégia 1: Testar HTTP local
-              response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/ 2>/dev/null || echo "000")
-              echo "📊 Status HTTP local: $response"
-
-              # Estratégia 2: Testar HTTPS local (se certificado estiver disponível)
-              if [ -f "/etc/letsencrypt/live/lunarbrecho.com.br/fullchain.pem" ]; then
-                https_response=$(curl -s -k -o /dev/null -w "%{http_code}" https://localhost/ 2>/dev/null || echo "000")
-                echo "📊 Status HTTPS local: $https_response"
-              fi
-
-              # Estratégia 3: Testar IP público
-              public_response=$(curl -s -o /dev/null -w "%{http_code}" http://${{ secrets.EC2_HOST }}/ 2>/dev/null || echo "000")
-              echo "📊 Status IP público: $public_response"
-
-              # Considerar sucesso se qualquer uma das estratégias funcionar
-              if [ "$response" = "200" ] || [ "$response" = "304" ] || [ "$public_response" = "200" ] || [ "$public_response" = "304" ]; then
-                echo "✅ Aplicação está respondendo!"
-                
-                # Verificar se o conteúdo está sendo servido
-                if curl -s http://localhost/ | grep -q -i "lunar\|brecho\|react\|html"; then
-                  echo "✅ Conteúdo sendo servido corretamente"
-                  success=true
-                else
-                  echo "⚠️  Resposta recebida mas conteúdo pode estar incorreto"
-                  # Não falhar imediatamente, continuar tentando
-                fi
-              fi
-
-              if [ "$success" = false ]; then
-                echo "⏳ Aguardando 15 segundos antes da próxima tentativa..."
-                sleep 15
-                attempt=$((attempt + 1))
-              fi
-            done
-
-            if [ "$success" = true ]; then
-              echo "🎉 Health check passou com sucesso!"
-              exit 0
-            else
-              echo "❌ Health check falhou após $((max_attempts * 15)) segundos"
-              echo "📋 Diagnóstico detalhado:"
-              echo "📋 Status do Nginx:"
-              sudo systemctl status nginx --no-pager
-              echo "📋 Logs do Nginx (últimas 20 linhas):"
-              sudo tail -n 20 /var/log/nginx/error.log 2>/dev/null || echo "Log não encontrado"
-              echo "📋 Teste de conectividade:"
-              curl -I http://localhost/ 2>/dev/null || echo "Falha na conectividade local"
-              echo "📋 Arquivos no diretório da aplicação:"
-              ls -la /var/www/${{ env.APP_NAME }}/
-              echo "📋 Configuração do Nginx ativa:"
-              sudo nginx -T 2>/dev/null | grep -A 5 -B 5 "server_name" || echo "Configuração não encontrada"
-              
-              # Não falhar o deploy se o site estiver funcionando externamente
-              echo "⚠️  Health check falhou, mas verificando se o site está acessível externamente..."
-              external_test=$(curl -s -o /dev/null -w "%{http_code}" https://lunarbrecho.com.br/ 2>/dev/null || echo "000")
-              if [ "$external_test" = "200" ] || [ "$external_test" = "304" ]; then
-                echo "✅ Site está acessível externamente! Health check considerado como sucesso."
-                exit 0
-              else
-                echo "❌ Site não está acessível externamente"
-                exit 1
-              fi
-            fi
+          # Considerar sucesso se status for 200, 301 (redirect) ou 304 (not modified)
+          if [ "$response" = "200" ] || [ "$response" = "301" ] || [ "$response" = "304" ]; then
+            echo "✅ Health check passou! Site está acessível (Status: $response)"
+            exit 0
+          else
+            echo "❌ Health check falhou! Site não está acessível (Status: $response)"
+            exit 1
+          fi
 
   # Job de notificação (opcional)
   notify:

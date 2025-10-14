@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { STORAGE_KEYS } from '@/constants/storageKeys';
 
 // Definição das feature flags disponíveis
 export interface FeatureFlags {
@@ -54,8 +55,7 @@ const DEFAULT_FEATURE_FLAGS: FeatureFlags = {
   configurations: false,
 };
 
-// Chave para armazenar no localStorage
-const FEATURE_FLAGS_STORAGE_KEY = 'lunar-feature-flags';
+// Usar a constante centralizada para a chave do localStorage
 
 export const useFeatureFlags = () => {
   const [featureFlags, setFeatureFlags] = useState<FeatureFlags>(DEFAULT_FEATURE_FLAGS);
@@ -64,7 +64,7 @@ export const useFeatureFlags = () => {
   // Carrega as feature flags do localStorage na inicialização
   useEffect(() => {
     try {
-      const storedFlags = localStorage.getItem(FEATURE_FLAGS_STORAGE_KEY);
+      const storedFlags = localStorage.getItem(STORAGE_KEYS.FEATURE_FLAGS);
       if (storedFlags) {
         const parsedFlags = JSON.parse(storedFlags);
         setFeatureFlags({ ...DEFAULT_FEATURE_FLAGS, ...parsedFlags });
@@ -81,7 +81,7 @@ export const useFeatureFlags = () => {
   useEffect(() => {
     if (!isLoading) {
       try {
-        localStorage.setItem(FEATURE_FLAGS_STORAGE_KEY, JSON.stringify(featureFlags));
+        localStorage.setItem(STORAGE_KEYS.FEATURE_FLAGS, JSON.stringify(featureFlags));
       } catch (error) {
         console.warn('Erro ao salvar feature flags no localStorage:', error);
       }

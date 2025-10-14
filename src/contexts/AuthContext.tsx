@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { authService, ApiError } from '@/services';
+import { STORAGE_KEYS } from '@/constants/storageKeys';
 
 interface User {
   id: string;
@@ -58,9 +59,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   // Verifica se há token salvo no localStorage ao inicializar
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const refreshToken = localStorage.getItem('refreshToken');
-    const userData = localStorage.getItem('userData');
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+    const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+    const userData = localStorage.getItem(STORAGE_KEYS.USER_DATA);
 
     if (token && userData) {
       try {
@@ -68,15 +69,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(parsedUser);
       } catch (error) {
         console.error('Erro ao parsear dados do usuário:', error);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('userData');
+        localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.USER_DATA);
       }
     } else if (!token && refreshToken) {
       // Se não há token mas há refresh token, limpa tudo
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('userData');
+      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.USER_DATA);
     }
 
     setIsLoading(false);
@@ -89,9 +90,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const response = await authService.login({ email, password });
 
+      // Limpa o cache de feature flags para buscar valores atualizados
+      localStorage.removeItem(STORAGE_KEYS.FEATURE_FLAGS);
+
       // Salva os tokens
-      localStorage.setItem('authToken', response.token);
-      localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.token);
+      localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refreshToken);
 
       // Decodifica o JWT para extrair os dados do usuário
       const decodedToken = decodeJWT(response.token);
@@ -112,7 +116,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         active: decodedToken.active !== undefined ? decodedToken.active : true,
       };
 
-      localStorage.setItem('userData', JSON.stringify(userData));
+      localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(userData));
       setUser(userData);
 
       return { success: true };
@@ -158,9 +162,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('userData');
+    localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+    // Limpa o cache de feature flags no logout também
+    localStorage.removeItem(STORAGE_KEYS.FEATURE_FLAGS);
     setUser(null);
   };
 

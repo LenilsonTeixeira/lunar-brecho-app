@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { ProductResponse } from '../services/types';
 import { CartItem, CartContextData } from '../types/cart';
+import { STORAGE_KEYS } from '@/constants/storageKeys';
 
 const CartContext = createContext<CartContextData>({} as CartContextData);
 
@@ -9,7 +10,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   // Carregar carrinho do localStorage na inicialização
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
+    const savedCart = localStorage.getItem(STORAGE_KEYS.CART);
     if (savedCart) {
       try {
         const parsed = JSON.parse(savedCart);
@@ -18,7 +19,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         if (Array.isArray(parsed) && parsed.length > 0 && parsed[0] && !parsed[0].snapshot) {
           // Modelo antigo detectado - limpar carrinho
           console.warn('Carrinho no formato antigo detectado. Limpando...');
-          localStorage.removeItem('cart');
+          localStorage.removeItem(STORAGE_KEYS.CART);
           alert(
             'Seu carrinho foi atualizado para uma nova versão. Por favor, adicione os produtos novamente.',
           );
@@ -30,7 +31,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         setItems(parsed);
       } catch (error) {
         console.error('Erro ao carregar carrinho:', error);
-        localStorage.removeItem('cart');
+        localStorage.removeItem(STORAGE_KEYS.CART);
         setItems([]);
       }
     }
@@ -38,7 +39,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   // Salvar carrinho no localStorage sempre que mudar
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(items));
+    localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(items));
   }, [items]);
 
   // Calcula o preço final com desconto
