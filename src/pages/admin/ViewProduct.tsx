@@ -20,7 +20,7 @@ interface ProductItem {
   brand: string;
   type: 'SIMPLE' | 'VARIANT';
   basePrice: number;
-  discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
+  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
   discountValue?: number;
   status: 'ACTIVE' | 'INACTIVE';
   variants: Array<{
@@ -189,7 +189,7 @@ const ViewProduct = () => {
       return product.basePrice - (product.basePrice * product.discountValue) / 100;
     }
 
-    if (product.discountType === 'FIXED') {
+    if (product.discountType === 'FIXED_AMOUNT') {
       return Math.max(0, product.basePrice - product.discountValue);
     }
 
@@ -200,7 +200,7 @@ const ViewProduct = () => {
     switch (product.discountType) {
       case 'PERCENTAGE':
         return '%';
-      case 'FIXED':
+      case 'FIXED_AMOUNT':
         return 'R$';
       case 'NONE':
         return '';
@@ -213,7 +213,7 @@ const ViewProduct = () => {
     switch (product.discountType) {
       case 'PERCENTAGE':
         return 'Porcentagem';
-      case 'FIXED':
+      case 'FIXED_AMOUNT':
         return 'Valor Fixo';
       case 'NONE':
         return 'Sem Desconto';

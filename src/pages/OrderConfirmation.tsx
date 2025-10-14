@@ -93,7 +93,7 @@ const OrderConfirmation = () => {
 
   const calculateItemPrice = (item: {
     basePrice: number;
-    discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
+    discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
     discountValue?: number;
   }) => {
     if (item.discountType === 'NONE' || !item.discountValue) {
@@ -102,7 +102,7 @@ const OrderConfirmation = () => {
     if (item.discountType === 'PERCENTAGE') {
       return item.basePrice - (item.basePrice * item.discountValue) / 100;
     }
-    if (item.discountType === 'FIXED') {
+    if (item.discountType === 'FIXED_AMOUNT') {
       return Math.max(0, item.basePrice - item.discountValue);
     }
     return item.basePrice;

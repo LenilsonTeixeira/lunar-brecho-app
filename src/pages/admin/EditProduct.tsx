@@ -24,7 +24,7 @@ interface ProductItem {
   brand: string;
   type: 'NEW' | 'BAZAAR';
   basePrice: number;
-  discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
+  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
   discountValue?: number;
   status: 'ACTIVE' | 'INACTIVE';
   sizes: ProductSize[];
@@ -66,7 +66,9 @@ const EditProduct = () => {
   >([]);
   const [imageFiles, setImageFiles] = useState<(File | null)[]>(new Array(6).fill(null));
   const [sizes, setSizes] = useState<ProductSize[]>([]);
-  const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED' | 'NONE'>('PERCENTAGE');
+  const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE'>(
+    'PERCENTAGE',
+  );
   const [discountValue, setDiscountValue] = useState<number | ''>('');
   // removed old newImages state; now using imageFiles per slot
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
@@ -269,7 +271,7 @@ const EditProduct = () => {
       );
     }
 
-    if (discountType === 'FIXED') {
+    if (discountType === 'FIXED_AMOUNT') {
       return Math.max(0, (Number(productPrice) || 0) - (Number(discountValue) || 0));
     }
 
@@ -292,7 +294,7 @@ const EditProduct = () => {
     switch (discountType) {
       case 'PERCENTAGE':
         return '%';
-      case 'FIXED':
+      case 'FIXED_AMOUNT':
         return 'R$';
       case 'NONE':
         return '';
@@ -302,7 +304,7 @@ const EditProduct = () => {
   };
 
   const handleDiscountTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newType = e.target.value as 'PERCENTAGE' | 'FIXED' | 'NONE';
+    const newType = e.target.value as 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
     setDiscountType(newType);
 
     // Reset discount value when changing type
@@ -791,7 +793,7 @@ const EditProduct = () => {
                   className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white cursor-pointer hover:border-purple-300'
                 >
                   <option value='PERCENTAGE'>Porcentagem (%)</option>
-                  <option value='FIXED'>Valor Fixo (R$)</option>
+                  <option value='FIXED_AMOUNT'>Valor Fixo (R$)</option>
                   <option value='NONE'>Sem Desconto</option>
                 </select>
               </div>

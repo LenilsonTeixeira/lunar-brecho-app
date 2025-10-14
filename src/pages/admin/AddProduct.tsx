@@ -17,7 +17,9 @@ const AddProduct = () => {
     { id: 1, size: '', quantity: 1 },
   ]);
   const [productPrice, setProductPrice] = useState<number | ''>('');
-  const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED' | 'NONE'>('PERCENTAGE');
+  const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE'>(
+    'PERCENTAGE',
+  );
   const [discountValue, setDiscountValue] = useState<number | ''>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -182,7 +184,7 @@ const AddProduct = () => {
       );
     }
 
-    if (discountType === 'FIXED') {
+    if (discountType === 'FIXED_AMOUNT') {
       return Math.max(0, (Number(productPrice) || 0) - (Number(discountValue) || 0));
     }
 
@@ -193,7 +195,7 @@ const AddProduct = () => {
     switch (discountType) {
       case 'PERCENTAGE':
         return '%';
-      case 'FIXED':
+      case 'FIXED_AMOUNT':
         return 'R$';
       case 'NONE':
         return '';
@@ -203,7 +205,7 @@ const AddProduct = () => {
   };
 
   const handleDiscountTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newType = e.target.value as 'PERCENTAGE' | 'FIXED' | 'NONE';
+    const newType = e.target.value as 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
     setDiscountType(newType);
 
     // Reset discount value when changing type
@@ -396,7 +398,7 @@ const AddProduct = () => {
         brand: productBrand.trim() || undefined,
         type: productType,
         basePrice: Number(productPrice),
-        discountType: discountType,
+        discountType: discountType as 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE',
         discountValue: discountType !== 'NONE' ? Number(discountValue) || 0 : undefined,
         status: hasImages ? 'ACTIVE' : 'INACTIVE',
         description: productDescription.trim() || undefined,
@@ -1055,7 +1057,7 @@ const AddProduct = () => {
                   className='outline-none py-3 px-4 text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white cursor-pointer hover:border-purple-300'
                 >
                   <option value='PERCENTAGE'>Porcentagem (%)</option>
-                  <option value='FIXED'>Valor Fixo (R$)</option>
+                  <option value='FIXED_AMOUNT'>Valor Fixo (R$)</option>
                   <option value='NONE'>Sem Desconto</option>
                 </select>
               </div>

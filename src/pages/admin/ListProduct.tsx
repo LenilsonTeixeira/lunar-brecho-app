@@ -11,7 +11,7 @@ interface ProductItem {
   brand: string;
   type: 'NEW' | 'BAZAAR';
   basePrice: number;
-  discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
+  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
   discountValue?: number;
   totalCurrentStock: number;
   status: 'ACTIVE' | 'INACTIVE';

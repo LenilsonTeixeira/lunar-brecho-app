@@ -45,7 +45,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   // Calcula o preço final com desconto
   const calculateFinalPrice = (
     basePrice: number,
-    discountType: 'PERCENTAGE' | 'FIXED' | 'NONE',
+    discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE',
     discountValue?: number,
   ): number => {
     if (discountType === 'NONE' || !discountValue) {
@@ -56,7 +56,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       return basePrice - (basePrice * discountValue) / 100;
     }
 
-    if (discountType === 'FIXED') {
+    if (discountType === 'FIXED_AMOUNT') {
       return Math.max(0, basePrice - discountValue);
     }
 

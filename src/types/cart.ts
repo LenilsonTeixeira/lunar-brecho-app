@@ -16,7 +16,7 @@ export interface CartItem {
     type: 'NEW' | 'BAZAAR';
     category: string;
     basePrice: number;
-    discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
+    discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
     discountValue?: number;
     size: string;
     stockAvailable: number;

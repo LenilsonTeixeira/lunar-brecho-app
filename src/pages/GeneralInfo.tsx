@@ -43,7 +43,7 @@ const GeneralInfo = () => {
     {
       icon: <CreditCard className='w-5 h-5 text-blue-500' />,
       title: 'Crédito',
-      description: 'Parcelamento até 12x',
+      description: 'Parcelamento até 3x',
     },
     {
       icon: <CreditCard className='w-5 h-5 text-purple-500' />,

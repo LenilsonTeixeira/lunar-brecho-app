@@ -88,7 +88,7 @@ export interface ProductRequest {
   category: string;
   type: 'NEW' | 'BAZAAR';
   basePrice: number;
-  discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
+  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
   discountValue?: number;
   status: 'ACTIVE' | 'INACTIVE';
   variants: ProductVariant[];
@@ -106,7 +106,7 @@ export interface ProductResponse {
   category: CategoryResponse;
   type: 'NEW' | 'BAZAAR';
   basePrice: number;
-  discountType: 'PERCENTAGE' | 'FIXED' | 'NONE';
+  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
   discountValue?: number;
   status: 'ACTIVE' | 'INACTIVE';
   variants: ProductVariant[];

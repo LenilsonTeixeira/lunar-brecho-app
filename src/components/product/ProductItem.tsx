@@ -18,11 +18,11 @@ const ProductItem = ({ product }: ProductItemProps) => {
 
   if (product.discountType === 'PERCENTAGE' && product.discountValue) {
     finalPrice = basePrice - (basePrice * product.discountValue) / 100;
-  } else if (product.discountType === 'FIXED' && product.discountValue) {
+  } else if (product.discountType === 'FIXED_AMOUNT' && product.discountValue) {
     finalPrice = basePrice - product.discountValue;
   }
 
-  const installment = calculateInstallment(basePrice, 6);
+  const installment = calculateInstallment(basePrice, 2);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault(); // Previne a navegação do Link
@@ -126,7 +126,8 @@ const ProductItem = ({ product }: ProductItemProps) => {
           {basePrice.toLocaleString('pt-BR', {
             style: 'currency',
             currency: 'BRL',
-          })}
+          })}{' '}
+          <span className='text-xs sm:text-sm font-light text-slate-700'>no Cartão</span>
         </span>
       </div>
 
@@ -136,7 +137,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
 
       <div className='text-xs sm:text-sm font-light text-slate-700 mt-1 w-full text-center'>
         <span>
-          ou 6 x de <strong>{formatToBRL(installment)}</strong>
+          ou 2 x de <strong>{formatToBRL(installment)}</strong>
         </span>
       </div>
     </Link>
