@@ -63,13 +63,13 @@ const ProductTitleSection = ({ product }: Props) => {
         </button>
       </div>
       <ProductDetailItem
-        value={formatToBRL(product.basePrice)}
+        value={formatToBRL(finalPrice)}
         className='mt-4 text-2xl sm:text-3xl font-medium'
       />
       {productDiscount > 0 && (
         <div className='flex items-center gap-1 mt-2'>
           <span className='text-xs sm:text-sm font-medium text-slate-600'>
-            De {formatToBRL(product.basePrice)} por {formatToBRL(finalPrice)} no PIX
+            {formatToBRL(product.basePrice)} no cartão
           </span>
         </div>
       )}

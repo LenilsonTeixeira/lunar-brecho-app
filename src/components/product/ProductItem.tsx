@@ -123,16 +123,19 @@ const ProductItem = ({ product }: ProductItemProps) => {
 
       <div className='mt-2 text-sm sm:text-lg font-medium text-slate-700 w-full text-center'>
         <span>
-          {basePrice.toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-          })}{' '}
-          <span className='text-xs sm:text-sm font-light text-slate-700'>no Cartão</span>
+          {formatToBRL(finalPrice)}{' '}
+          <span className='text-xs sm:text-sm font-light text-slate-700'>no PIX</span>
         </span>
       </div>
 
       <div className='text-xs sm:text-base font-light text-slate-700 w-full text-center'>
-        <span>{formatToBRL(finalPrice)} no PIX</span>
+        <span>
+          {basePrice.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+          })}{' '}
+          no Cartão
+        </span>
       </div>
 
       <div className='text-xs sm:text-sm font-light text-slate-700 mt-1 w-full text-center'>
