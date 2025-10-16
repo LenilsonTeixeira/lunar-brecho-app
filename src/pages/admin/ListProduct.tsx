@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, FolderOpen, ImageOff } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { productService, ApiError, ProductResponse } from '@/services';
+import {
+  productService,
+  ApiError,
+  ProductResponse,
+  categoryService,
+  CategoryResponse,
+} from '@/services';
 
 interface ProductItem {
   id: string;
@@ -33,10 +39,13 @@ const ListProduct = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
+  const [categories, setCategories] = useState<CategoryResponse[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
 
-  // Load products on component mount
+  // Load products and categories on component mount
   useEffect(() => {
     loadProducts();
+    loadCategories();
   }, [currentPage]);
 
   const loadProducts = async () => {
@@ -80,20 +89,18 @@ const ListProduct = () => {
     }
   };
 
-  const categories = [
-    'Todas as Categorias',
-    'Blusas',
-    'Body',
-    'Blazer',
-    'Calças',
-    'Vestidos',
-    'Jeans',
-    'Croppeds',
-    'Conjuntos',
-    'Bolsas',
-    'Sapatos',
-    'Bijuterias',
-  ];
+  const loadCategories = async () => {
+    setCategoriesLoading(true);
+    try {
+      const response = await categoryService.getCategories();
+      setCategories(response);
+    } catch (error) {
+      console.error('Erro ao carregar categorias:', error);
+      // Não definir erro aqui para não quebrar a funcionalidade principal
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
 
   const types = ['Todos os Tipos', 'Novo', 'Bazar'];
 
@@ -101,10 +108,7 @@ const ListProduct = () => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (product.brand && product.brand.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory =
-      selectedCategory === '' ||
-      selectedCategory === 'Todas as Categorias' ||
-      product.category === selectedCategory;
+    const matchesCategory = selectedCategory === '' || product.category === selectedCategory;
     const matchesType =
       selectedType === '' ||
       selectedType === 'Todos os Tipos' ||
@@ -224,12 +228,20 @@ const ListProduct = () => {
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className='w-full px-4 py-2 sm:py-3 text-sm border border-slate-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300'
+                disabled={categoriesLoading}
               >
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
+                <option value=''>Todas as Categorias</option>
+                {categoriesLoading ? (
+                  <option value='' disabled>
+                    Carregando categorias...
                   </option>
-                ))}
+                ) : (
+                  categories.map((category) => (
+                    <option key={category.id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 
