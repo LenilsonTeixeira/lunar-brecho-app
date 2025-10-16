@@ -44,9 +44,15 @@ const AddProduct = () => {
       setCategoriesError(null);
       try {
         const response = await categoryService.getCategories(); // Fetch all categories
+        console.log('🔍 [DEBUG] Categorias carregadas da API:', response);
+        console.log(
+          '🔍 [DEBUG] Nomes das categorias:',
+          response.map((cat) => cat.name),
+        );
+        console.log('🔍 [DEBUG] Total de categorias:', response.length);
         setCategories(response);
       } catch (error) {
-        console.error('Erro ao carregar categorias:', error);
+        console.error('❌ [DEBUG] Erro ao carregar categorias:', error);
         if (error instanceof ApiError) {
           setCategoriesError(`Erro ao carregar categorias: ${error.message}`);
         } else {
@@ -409,6 +415,14 @@ const AddProduct = () => {
         })),
       };
 
+      console.log('🔍 [DEBUG] Dados do produto que serão enviados:', productData);
+      console.log('🔍 [DEBUG] Categoria sendo enviada:', productData.category);
+      console.log('🔍 [DEBUG] Categoria original (sem trim):', productCategory);
+      console.log(
+        '🔍 [DEBUG] Categorias disponíveis:',
+        categories.map((cat) => cat.name),
+      );
+
       // 1. Criar o produto
       const response = await productService.createProduct(productData);
 
@@ -431,10 +445,16 @@ const AddProduct = () => {
       // 3. Redirecionar para a lista de produtos
       navigate('/admin/produtos');
     } catch (error) {
-      console.error('Erro ao criar produto:', error);
+      console.error('❌ [DEBUG] Erro ao criar produto:', error);
+      console.error('❌ [DEBUG] Tipo do erro:', typeof error);
+      console.error('❌ [DEBUG] Erro completo:', JSON.stringify(error, null, 2));
       if (error instanceof ApiError) {
+        console.error('❌ [DEBUG] É ApiError:', true);
+        console.error('❌ [DEBUG] Mensagem do erro:', error.message);
+        console.error('❌ [DEBUG] Status do erro:', error.status);
         setError(`Erro ao criar produto: ${error.message}`);
       } else {
+        console.error('❌ [DEBUG] Não é ApiError, erro genérico');
         setError('Erro de conexão. Tente novamente.');
       }
     } finally {
@@ -678,7 +698,13 @@ const AddProduct = () => {
                   id='category'
                   value={productCategory}
                   onChange={(e) => {
-                    setProductCategory(e.target.value);
+                    const selectedCategory = e.target.value;
+                    console.log('🔍 [DEBUG] Categoria selecionada:', selectedCategory);
+                    console.log(
+                      '🔍 [DEBUG] Categoria selecionada (trim):',
+                      selectedCategory.trim(),
+                    );
+                    setProductCategory(selectedCategory);
                     if (fieldErrors.productCategory) {
                       setFieldErrors((prev) => {
                         const newErrors = { ...prev };
