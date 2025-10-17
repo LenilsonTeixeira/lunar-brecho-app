@@ -10,11 +10,11 @@ interface ProductContextData {
   setSearchQuery: (query: string) => void;
   handleCategorySelect: (category: string | null) => void;
   isLoading: boolean;
-  isLoadingMore: boolean;
-  hasMore: boolean;
   currentPage: number;
+  totalPages: number;
+  totalElements: number;
   refreshProducts: () => Promise<void>;
-  loadMoreProducts: () => Promise<void>;
+  loadPage: (page: number) => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextData>({} as ProductContextData);
@@ -24,11 +24,11 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
-  const getProducts = async (page: number = 0, size: number = 10) => {
+  const getProducts = async (page: number = 0, size: number = 200) => {
     try {
       const response = await productService.getProducts(page, size);
       return response;
@@ -40,37 +40,27 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshProducts = async () => {
     setIsLoading(true);
-    setCurrentPage(0);
-    setHasMore(true);
     try {
-      const response = await getProducts(0, 10);
+      const response = await getProducts(0, 200);
       setProducts(response.content || []);
       setCurrentPage(0);
-      setHasMore(response.number < response.totalPages - 1);
+      setTotalPages(response.totalPages || 0);
+      setTotalElements(response.totalElements || 0);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const loadMoreProducts = async () => {
-    if (isLoadingMore || !hasMore) return;
-
-    setIsLoadingMore(true);
+  const loadPage = async (page: number) => {
+    setIsLoading(true);
     try {
-      const nextPage = currentPage + 1;
-      const response = await getProducts(nextPage, 10);
-
-      if (response.content && response.content.length > 0) {
-        setProducts((prev) => [...prev, ...response.content]);
-        setCurrentPage(nextPage);
-        setHasMore(nextPage < response.totalPages - 1);
-      } else {
-        setHasMore(false);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar mais produtos:', error);
+      const response = await getProducts(page, 200);
+      setProducts(response.content || []);
+      setCurrentPage(page);
+      setTotalPages(response.totalPages || 0);
+      setTotalElements(response.totalElements || 0);
     } finally {
-      setIsLoadingMore(false);
+      setIsLoading(false);
     }
   };
 
@@ -83,7 +73,6 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     setSearchQuery(''); // Clear search when category is selected
     // Reset pagination when category changes
     setCurrentPage(0);
-    setHasMore(true);
   };
 
   const filteredProducts = products.filter((product) => {
@@ -105,11 +94,11 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         setSearchQuery,
         handleCategorySelect,
         isLoading,
-        isLoadingMore,
-        hasMore,
         currentPage,
+        totalPages,
+        totalElements,
         refreshProducts,
-        loadMoreProducts,
+        loadPage,
       }}
     >
       {children}
