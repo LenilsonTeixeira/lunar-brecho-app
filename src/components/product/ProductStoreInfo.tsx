@@ -6,7 +6,7 @@ const ProductStoreInfo = () => {
       <div className='flex items-start sm:items-center text-slate-800 gap-1'>
         <Store className='w-5 h-5 mt-[2px] sm:mt-0' />
         <span className='text-sm leading-snug'>
-          Loja física: Avenida Camilo Chaves nº 470 - Ituiutaba MG
+          Loja física: Avenida Camilo Chaves nº 479 - Ituiutaba MG
         </span>
       </div>
       <div className='flex items-start sm:items-center text-slate-800 gap-1 mt-3'>
