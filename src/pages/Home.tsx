@@ -14,9 +14,11 @@ const Home = () => {
     setSearchQuery,
     handleCategorySelect,
     refreshProducts,
-    loadMoreProducts,
-    isLoadingMore,
-    hasMore,
+    isLoading,
+    currentPage,
+    totalPages,
+    totalElements,
+    loadPage,
   } = useProducts();
 
   useProductPolling(refreshProducts, 60000);
@@ -38,9 +40,11 @@ const Home = () => {
         title={selectedCategory ? selectedCategory : 'Produtos'}
         searchQuery={searchQuery}
         selectedCategory={selectedCategory}
-        loadMoreProducts={loadMoreProducts}
-        isLoadingMore={isLoadingMore}
-        hasMore={hasMore}
+        isLoading={isLoading}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalElements={totalElements}
+        loadPage={loadPage}
       />
     </HomeLayout>
   );
