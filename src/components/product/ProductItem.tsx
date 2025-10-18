@@ -3,7 +3,7 @@ import { ShoppingCart } from 'lucide-react';
 import { ProductResponse } from '../../services/types';
 import { useCart } from '../../contexts/CartContext';
 import ProductTypeBadge from './ProductTypeBadge';
-import { calculateInstallment, formatToBRL } from '../../utils/priceUtils';
+import { formatToBRL } from '../../utils/priceUtils';
 
 export interface ProductItemProps {
   product: ProductResponse;
@@ -22,7 +22,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
     finalPrice = basePrice - product.discountValue;
   }
 
-  const installment = calculateInstallment(basePrice, 2);
+  //const installment = calculateInstallment(basePrice, 2);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault(); // Previne a navegação do Link
@@ -138,11 +138,11 @@ const ProductItem = ({ product }: ProductItemProps) => {
         </span>
       </div>
 
-      <div className='text-xs sm:text-sm font-light text-slate-700 mt-1 w-full text-center'>
+      {/* <div className='text-xs sm:text-sm font-light text-slate-700 mt-1 w-full text-center'>
         <span>
           ou 2 x de <strong>{formatToBRL(installment)}</strong>
         </span>
-      </div>
+      </div> */}
     </Link>
   );
 };

@@ -1,9 +1,9 @@
-import { CreditCard, Share2 } from 'lucide-react';
+import { Share2 } from 'lucide-react';
 import { ProductResponse } from '../../services/types';
 import ProductDetailItem from './ProductDetailItem';
 import {
   calculateDiscountedPrice,
-  calculateInstallment,
+  // calculateInstallment,
   formatToBRL,
 } from '../../utils/priceUtils';
 
@@ -34,7 +34,7 @@ const ProductTitleSection = ({ product }: Props) => {
     productDiscount > 0
       ? calculateDiscountedPrice(product.basePrice, productDiscount)
       : product.basePrice;
-  const installment = calculateInstallment(product.basePrice, 2);
+  // const installment = calculateInstallment(product.basePrice, 2);
 
   const handleShare = () => {
     if (navigator.share) {
@@ -73,12 +73,12 @@ const ProductTitleSection = ({ product }: Props) => {
           </span>
         </div>
       )}
-      <div className='flex items-center gap-1 mt-2'>
+      {/* <div className='flex items-center gap-1 mt-2'>
         <CreditCard className='w-4 h-4 sm:w-5 sm:h-5' />
         <div className='text-sm sm:text-base'>
           <strong>2 x de {formatToBRL(installment)}</strong>
         </div>
-      </div>
+      </div> */}
 
       <ProductDetailItem
         value={product.description || ''}
