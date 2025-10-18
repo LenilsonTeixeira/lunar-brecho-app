@@ -47,7 +47,7 @@ CEP: ${orderData.deliveryAddress.zipCode}`
 }
 
 💳 *Pagamento:* ${getPaymentMethodName(orderData.paymentMethod)}
-${orderData.paymentMethod === 'PIX' ? '✨ Desconto de 5% aplicado!' : ''}
+${orderData.paymentMethod === 'PIX' ? '' : ''}
 ${
   orderData.paymentMethod === 'PIX'
     ? `
@@ -151,14 +151,13 @@ export const formatProductForWhatsApp = (
   selectedSize: string,
 ) => {
   const selectedVariant = product.variants?.find((v) => v.size === selectedSize);
-  const price = formatToBRL(product.basePrice * 0.95); // Aplicando desconto PIX
 
   const message = `
 🛍️ *Produto Lunar Brechó*
 
 *${product.name}*
 Tamanho: ${selectedSize}
-Preço: ${price}
+
 ${product.externalId ? `📋 Código: ${product.externalId}` : ''}
 ${selectedVariant ? `📦 Estoque: ${selectedVariant.stockAvailable} unidades` : ''}
 
