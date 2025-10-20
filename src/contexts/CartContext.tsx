@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { ProductResponse } from '../services/types';
 import { CartItem, CartContextData } from '../types/cart';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
+import { calculateFinalPrice } from '../utils/priceUtils';
 
 const CartContext = createContext<CartContextData>({} as CartContextData);
 
@@ -41,11 +42,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(items));
   }, [items]);
-
-  // Retorna o preço base sem aplicar descontos
-  const calculateFinalPrice = (basePrice: number): number => {
-    return basePrice;
-  };
 
   const addToCart = (product: ProductResponse, quantity: number, variantId: string) => {
     if (quantity <= 0) return;
@@ -144,8 +140,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const totalItems = items.reduce((total, item) => total + item.quantity, 0);
 
   const totalPrice = items.reduce((total, item) => {
-    const finalPrice = calculateFinalPrice(item.snapshot.basePrice);
-    return total + finalPrice * item.quantity;
+    // Calcula o preço com desconto aplicado
+    const itemPrice = calculateFinalPrice(
+      item.snapshot.basePrice,
+      item.snapshot.discountType,
+      item.snapshot.discountValue,
+    );
+    return total + itemPrice * item.quantity;
   }, 0);
 
   return (

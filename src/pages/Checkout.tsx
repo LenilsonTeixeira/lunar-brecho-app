@@ -16,11 +16,11 @@ import {
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useCartDrawer } from '../contexts/CartDrawerContext';
-import { formatToBRL } from '../utils/priceUtils';
+import { formatToBRL, calculateFinalPrice } from '../utils/priceUtils';
 import { customerService } from '../services';
 
 const Checkout = () => {
-  const { items, totalPrice } = useCart();
+  const { items } = useCart();
   const { openCartDrawer } = useCartDrawer();
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,7 +63,29 @@ const Checkout = () => {
   }, [location.state]);
 
   const deliveryFee = deliveryMethod === 'delivery' ? 6 : 0;
-  const subtotal = totalPrice;
+
+  // Calcula o subtotal baseado no método de pagamento
+  const calculateSubtotal = () => {
+    return items.reduce((total, item) => {
+      // Calcula o preço com desconto aplicado (preço PIX/dinheiro)
+      const pixPrice = calculateFinalPrice(
+        item.snapshot.basePrice,
+        item.snapshot.discountType,
+        item.snapshot.discountValue,
+      );
+
+      // Para cartão, usa o preço base sem desconto
+      // TODO: Verificar se existe campo específico para preço de cartão no backend
+      const cardPrice = item.snapshot.basePrice;
+
+      // Usa o preço apropriado baseado no método de pagamento
+      const itemPrice = paymentMethod === 'pix' || paymentMethod === 'cash' ? pixPrice : cardPrice;
+
+      return total + itemPrice * item.quantity;
+    }, 0);
+  };
+
+  const subtotal = calculateSubtotal();
   const finalTotal = subtotal + deliveryFee;
 
   const handleZipCodeValidation = async () => {

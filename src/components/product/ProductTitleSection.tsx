@@ -4,6 +4,7 @@ import ProductDetailItem from './ProductDetailItem';
 import {
   // calculateInstallment,
   formatToBRL,
+  calculateFinalPrice,
 } from '../../utils/priceUtils';
 
 type Props = {
@@ -11,24 +12,17 @@ type Props = {
 };
 
 const ProductTitleSection = ({ product }: Props) => {
-  // Calcula o preço final com desconto diretamente
-  const calculateFinalPrice = () => {
-    if (product.discountType === 'NONE' || !product.discountValue) {
-      return product.basePrice;
-    }
+  // Calcula o preço com desconto aplicado (preço PIX/dinheiro)
+  const pixPrice = calculateFinalPrice(
+    product.basePrice,
+    product.discountType,
+    product.discountValue,
+  );
 
-    if (product.discountType === 'PERCENTAGE') {
-      return product.basePrice - (product.basePrice * product.discountValue) / 100;
-    }
+  // Para cartão, usa o preço base sem desconto
+  // TODO: Verificar se existe campo específico para preço de cartão no backend
+  const cardPrice = product.basePrice;
 
-    if (product.discountType === 'FIXED_AMOUNT') {
-      return Math.max(0, product.basePrice - product.discountValue);
-    }
-
-    return product.basePrice;
-  };
-
-  const finalPrice = calculateFinalPrice();
   // const installment = calculateInstallment(product.basePrice, 2);
 
   const handleShare = () => {
@@ -58,16 +52,14 @@ const ProductTitleSection = ({ product }: Props) => {
         </button>
       </div>
       <ProductDetailItem
-        value={formatToBRL(finalPrice)}
+        value={formatToBRL(pixPrice)}
         className='mt-4 text-2xl sm:text-3xl font-medium'
       />
-      {product.discountType !== 'NONE' && product.discountValue && (
-        <div className='flex items-center gap-1 mt-2'>
-          <span className='text-xs sm:text-sm font-medium text-slate-600'>
-            {formatToBRL(product.basePrice)} no cartão
-          </span>
-        </div>
-      )}
+      <div className='flex items-center gap-1 mt-2'>
+        <span className='text-xs sm:text-sm font-medium text-slate-600'>
+          {formatToBRL(cardPrice)} no cartão
+        </span>
+      </div>
       {/* <div className='flex items-center gap-1 mt-2'>
         <CreditCard className='w-4 h-4 sm:w-5 sm:h-5' />
         <div className='text-sm sm:text-base'>

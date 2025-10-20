@@ -2,7 +2,7 @@ import { ShoppingBag, Plus, Minus } from 'lucide-react';
 import { Link } from 'react-router';
 import { useCart } from '../contexts/CartContext';
 import { useCartDrawer } from '../contexts/CartDrawerContext';
-import { formatToBRL } from '../utils/priceUtils';
+import { formatToBRL, calculateFinalPrice } from '../utils/priceUtils';
 import Drawer from './common/Drawer';
 
 const CartDrawer = () => {
@@ -78,7 +78,13 @@ const CartDrawer = () => {
                 </Link>
                 <p className='text-xs text-gray-500 mt-1'>Tamanho: {item.snapshot.size}</p>
                 <p className='text-xs sm:text-sm font-semibold text-gray-900 mt-1'>
-                  {formatToBRL(item.snapshot.basePrice)}
+                  {formatToBRL(
+                    calculateFinalPrice(
+                      item.snapshot.basePrice,
+                      item.snapshot.discountType,
+                      item.snapshot.discountValue,
+                    ),
+                  )}
                 </p>
 
                 {/* Quantity Controls */}

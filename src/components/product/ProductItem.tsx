@@ -3,7 +3,7 @@ import { ShoppingCart } from 'lucide-react';
 import { ProductResponse } from '../../services/types';
 import { useCart } from '../../contexts/CartContext';
 import ProductTypeBadge from './ProductTypeBadge';
-import { formatToBRL } from '../../utils/priceUtils';
+import { formatToBRL, calculateFinalPrice } from '../../utils/priceUtils';
 
 export interface ProductItemProps {
   product: ProductResponse;
@@ -12,17 +12,18 @@ export interface ProductItemProps {
 const ProductItem = ({ product }: ProductItemProps) => {
   const { addToCart } = useCart();
 
-  // Usa o preço base sem aplicar descontos
-  const basePrice = product.basePrice;
-  let finalPrice = basePrice;
+  // Calcula o preço com desconto aplicado (preço PIX/dinheiro)
+  const pixPrice = calculateFinalPrice(
+    product.basePrice,
+    product.discountType,
+    product.discountValue,
+  );
 
-  if (product.discountType === 'PERCENTAGE' && product.discountValue) {
-    finalPrice = basePrice - (basePrice * product.discountValue) / 100;
-  } else if (product.discountType === 'FIXED_AMOUNT' && product.discountValue) {
-    finalPrice = basePrice - product.discountValue;
-  }
+  // Para cartão, usa o preço base sem desconto
+  // TODO: Verificar se existe campo específico para preço de cartão no backend
+  const cardPrice = product.basePrice;
 
-  //const installment = calculateInstallment(basePrice, 2);
+  //const installment = calculateInstallment(product.basePrice, 2);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault(); // Previne a navegação do Link
@@ -123,19 +124,13 @@ const ProductItem = ({ product }: ProductItemProps) => {
 
       <div className='mt-2 text-sm sm:text-lg font-medium text-slate-700 w-full text-center'>
         <span>
-          {formatToBRL(finalPrice)}{' '}
+          {formatToBRL(pixPrice)}{' '}
           <span className='text-xs sm:text-sm font-light text-slate-700'>no PIX</span>
         </span>
       </div>
 
       <div className='text-xs sm:text-base font-light text-slate-700 w-full text-center'>
-        <span>
-          {basePrice.toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-          })}{' '}
-          no Cartão
-        </span>
+        <span>{formatToBRL(cardPrice)} no Cartão</span>
       </div>
 
       {/* <div className='text-xs sm:text-sm font-light text-slate-700 mt-1 w-full text-center'>
