@@ -78,7 +78,7 @@ const CartDrawer = () => {
                 </Link>
                 <p className='text-xs text-gray-500 mt-1'>Tamanho: {item.snapshot.size}</p>
                 <p className='text-xs sm:text-sm font-semibold text-gray-900 mt-1'>
-                  {formatToBRL(item.snapshot.basePrice * 0.95)}
+                  {formatToBRL(item.snapshot.basePrice)}
                 </p>
 
                 {/* Quantity Controls */}

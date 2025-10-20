@@ -42,24 +42,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(items));
   }, [items]);
 
-  // Calcula o preço final com desconto
-  const calculateFinalPrice = (
-    basePrice: number,
-    discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE',
-    discountValue?: number,
-  ): number => {
-    if (discountType === 'NONE' || !discountValue) {
-      return basePrice;
-    }
-
-    if (discountType === 'PERCENTAGE') {
-      return basePrice - (basePrice * discountValue) / 100;
-    }
-
-    if (discountType === 'FIXED_AMOUNT') {
-      return Math.max(0, basePrice - discountValue);
-    }
-
+  // Retorna o preço base sem aplicar descontos
+  const calculateFinalPrice = (basePrice: number): number => {
     return basePrice;
   };
 
@@ -160,14 +144,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const totalItems = items.reduce((total, item) => total + item.quantity, 0);
 
   const totalPrice = items.reduce((total, item) => {
-    const finalPrice = calculateFinalPrice(
-      item.snapshot.basePrice,
-      item.snapshot.discountType,
-      item.snapshot.discountValue,
-    );
-    // Aplicar desconto adicional de 5% no PIX (mantido da lógica anterior)
-    const pixPrice = finalPrice * 0.95;
-    return total + pixPrice * item.quantity;
+    const finalPrice = calculateFinalPrice(item.snapshot.basePrice);
+    return total + finalPrice * item.quantity;
   }, 0);
 
   return (

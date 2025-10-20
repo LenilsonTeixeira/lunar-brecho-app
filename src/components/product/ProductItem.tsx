@@ -12,7 +12,7 @@ export interface ProductItemProps {
 const ProductItem = ({ product }: ProductItemProps) => {
   const { addToCart } = useCart();
 
-  // Calcula o preço final com desconto
+  // Usa o preço base sem aplicar descontos
   const basePrice = product.basePrice;
   let finalPrice = basePrice;
 
