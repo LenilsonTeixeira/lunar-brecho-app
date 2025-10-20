@@ -21,7 +21,7 @@ const ListCustomers = () => {
     setLoading(true);
     setError(null);
     try {
-      const res: CustomerListResponse = await customerService.getCustomers(currentPage, 10);
+      const res: CustomerListResponse = await customerService.getCustomers(currentPage, 100);
       setCustomers(res.content);
       setTotalPages(res.totalPages);
       setTotalElements(res.totalElements);

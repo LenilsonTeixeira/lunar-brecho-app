@@ -52,7 +52,7 @@ const ListProduct = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await productService.getProducts(currentPage, 10);
+      const response = await productService.getProducts(currentPage, 100);
       const formattedProducts: ProductItem[] = response.content.map((product: ProductResponse) => ({
         id: product.id,
         externalId: product.externalId,
