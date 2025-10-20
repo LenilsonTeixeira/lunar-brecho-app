@@ -3,6 +3,7 @@ import WhatsappIcon from '../icon/WhatsappIcon';
 import { ProductResponse } from '../../services/types';
 import { useCart } from '../../contexts/CartContext';
 import { formatProductForWhatsApp } from '../../utils/orderFormatter';
+import { useGTM } from '../../hooks/useGTM';
 
 type Props = {
   product: ProductResponse;
@@ -11,8 +12,21 @@ type Props = {
 
 const ProductActions = ({ product, selectedSize }: Props) => {
   const { addToCart, getItemQuantity } = useCart();
+  const { trackButtonClick, trackProductAction } = useGTM();
 
   const handleAddToCart = () => {
+    trackButtonClick('add_to_cart', 'product_detail', {
+      product_id: product.id,
+      product_name: product.name,
+      selected_size: selectedSize,
+      price: product.price,
+    });
+
+    trackProductAction('add_to_cart', product.id, product.name, {
+      selected_size: selectedSize,
+      price: product.price,
+    });
+
     if (!selectedSize) {
       alert('Por favor, selecione um tamanho antes de adicionar ao carrinho.');
       return;
@@ -39,6 +53,16 @@ const ProductActions = ({ product, selectedSize }: Props) => {
   };
 
   const handleWhatsAppProduct = () => {
+    trackButtonClick('whatsapp_product', 'product_detail', {
+      product_id: product.id,
+      product_name: product.name,
+      selected_size: selectedSize,
+    });
+
+    trackProductAction('whatsapp_contact', product.id, product.name, {
+      selected_size: selectedSize,
+    });
+
     const formattedMessage = formatProductForWhatsApp(product, selectedSize);
     const whatsappMessage = encodeURIComponent(formattedMessage);
     const whatsappLink = `https://api.whatsapp.com/send?phone=5534996962488&text=${whatsappMessage}`;

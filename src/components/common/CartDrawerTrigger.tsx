@@ -1,14 +1,28 @@
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '../../contexts/CartContext';
 import { useCartDrawer } from '../../contexts/CartDrawerContext';
+import { useGTM } from '../../hooks/useGTM';
 
 const CartDrawerTrigger = () => {
   const { totalItems } = useCart();
   const { openCartDrawer } = useCartDrawer();
+  const { trackButtonClick, trackCartAction } = useGTM();
+
+  const handleCartClick = () => {
+    trackButtonClick('cart_drawer_open', 'header', {
+      cart_items_count: totalItems,
+    });
+
+    trackCartAction('open_cart', {
+      cart_items_count: totalItems,
+    });
+
+    openCartDrawer();
+  };
 
   return (
     <button
-      onClick={openCartDrawer}
+      onClick={handleCartClick}
       className='relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full hover:bg-white transition-colors text-slate-50 hover:text-slate-800'
     >
       <ShoppingCart className='w-5 h-5 sm:w-6 sm:h-6' />

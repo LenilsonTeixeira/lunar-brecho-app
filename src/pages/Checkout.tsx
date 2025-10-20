@@ -18,11 +18,13 @@ import { useCart } from '../contexts/CartContext';
 import { useCartDrawer } from '../contexts/CartDrawerContext';
 import { formatToBRL, calculateFinalPrice } from '../utils/priceUtils';
 import { customerService } from '../services';
+import { useGTM } from '../hooks/useGTM';
 
 const Checkout = () => {
   const { items } = useCart();
   const { openCartDrawer } = useCartDrawer();
   const navigate = useNavigate();
+  const { trackButtonClick, trackCartAction } = useGTM();
   const location = useLocation();
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | 'cash'>('pix');
@@ -160,6 +162,18 @@ const Checkout = () => {
   };
 
   const handleProceedToConfirmation = () => {
+    trackButtonClick('proceed_to_payment', 'checkout', {
+      cart_items_count: items.length,
+      total_value: items.reduce((sum, item) => sum + item.snapshot.basePrice * item.quantity, 0),
+      delivery_method: deliveryMethod,
+      payment_method: paymentMethod,
+    });
+
+    trackCartAction('proceed_to_payment', {
+      cart_items_count: items.length,
+      total_value: items.reduce((sum, item) => sum + item.snapshot.basePrice * item.quantity, 0),
+    });
+
     // Validação básica dos campos obrigatórios
     if (!whatsapp || !firstName || !lastName) {
       alert('Por favor, preencha todos os campos obrigatórios de contato.');
@@ -713,7 +727,15 @@ const Checkout = () => {
 
               {/* View Cart Button */}
               <button
-                onClick={openCartDrawer}
+                onClick={() => {
+                  trackButtonClick('view_cart', 'checkout', {
+                    cart_items_count: items.length,
+                  });
+                  trackCartAction('view_cart', {
+                    cart_items_count: items.length,
+                  });
+                  openCartDrawer();
+                }}
                 className='w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 sm:py-3 rounded-lg font-medium transition-colors mb-3 sm:mb-4 text-sm sm:text-base border border-slate-200'
               >
                 <Package className='w-4 h-4 sm:w-5 sm:h-5' />
