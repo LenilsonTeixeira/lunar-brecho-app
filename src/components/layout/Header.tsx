@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import MoonIcon from '../icon/MoonIcon';
 import CartDrawerTrigger from '../common/CartDrawerTrigger';
 
 const Header = () => {
@@ -7,13 +8,12 @@ const Header = () => {
       <div className='flex h-16 sm:h-20 items-center justify-between w-full px-4 sm:px-6 lg:px-10'>
         <Link
           to='/'
-          className='flex items-center hover:opacity-90 transition-opacity hover:scale-105 duration-300'
+          className='flex gap-1 items-center hover:text-purple-400 transition-colors text-slate-50 hover:scale-110 duration-500'
         >
-          <img
-            src='/lunar-logo.png'
-            alt='Lunar Brechó'
-            className='h-12 sm:h-14 w-auto object-contain'
-          />
+          <MoonIcon className='w-5 h-5 sm:w-6 sm:h-6' />
+          <h1 className='text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'>
+            LUNAR
+          </h1>
         </Link>
 
         {/* Carrinho de Compras */}
