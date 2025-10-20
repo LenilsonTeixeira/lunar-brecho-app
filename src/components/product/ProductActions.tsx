@@ -19,12 +19,12 @@ const ProductActions = ({ product, selectedSize }: Props) => {
       product_id: product.id,
       product_name: product.name,
       selected_size: selectedSize,
-      price: product.price,
+      price: product.basePrice,
     });
 
     trackProductAction('add_to_cart', product.id, product.name, {
       selected_size: selectedSize,
-      price: product.price,
+      price: product.basePrice,
     });
 
     if (!selectedSize) {
