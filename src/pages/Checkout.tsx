@@ -39,7 +39,6 @@ const Checkout = () => {
   const [complement, setComplement] = useState('');
   const [securePaymentExpanded, setSecurePaymentExpanded] = useState(false);
   const [helpExpanded, setHelpExpanded] = useState(false);
-  const [shippingExpanded, setShippingExpanded] = useState(false);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [isLoadingCustomer, setIsLoadingCustomer] = useState(false);
   const [isLoadingCep, setIsLoadingCep] = useState(false);
@@ -63,12 +62,9 @@ const Checkout = () => {
     }
   }, [location.state]);
 
-  const deliveryFee = deliveryMethod === 'delivery' ? 5 : 0;
-  const pixDiscount = paymentMethod === 'pix' ? 0.05 : 0; // 5% de desconto
+  const deliveryFee = deliveryMethod === 'delivery' ? 6 : 0;
   const subtotal = totalPrice;
-  const discountAmount = subtotal * pixDiscount;
-  const totalWithDiscount = subtotal - discountAmount;
-  const finalTotal = totalWithDiscount + deliveryFee;
+  const finalTotal = subtotal + deliveryFee;
 
   const handleZipCodeValidation = async () => {
     const cleanZipCode = zipCode.replace(/\D/g, '');
@@ -313,7 +309,7 @@ const Checkout = () => {
                         <div className='font-semibold text-slate-900 text-sm sm:text-base'>
                           Entregar no seu endereço
                         </div>
-                        <div className='text-xs sm:text-sm text-slate-500'>Taxa de R$ 5,00</div>
+                        <div className='text-xs sm:text-sm text-slate-500'>Taxa de R$ 6,00</div>
                       </div>
                     </div>
                   </label>
@@ -520,7 +516,7 @@ const Checkout = () => {
                     <Wallet className='w-5 h-5 sm:w-6 sm:h-6 text-purple-600 flex-shrink-0' />
                     <div>
                       <div className='font-semibold text-slate-900 text-sm sm:text-base'>PIX</div>
-                      <div className='text-xs sm:text-sm text-emerald-600 font-medium'>5% OFF</div>
+                      <div className='text-xs sm:text-sm text-slate-500'>Pagamento instantâneo</div>
                     </div>
                   </div>
                 </label>
@@ -622,12 +618,6 @@ const Checkout = () => {
                   <span>Subtotal</span>
                   <span className='font-medium'>{formatToBRL(subtotal)}</span>
                 </div>
-                {paymentMethod === 'pix' && (
-                  <div className='flex justify-between text-xs sm:text-sm text-emerald-600'>
-                    <span className='font-medium'>Desconto PIX (5%)</span>
-                    <span className='font-semibold'>-{formatToBRL(discountAmount)}</span>
-                  </div>
-                )}
                 <div className='flex justify-between text-xs sm:text-sm text-slate-600'>
                   <span>{deliveryMethod === 'delivery' ? 'Envio padrão' : 'Retirada na loja'}</span>
                   <span className='font-medium'>
@@ -695,32 +685,6 @@ const Checkout = () => {
                 {helpExpanded && (
                   <div className='mt-3 text-xs sm:text-sm text-slate-600 bg-sky-50 rounded-lg p-3'>
                     <p>Entre em contato conosco pelo WhatsApp ou e-mail.</p>
-                  </div>
-                )}
-              </div>
-
-              {/* PIX Discount */}
-              <div className='mb-5 sm:mb-6'>
-                <button
-                  onClick={() => setShippingExpanded(!shippingExpanded)}
-                  className='flex items-center justify-between w-full text-left hover:text-purple-600 transition-colors'
-                >
-                  <h4 className='text-xs sm:text-sm font-semibold text-slate-900 flex items-center gap-2'>
-                    <Wallet className='w-4 h-4 text-purple-600' />
-                    Ganhe 5% de desconto ao pagar com PIX
-                  </h4>
-                  {shippingExpanded ? (
-                    <ChevronUp className='w-4 h-4 text-slate-400' />
-                  ) : (
-                    <ChevronDown className='w-4 h-4 text-slate-400' />
-                  )}
-                </button>
-                {shippingExpanded && (
-                  <div className='mt-3 text-xs sm:text-sm text-slate-600 bg-emerald-50 rounded-lg p-3'>
-                    <p>
-                      Ao escolher PIX como forma de pagamento, você ganha automaticamente 5% de
-                      desconto no valor total da sua compra!
-                    </p>
                   </div>
                 )}
               </div>
