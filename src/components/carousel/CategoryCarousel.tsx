@@ -48,8 +48,30 @@ const CategoryCarousel = ({ selectedCategory, onSelectCategory }: CategoryCarous
     );
   }
 
-  // Filter only active categories
-  const activeCategories = categories.filter((category) => category.status === 'ACTIVE');
+  // Filter only active categories and sort by orderDisplay
+  const activeCategories = categories
+    .filter((category) => category.status === 'ACTIVE')
+    .sort((a, b) => {
+      // If both have orderDisplay, sort by it (lower number first)
+      if (
+        a.orderDisplay !== undefined &&
+        a.orderDisplay !== null &&
+        b.orderDisplay !== undefined &&
+        b.orderDisplay !== null
+      ) {
+        return a.orderDisplay - b.orderDisplay;
+      }
+      // If only a has orderDisplay, it comes first
+      if (a.orderDisplay !== undefined && a.orderDisplay !== null) {
+        return -1;
+      }
+      // If only b has orderDisplay, it comes first
+      if (b.orderDisplay !== undefined && b.orderDisplay !== null) {
+        return 1;
+      }
+      // If neither has orderDisplay, maintain original order
+      return 0;
+    });
 
   return (
     <div className='w-full flex items-center justify-between gap-2 mb-5 mt-3'>

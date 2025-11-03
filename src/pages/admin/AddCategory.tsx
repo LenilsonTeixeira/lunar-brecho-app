@@ -42,9 +42,17 @@ const AddCategory = () => {
       const hasImage = selectedFile !== null;
       const status: 'ACTIVE' | 'INACTIVE' = hasImage ? 'ACTIVE' : 'INACTIVE';
 
+      const orderDisplayInput = formData.querySelector(
+        '[name="categoryOrderDisplay"]',
+      ) as HTMLInputElement;
+      const orderDisplayValue = orderDisplayInput?.value
+        ? parseInt(orderDisplayInput.value)
+        : undefined;
+
       const categoryData = {
         name: formData.categoryName.value,
         description: formData.categoryDescription.value || '',
+        orderDisplay: orderDisplayValue,
         status: status,
       };
 
@@ -225,6 +233,25 @@ const AddCategory = () => {
               className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
               placeholder='Digite uma descrição para a categoria'
             ></textarea>
+          </div>
+
+          {/* Order Display */}
+          <div className='flex flex-col gap-2'>
+            <label className='text-sm font-medium text-slate-700' htmlFor='category-order-display'>
+              Ordem de Exibição
+            </label>
+            <input
+              id='category-order-display'
+              name='categoryOrderDisplay'
+              type='number'
+              min='0'
+              step='1'
+              placeholder='Digite a ordem de exibição (menor número aparece primeiro)'
+              className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+            />
+            <p className='text-xs text-slate-500'>
+              Números menores aparecem primeiro. Deixe vazio para ordem padrão.
+            </p>
           </div>
 
           {/* Submit Button */}

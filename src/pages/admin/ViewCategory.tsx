@@ -8,6 +8,7 @@ interface Category {
   externalId: string;
   name: string;
   description?: string;
+  orderDisplay?: number;
   imageUrl?: string;
   thumbnailUrl?: string;
   status: 'ACTIVE' | 'INACTIVE';
@@ -162,6 +163,17 @@ const ViewCategory = () => {
                   </span>
                 </div>
               </div>
+
+              {category.orderDisplay !== undefined && category.orderDisplay !== null && (
+                <div>
+                  <label className='text-sm font-medium text-slate-700 mb-2 block'>
+                    Ordem de Exibição
+                  </label>
+                  <div className='p-3 bg-white rounded-lg border border-slate-200'>
+                    <span className='text-base text-slate-900'>{category.orderDisplay}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

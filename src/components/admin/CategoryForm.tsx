@@ -6,6 +6,7 @@ interface CategoryItem {
   name: string;
   color?: string;
   description?: string;
+  orderDisplay?: number;
   image: string;
 }
 
@@ -13,6 +14,7 @@ interface CategoryFormData {
   name: string;
   color: string;
   description: string;
+  orderDisplay: number | '';
   image: File | null;
   previewImage: string;
 }
@@ -29,6 +31,7 @@ const CategoryForm = ({ category, onSubmit, onCancel, isLoading = false }: Categ
     name: '',
     color: '#8B5CF6',
     description: '',
+    orderDisplay: '',
     image: null,
     previewImage: '',
   });
@@ -41,6 +44,7 @@ const CategoryForm = ({ category, onSubmit, onCancel, isLoading = false }: Categ
         name: category.name,
         color: category.color || '#8B5CF6',
         description: category.description || '',
+        orderDisplay: category.orderDisplay ?? '',
         image: null,
         previewImage: category.image,
       });
@@ -206,13 +210,45 @@ const CategoryForm = ({ category, onSubmit, onCancel, isLoading = false }: Categ
             <div className='flex items-center gap-4'>
               <input
                 type='color'
+                value={formData.color}
+                onChange={(e) => handleInputChange('color', e.target.value)}
                 className='w-16 h-12 rounded-lg border border-slate-200 cursor-pointer'
-                defaultValue='#8b5cf6'
               />
               <span className='text-sm text-slate-500'>
                 Escolha uma cor para identificar a categoria
               </span>
             </div>
+          </div>
+
+          {/* Ordem de Exibição */}
+          <div>
+            <label className='text-sm font-semibold text-slate-700 mb-2 block'>
+              Ordem de Exibição
+            </label>
+            <input
+              type='number'
+              value={formData.orderDisplay}
+              onChange={(e) =>
+                handleInputChange(
+                  'orderDisplay',
+                  e.target.value === '' ? '' : parseInt(e.target.value) || '',
+                )
+              }
+              className={`w-full py-3 px-4 rounded-lg border transition-all duration-300 ${
+                errors.orderDisplay
+                  ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
+                  : 'border-slate-200 focus:border-purple-500 focus:ring-purple-500/20'
+              }`}
+              placeholder='Digite a ordem de exibição (menor número aparece primeiro)'
+              min='0'
+              step='1'
+            />
+            <p className='text-xs text-slate-500 mt-1'>
+              Números menores aparecem primeiro. Deixe vazio para ordem padrão.
+            </p>
+            {errors.orderDisplay && (
+              <p className='text-red-500 text-sm mt-1'>{errors.orderDisplay}</p>
+            )}
           </div>
 
           {/* Botões */}

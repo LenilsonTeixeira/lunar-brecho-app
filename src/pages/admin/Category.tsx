@@ -12,6 +12,7 @@ interface CategoryItem {
   image: string;
   totalProducts?: number;
   description?: string;
+  orderDisplay?: number;
   status: 'ACTIVE' | 'INACTIVE';
 }
 
@@ -19,6 +20,7 @@ interface CategoryFormData {
   name: string;
   image: File | null;
   description: string;
+  orderDisplay: number | '';
   previewImage: string;
 }
 
@@ -49,6 +51,7 @@ const Category = () => {
         image: cat.imageUrl || '',
         totalProducts: cat.totalProducts || 0,
         description: cat.description || '',
+        orderDisplay: cat.orderDisplay,
         status: cat.status || 'ACTIVE',
       }));
       setCategories(formattedCategories);
@@ -71,6 +74,7 @@ const Category = () => {
       const categoryData = {
         name: data.name,
         description: data.description || '',
+        orderDisplay: data.orderDisplay !== '' ? Number(data.orderDisplay) : undefined,
       };
 
       const response = await categoryService.createCategory(categoryData);
@@ -104,6 +108,7 @@ const Category = () => {
       const categoryData = {
         name: data.name,
         description: editingCategory.description || '',
+        orderDisplay: data.orderDisplay !== '' ? Number(data.orderDisplay) : undefined,
       };
 
       await categoryService.updateCategory(editingCategory.id, categoryData);

@@ -15,12 +15,13 @@ interface ProductItem {
   name: string;
   category: string;
   brand: string;
+  color?: string;
   type: 'NEW' | 'BAZAAR';
   basePrice: number;
   discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
   discountValue?: number;
   totalCurrentStock: number;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK';
   mainImageUrl?: string;
   description?: string;
   observations?: string;
@@ -59,6 +60,7 @@ const ListProduct = () => {
         name: product.name,
         category: product.category.name,
         brand: product.brand || '',
+        color: product.color,
         type: product.type,
         basePrice: product.basePrice,
         discountType: product.discountType,
@@ -357,10 +359,16 @@ const ListProduct = () => {
                           className={`px-3 py-1 rounded-sm text-sm ${
                             product.status === 'ACTIVE'
                               ? 'bg-green-300 text-slate-900'
-                              : 'bg-red-300 text-slate-900'
+                              : product.status === 'OUT_OF_STOCK'
+                                ? 'bg-orange-300 text-slate-900'
+                                : 'bg-red-300 text-slate-900'
                           }`}
                         >
-                          {product.status === 'ACTIVE' ? 'Ativo' : 'Inativo'}
+                          {product.status === 'ACTIVE'
+                            ? 'Ativo'
+                            : product.status === 'OUT_OF_STOCK'
+                              ? 'Fora de Estoque'
+                              : 'Inativo'}
                         </span>
                       </td>
                       <td className='px-6 py-4'>

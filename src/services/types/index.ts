@@ -47,6 +47,7 @@ export interface CategoryRequest {
   name: string;
   description?: string;
   color?: string;
+  orderDisplay?: number;
   status?: 'ACTIVE' | 'INACTIVE';
 }
 
@@ -56,6 +57,7 @@ export interface CategoryResponse {
   name: string;
   description?: string;
   color?: string;
+  orderDisplay?: number;
   imageUrl?: string;
   thumbnailUrl?: string;
   productCount?: number;
@@ -84,13 +86,14 @@ export interface ProductRequest {
   name: string;
   description?: string;
   brand?: string;
+  color?: string;
   observations?: string;
   category: string;
   type: 'NEW' | 'BAZAAR';
   basePrice: number;
   discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
   discountValue?: number;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK';
   variants: ProductVariant[];
 }
 
@@ -102,13 +105,14 @@ export interface ProductResponse {
   name: string;
   description?: string;
   brand?: string;
+  color?: string;
   observations?: string;
   category: CategoryResponse;
   type: 'NEW' | 'BAZAAR';
   basePrice: number;
   discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
   discountValue?: number;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK';
   variants: ProductVariant[];
   images: ProductImage[];
   totalCurrentStock?: number;

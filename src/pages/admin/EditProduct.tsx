@@ -22,11 +22,12 @@ interface ProductItem {
   name: string;
   category: string;
   brand: string;
+  color?: string;
   type: 'NEW' | 'BAZAAR';
   basePrice: number;
   discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
   discountValue?: number;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK';
   sizes: ProductSize[];
   images: Array<{
     id?: string;
@@ -49,9 +50,12 @@ const EditProduct = () => {
 
   const [productName, setProductName] = useState('');
   const [productBrand, setProductBrand] = useState('');
+  const [productColor, setProductColor] = useState('');
   const [productCategory, setProductCategory] = useState('');
   const [productType, setProductType] = useState<'NEW' | 'BAZAAR'>('NEW');
-  const [productStatus, setProductStatus] = useState<'ACTIVE' | 'INACTIVE'>('ACTIVE');
+  const [productStatus, setProductStatus] = useState<'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK'>(
+    'ACTIVE',
+  );
   const [productPrice, setProductPrice] = useState<number | ''>('');
   const [productDescription, setProductDescription] = useState('');
   const [productObservations, setProductObservations] = useState('');
@@ -97,6 +101,7 @@ const EditProduct = () => {
         });
         setProductName(productData.name);
         setProductBrand(productData.brand || '');
+        setProductColor(productData.color || '');
         setProductCategory(productData.category.name);
         setProductType(productData.type);
         setProductStatus(productData.status);
@@ -356,6 +361,7 @@ const EditProduct = () => {
         name: productName.trim(),
         category: productCategory.trim(),
         brand: productBrand.trim() || undefined,
+        color: productColor.trim() || undefined,
         type: productType,
         basePrice: Number(productPrice),
         discountType: discountType,
@@ -510,6 +516,20 @@ const EditProduct = () => {
               </div>
 
               <div className='flex flex-col gap-2'>
+                <label className='text-sm font-medium text-slate-700' htmlFor='product-color'>
+                  Cor
+                </label>
+                <input
+                  id='product-color'
+                  type='text'
+                  value={productColor}
+                  onChange={(e) => setProductColor(e.target.value)}
+                  placeholder='Digite a cor do produto'
+                  className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+
+              <div className='flex flex-col gap-2'>
                 <label className='text-sm font-medium text-slate-700' htmlFor='product-category'>
                   Categoria *
                 </label>
@@ -560,12 +580,15 @@ const EditProduct = () => {
                 <select
                   id='product-status'
                   value={productStatus}
-                  onChange={(e) => setProductStatus(e.target.value as 'ACTIVE' | 'INACTIVE')}
+                  onChange={(e) =>
+                    setProductStatus(e.target.value as 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK')
+                  }
                   className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 >
                   <option value='ACTIVE'>Ativo</option>
                   <option value='INACTIVE'>Inativo</option>
+                  <option value='OUT_OF_STOCK'>Fora de Estoque</option>
                 </select>
               </div>
             </div>

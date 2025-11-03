@@ -18,11 +18,12 @@ interface ProductItem {
   name: string;
   category: string;
   brand: string;
+  color?: string;
   type: 'SIMPLE' | 'VARIANT';
   basePrice: number;
   discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
   discountValue?: number;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK';
   variants: Array<{
     id?: string;
     size: string;
@@ -66,6 +67,7 @@ const ViewProduct = () => {
           name: productData.name,
           category: productData.category.name,
           brand: productData.brand || '',
+          color: productData.color,
           type: productData.type === 'NEW' ? 'SIMPLE' : 'VARIANT',
           basePrice: productData.basePrice,
           discountType: productData.discountType,
@@ -269,6 +271,15 @@ const ViewProduct = () => {
                 </div>
               </div>
 
+              {product.color && (
+                <div>
+                  <label className='text-sm font-medium text-slate-700 mb-2 block'>Cor</label>
+                  <div className='p-3 bg-white rounded-lg border border-slate-200'>
+                    <span className='text-base text-slate-900'>{product.color}</span>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <label className='text-sm font-medium text-slate-700 mb-2 block'>Categoria</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
@@ -289,7 +300,11 @@ const ViewProduct = () => {
                 <label className='text-sm font-medium text-slate-700 mb-2 block'>Status</label>
                 <div className='p-3 bg-white rounded-lg border border-slate-200'>
                   <span className='text-base text-slate-900'>
-                    {product.status === 'ACTIVE' ? 'Ativo' : 'Inativo'}
+                    {product.status === 'ACTIVE'
+                      ? 'Ativo'
+                      : product.status === 'OUT_OF_STOCK'
+                        ? 'Fora de Estoque'
+                        : 'Inativo'}
                   </span>
                 </div>
               </div>

@@ -29,6 +29,7 @@ const AddProduct = () => {
   const [imagePreviews, setImagePreviews] = useState<string[]>(new Array(6).fill(''));
   const [productName, setProductName] = useState('');
   const [productBrand, setProductBrand] = useState('');
+  const [productColor, setProductColor] = useState('');
   const [productCategory, setProductCategory] = useState('');
   const [productType, setProductType] = useState<'NEW' | 'BAZAAR'>('NEW');
   const [productDescription, setProductDescription] = useState('');
@@ -413,6 +414,7 @@ const AddProduct = () => {
         name: productName.trim(),
         category: productCategory.trim(), // Trim no frontend + backend para consistência
         brand: productBrand.trim() || undefined,
+        color: productColor.trim() || undefined,
         type: productType,
         basePrice: Number(productPrice),
         discountType: discountType as 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE',
@@ -740,7 +742,7 @@ const AddProduct = () => {
               </div>
             </div>
 
-            {/* Brand and Type - Side by side on larger screens */}
+            {/* Brand, Color and Type - Side by side on larger screens */}
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
               <div className='flex flex-col gap-2'>
                 <label
@@ -759,6 +761,26 @@ const AddProduct = () => {
                 />
               </div>
 
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='color'
+                >
+                  Cor
+                </label>
+                <input
+                  id='color'
+                  type='text'
+                  value={productColor}
+                  onChange={(e) => setProductColor(e.target.value)}
+                  placeholder='Digite a cor do produto'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+            </div>
+
+            {/* Type */}
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='type'>
                   Tipo
@@ -1167,6 +1189,11 @@ const AddProduct = () => {
                     <p>
                       <strong>Marca:</strong> {productBrand || '[Marca do produto]'}
                     </p>
+                    {productColor && (
+                      <p>
+                        <strong>Cor:</strong> {productColor}
+                      </p>
+                    )}
                     <p>
                       <strong>Tipo:</strong> {productType === 'NEW' ? 'Novo' : 'Bazar'}
                     </p>

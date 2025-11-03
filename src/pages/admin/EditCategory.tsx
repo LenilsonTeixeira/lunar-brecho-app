@@ -10,6 +10,7 @@ const EditCategory = () => {
   const [category, setCategory] = useState<CategoryResponse | null>(null);
   const [categoryName, setCategoryName] = useState('');
   const [categoryDescription, setCategoryDescription] = useState('');
+  const [categoryOrderDisplay, setCategoryOrderDisplay] = useState<number | ''>('');
   const [categoryStatus, setCategoryStatus] = useState<'ACTIVE' | 'INACTIVE'>('ACTIVE');
   const [categoryImage, setCategoryImage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -31,6 +32,7 @@ const EditCategory = () => {
         setCategory(categoryData);
         setCategoryName(categoryData.name);
         setCategoryDescription(categoryData.description || '');
+        setCategoryOrderDisplay(categoryData.orderDisplay ?? '');
         setCategoryStatus(categoryData.status || 'ACTIVE');
         setCategoryImage(categoryData.imageUrl || '');
       } catch (err) {
@@ -94,6 +96,7 @@ const EditCategory = () => {
       const updateData = {
         name: categoryName.trim(),
         description: categoryDescription.trim() || undefined,
+        orderDisplay: categoryOrderDisplay !== '' ? Number(categoryOrderDisplay) : undefined,
         status: categoryStatus,
       };
 
@@ -239,6 +242,33 @@ const EditCategory = () => {
                   <option value='ACTIVE'>Ativa</option>
                   <option value='INACTIVE'>Inativa</option>
                 </select>
+              </div>
+            </div>
+
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4'>
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm font-medium text-slate-700'
+                  htmlFor='category-order-display'
+                >
+                  Ordem de Exibição
+                </label>
+                <input
+                  id='category-order-display'
+                  type='number'
+                  min='0'
+                  step='1'
+                  value={categoryOrderDisplay}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setCategoryOrderDisplay(value === '' ? '' : parseInt(value) || '');
+                  }}
+                  placeholder='Digite a ordem de exibição (menor número aparece primeiro)'
+                  className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+                <p className='text-xs text-slate-500'>
+                  Números menores aparecem primeiro. Deixe vazio para ordem padrão.
+                </p>
               </div>
             </div>
           </div>

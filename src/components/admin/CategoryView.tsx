@@ -8,6 +8,7 @@ interface CategoryItem {
   updatedAt?: string;
   productCount?: number;
   description?: string;
+  orderDisplay?: number;
 }
 
 interface CategoryViewProps {
@@ -103,6 +104,18 @@ const CategoryView = ({ category, onClose, onEdit }: CategoryViewProps) => {
               <span className='text-slate-800'>{category.productCount || 0} produtos</span>
             </div>
           </div>
+
+          {/* Ordem de Exibição (se disponível) */}
+          {category.orderDisplay !== undefined && category.orderDisplay !== null && (
+            <div>
+              <div className='flex items-center gap-2 mb-2'>
+                <label className='text-sm font-semibold text-slate-700'>Ordem de Exibição</label>
+              </div>
+              <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                <span className='text-slate-800'>{category.orderDisplay}</span>
+              </div>
+            </div>
+          )}
 
           {/* Datas */}
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>

@@ -5,11 +5,12 @@ interface ProductItem {
   name: string;
   category: string;
   brand: string;
+  color?: string;
   type: 'novo' | 'bazar';
   price: number;
   offerPrice: number;
   totalQuantity: number;
-  status: 'ativo' | 'inativo';
+  status: 'ativo' | 'inativo' | 'fora_de_estoque';
   sizes: Array<{
     size: string;
     quantity: number;
@@ -51,7 +52,15 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
   };
 
   const getStatusColor = (status: string) => {
-    return status === 'ativo' ? 'text-green-600' : 'text-red-600';
+    if (status === 'ativo') return 'text-green-600';
+    if (status === 'fora_de_estoque') return 'text-orange-600';
+    return 'text-red-600';
+  };
+
+  const getStatusLabel = (status: string) => {
+    if (status === 'ativo') return 'Ativo';
+    if (status === 'fora_de_estoque') return 'Fora de Estoque';
+    return 'Inativo';
   };
 
   return (
@@ -144,6 +153,20 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
             </div>
           </div>
 
+          {/* Terceira linha - Cor */}
+          {product.color && (
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div>
+                <div className='flex items-center gap-2 mb-2'>
+                  <label className='text-sm font-semibold text-slate-700'>Cor</label>
+                </div>
+                <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
+                  <span className='text-slate-800'>{product.color}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Terceira linha - Preços */}
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             {/* Preço Original */}
@@ -174,7 +197,7 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
             </div>
             <div className='p-3 bg-slate-50 rounded-lg border border-slate-200'>
               <span className={`${getStatusColor(product.status)}`}>
-                {product.status === 'ativo' ? 'Ativo' : 'Inativo'}
+                {getStatusLabel(product.status)}
               </span>
             </div>
           </div>
