@@ -26,8 +26,10 @@ const ProductSection = ({
   totalElements = 0,
   loadPage,
 }: Props) => {
-  // Filtra apenas produtos com status ACTIVE
-  const activeProducts = products.filter((product) => product.status === 'ACTIVE');
+  // Filtra produtos com status ACTIVE e OUT_OF_STOCK
+  const activeProducts = products.filter(
+    (product) => product.status === 'ACTIVE' || product.status === 'OUT_OF_STOCK',
+  );
 
   // Função para navegar para uma página específica
   const handlePageChange = (page: number) => {
