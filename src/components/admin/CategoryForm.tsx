@@ -239,7 +239,7 @@ const CategoryForm = ({ category, onSubmit, onCancel, isLoading = false }: Categ
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20'
                   : 'border-slate-200 focus:border-purple-500 focus:ring-purple-500/20'
               }`}
-              placeholder='Digite a ordem de exibição (menor número aparece primeiro)'
+              placeholder='Digite a ordem de exibição'
               min='0'
               step='1'
             />

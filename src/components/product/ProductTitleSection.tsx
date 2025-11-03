@@ -88,6 +88,13 @@ const ProductTitleSection = ({ product }: Props) => {
         value={product.type === 'NEW' ? 'Novo' : 'Bazar'}
         className='mt-3 text-sm sm:text-base'
       />
+      {product.color && (
+        <ProductDetailItem
+          label='Cor'
+          value={product.color}
+          className='mt-3 text-sm sm:text-base'
+        />
+      )}
     </>
   );
 };

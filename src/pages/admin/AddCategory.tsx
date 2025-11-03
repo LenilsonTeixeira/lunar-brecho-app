@@ -246,7 +246,7 @@ const AddCategory = () => {
               type='number'
               min='0'
               step='1'
-              placeholder='Digite a ordem de exibição (menor número aparece primeiro)'
+              placeholder='Digite a ordem de exibição'
               className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
             />
             <p className='text-xs text-slate-500'>
