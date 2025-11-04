@@ -53,7 +53,7 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
 
   const getStatusColor = (status: string) => {
     if (status === 'ativo') return 'text-green-600';
-    if (status === 'esgotado') return 'text-orange-600';
+    if (status === 'esgotado') return 'text-red-600';
     return 'text-red-600';
   };
 

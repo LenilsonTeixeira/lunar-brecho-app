@@ -86,7 +86,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
             loading='lazy'
           />
           {product.status === 'OUT_OF_STOCK' && (
-            <div className='absolute bottom-0 left-0 right-0 bg-orange-500/90 text-white text-xs sm:text-sm font-semibold py-1 sm:py-1.5 px-2 text-center'>
+            <div className='absolute bottom-0 left-0 right-0 bg-red-500/90 text-white text-xs sm:text-sm font-semibold py-1 sm:py-1.5 px-2 text-center'>
               Esgotado
             </div>
           )}
