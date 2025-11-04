@@ -10,7 +10,7 @@ interface ProductItem {
   price: number;
   offerPrice: number;
   totalQuantity: number;
-  status: 'ativo' | 'inativo' | 'fora_de_estoque';
+  status: 'ativo' | 'inativo' | 'esgotado';
   sizes: Array<{
     size: string;
     quantity: number;
@@ -53,13 +53,13 @@ const ProductView = ({ product, onClose, onEdit }: ProductViewProps) => {
 
   const getStatusColor = (status: string) => {
     if (status === 'ativo') return 'text-green-600';
-    if (status === 'fora_de_estoque') return 'text-orange-600';
+    if (status === 'esgotado') return 'text-orange-600';
     return 'text-red-600';
   };
 
   const getStatusLabel = (status: string) => {
     if (status === 'ativo') return 'Ativo';
-    if (status === 'fora_de_estoque') return 'Fora de Estoque';
+    if (status === 'esgotado') return 'ESGOTADO';
     return 'Inativo';
   };
 

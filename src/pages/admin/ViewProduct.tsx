@@ -303,7 +303,7 @@ const ViewProduct = () => {
                     {product.status === 'ACTIVE'
                       ? 'Ativo'
                       : product.status === 'OUT_OF_STOCK'
-                        ? 'Fora de Estoque'
+                        ? 'Esgotado'
                         : 'Inativo'}
                   </span>
                 </div>

@@ -588,7 +588,7 @@ const EditProduct = () => {
                 >
                   <option value='ACTIVE'>Ativo</option>
                   <option value='INACTIVE'>Inativo</option>
-                  <option value='OUT_OF_STOCK'>Fora de Estoque</option>
+                  <option value='OUT_OF_STOCK'>Esgotado</option>
                 </select>
               </div>
             </div>
