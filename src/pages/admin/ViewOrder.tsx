@@ -325,7 +325,7 @@ const ViewOrder = () => {
           </div>
 
           {/* Informações de Retirada - Apenas se for pickup */}
-          {order.deliveryType === 'PICKUP' && (
+          {order.deliveryType === 'STORE_PICKUP' && (
             <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
               <div className='flex items-center gap-3 mb-4'>
                 <Store className='w-5 h-5 text-purple-600' />

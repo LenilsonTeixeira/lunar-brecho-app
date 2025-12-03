@@ -244,7 +244,7 @@ export interface OrderRequest {
   items: OrderItem[];
   financialSummary: OrderFinancialSummary;
   status: 'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED';
-  deliveryType: 'HOME_DELIVERY' | 'PICKUP';
+  deliveryType: 'HOME_DELIVERY' | 'STORE_PICKUP';
   deliveryAddress: OrderDeliveryAddress;
   paymentMethod: 'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CASH';
 }
@@ -256,7 +256,7 @@ export interface OrderResponse {
   items: OrderItem[];
   financialSummary: OrderFinancialSummary;
   status: 'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED';
-  deliveryType: 'HOME_DELIVERY' | 'PICKUP';
+  deliveryType: 'HOME_DELIVERY' | 'STORE_PICKUP';
   deliveryAddress: OrderDeliveryAddress;
   paymentMethod: 'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CASH';
 }

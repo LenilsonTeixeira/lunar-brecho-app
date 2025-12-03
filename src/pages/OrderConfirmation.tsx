@@ -235,7 +235,7 @@ const OrderConfirmation = () => {
           discountAmount: discountAmount,
         },
         status: 'PENDING',
-        deliveryType: orderData.deliveryMethod === 'delivery' ? 'HOME_DELIVERY' : 'PICKUP',
+        deliveryType: orderData.deliveryMethod === 'delivery' ? 'HOME_DELIVERY' : 'STORE_PICKUP',
         deliveryAddress: {
           id: '', // Será gerado pelo backend
           street: orderData.street,

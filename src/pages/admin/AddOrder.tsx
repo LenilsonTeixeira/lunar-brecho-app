@@ -19,7 +19,9 @@ const AddOrder = () => {
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
 
-  const [deliveryType, setDeliveryType] = useState<'PICKUP' | 'HOME_DELIVERY'>('HOME_DELIVERY');
+  const [deliveryType, setDeliveryType] = useState<'STORE_PICKUP' | 'HOME_DELIVERY'>(
+    'HOME_DELIVERY',
+  );
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
@@ -427,7 +429,9 @@ const AddOrder = () => {
                   name='deliveryType'
                   value='HOME_DELIVERY'
                   checked={deliveryType === 'HOME_DELIVERY'}
-                  onChange={(e) => setDeliveryType(e.target.value as 'HOME_DELIVERY' | 'PICKUP')}
+                  onChange={(e) =>
+                    setDeliveryType(e.target.value as 'HOME_DELIVERY' | 'STORE_PICKUP')
+                  }
                   className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
                 />
                 <div className='flex items-center gap-2'>
@@ -440,9 +444,11 @@ const AddOrder = () => {
                 <input
                   type='radio'
                   name='deliveryType'
-                  value='PICKUP'
-                  checked={deliveryType === 'PICKUP'}
-                  onChange={(e) => setDeliveryType(e.target.value as 'HOME_DELIVERY' | 'PICKUP')}
+                  value='STORE_PICKUP'
+                  checked={deliveryType === 'STORE_PICKUP'}
+                  onChange={(e) =>
+                    setDeliveryType(e.target.value as 'HOME_DELIVERY' | 'STORE_PICKUP')
+                  }
                   className='w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500'
                 />
                 <div className='flex items-center gap-2'>
@@ -452,7 +458,7 @@ const AddOrder = () => {
               </label>
             </div>
 
-            {deliveryType === 'PICKUP' && (
+            {deliveryType === 'STORE_PICKUP' && (
               <div className='mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
                 <div className='flex items-start gap-3'>
                   <Store className='w-5 h-5 text-blue-600 mt-0.5' />
@@ -626,7 +632,7 @@ const AddOrder = () => {
             <div className='flex items-center gap-3 mb-4'>
               <CreditCard className='w-5 h-5 text-purple-600' />
               <h3 className='text-lg font-semibold text-slate-800'>
-                {deliveryType === 'PICKUP' ? 'Pagamento e Retirada' : 'Método de Pagamento'}
+                {deliveryType === 'STORE_PICKUP' ? 'Pagamento e Retirada' : 'Método de Pagamento'}
               </h3>
             </div>
 
@@ -678,7 +684,7 @@ const AddOrder = () => {
               </div>
             </div>
 
-            {deliveryType === 'PICKUP' && (
+            {deliveryType === 'STORE_PICKUP' && (
               <div className='mt-4 p-4 bg-green-50 border border-green-200 rounded-lg'>
                 <div className='flex items-start gap-3'>
                   <Store className='w-5 h-5 text-green-600 mt-0.5' />
