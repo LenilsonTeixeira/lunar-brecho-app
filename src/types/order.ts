@@ -28,6 +28,6 @@ export interface Order {
   orderDate: string;
   paymentMethod: string;
   deliveryAddress: string;
-  deliveryType: 'pickup' | 'delivery';
+  deliveryType: 'STORE_PICKUP' | 'HOME_DELIVERY';
   address?: OrderAddress;
 }
