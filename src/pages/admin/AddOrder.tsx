@@ -185,7 +185,7 @@ const AddOrder = () => {
               }
             : {
                 id: '',
-                street: '',
+                street: 'Retirada na Loja',
                 number: '',
                 complement: '',
                 neighborhood: '',

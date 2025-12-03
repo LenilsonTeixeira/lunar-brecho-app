@@ -238,13 +238,13 @@ const OrderConfirmation = () => {
         deliveryType: orderData.deliveryMethod === 'delivery' ? 'HOME_DELIVERY' : 'STORE_PICKUP',
         deliveryAddress: {
           id: '', // Será gerado pelo backend
-          street: orderData.street,
-          number: orderData.number,
-          complement: orderData.complement || '',
-          neighborhood: orderData.neighborhood || '',
-          city: orderData.city || '',
-          state: orderData.state || '',
-          zipCode: orderData.zipCode || '',
+          street: orderData.deliveryMethod === 'delivery' ? orderData.street : 'Retirada na Loja',
+          number: orderData.deliveryMethod === 'delivery' ? orderData.number : '',
+          complement: orderData.deliveryMethod === 'delivery' ? orderData.complement || '' : '',
+          neighborhood: orderData.deliveryMethod === 'delivery' ? orderData.neighborhood || '' : '',
+          city: orderData.deliveryMethod === 'delivery' ? orderData.city || '' : '',
+          state: orderData.deliveryMethod === 'delivery' ? orderData.state || '' : '',
+          zipCode: orderData.deliveryMethod === 'delivery' ? orderData.zipCode || '' : '',
         },
         paymentMethod:
           orderData.paymentMethod === 'pix'
