@@ -11,10 +11,12 @@ import {
 import { useNavigate, useParams } from 'react-router';
 import { useState, useEffect } from 'react';
 
-import { productService, ApiError } from '@/services';
+import { productService } from '@/services/product/ProductService';
+import { ApiError } from '@/services/types';
 interface ProductItem {
   id: string;
   externalId: string;
+  sku?: string;
   name: string;
   category: string;
   brand: string;
@@ -64,8 +66,9 @@ const ViewProduct = () => {
         const normalized: ProductItem = {
           id: productData.id,
           externalId: productData.externalId,
+          sku: productData.sku,
           name: productData.name,
-          category: productData.category.name,
+          category: productData.category,
           brand: productData.brand || '',
           color: productData.color,
           type: productData.type === 'NEW' ? 'SIMPLE' : 'VARIANT',
@@ -228,8 +231,8 @@ const ViewProduct = () => {
   const existingImages = product.images.filter((img) => img.originalUrl);
 
   return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+    <div className='py-6 flex flex-col justify-between bg-slate-50 min-h-screen'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         <div className='mb-8'>
           <div className='flex items-center gap-4 mb-4'>
             <button
@@ -286,6 +289,15 @@ const ViewProduct = () => {
                   <span className='text-base text-slate-900'>{product.category}</span>
                 </div>
               </div>
+
+              {product.sku && (
+                <div>
+                  <label className='text-sm font-medium text-slate-700 mb-2 block'>SKU</label>
+                  <div className='p-3 bg-white rounded-lg border border-slate-200'>
+                    <span className='text-base text-slate-900 font-mono'>{product.sku}</span>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className='text-sm font-medium text-slate-700 mb-2 block'>Tipo</label>

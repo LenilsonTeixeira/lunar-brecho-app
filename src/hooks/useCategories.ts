@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { categoryService } from '../services/category/CategoryService';
 import { CategoryResponse } from '../services/types';
+import { useAuth } from '../contexts/AuthContext';
 
 interface UseCategoriesReturn {
   categories: CategoryResponse[];
@@ -10,11 +11,12 @@ interface UseCategoriesReturn {
 }
 
 export const useCategories = (): UseCategoriesReturn => {
+  const { isPublicClientReady } = useAuth();
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -26,15 +28,18 @@ export const useCategories = (): UseCategoriesReturn => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const refetch = async () => {
     await fetchCategories();
   };
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    // Aguarda a autenticação do public_client antes de buscar categorias
+    if (isPublicClientReady) {
+      fetchCategories();
+    }
+  }, [isPublicClientReady, fetchCategories]);
 
   return {
     categories,

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { X, ArrowLeft, Image } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { categoryService, ApiError } from '@/services';
+import { categoryService } from '@/services/category/CategoryService';
+import { ApiError } from '@/services/types';
 
 const AddCategory = () => {
   const navigate = useNavigate();
@@ -51,7 +52,6 @@ const AddCategory = () => {
 
       const categoryData = {
         name: formData.categoryName.value,
-        description: formData.categoryDescription.value || '',
         orderDisplay: orderDisplayValue,
         status: status,
       };
@@ -79,8 +79,8 @@ const AddCategory = () => {
   };
 
   return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+    <div className='py-6 flex flex-col justify-between bg-slate-50 min-h-screen'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         <div className='mb-8'>
           <div className='flex items-center gap-4 mb-4'>
             <button
@@ -219,20 +219,6 @@ const AddCategory = () => {
               className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
               required
             />
-          </div>
-
-          {/* Category Description */}
-          <div className='flex flex-col gap-2'>
-            <label className='text-sm font-medium text-slate-700' htmlFor='category-description'>
-              Descrição da Categoria
-            </label>
-            <textarea
-              id='category-description'
-              name='categoryDescription'
-              rows={4}
-              className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
-              placeholder='Digite uma descrição para a categoria'
-            ></textarea>
           </div>
 
           {/* Order Display */}

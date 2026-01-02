@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, Tag, BarChart3, Image, ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
+import { productService } from '@/services/product/ProductService';
+import { categoryService } from '@/services/category/CategoryService';
 import {
-  productService,
-  categoryService,
   ApiError,
   ProductRequest,
   ProductImageMetadataRequest,
   CategoryResponse,
-} from '@/services';
+} from '@/services/types';
 
 interface ProductSize {
   id?: string;
@@ -19,6 +19,7 @@ interface ProductSize {
 interface ProductItem {
   id: string;
   externalId: string;
+  sku?: string;
   name: string;
   category: string;
   brand: string;
@@ -59,6 +60,7 @@ const EditProduct = () => {
   const [productPrice, setProductPrice] = useState<number | ''>('');
   const [productDescription, setProductDescription] = useState('');
   const [productObservations, setProductObservations] = useState('');
+  const [productSku, setProductSku] = useState<string>('');
   const [productImages, setProductImages] = useState<
     Array<{
       id?: string;
@@ -92,7 +94,7 @@ const EditProduct = () => {
         setProduct({
           ...productData,
           brand: productData.brand || '',
-          category: productData.category.name,
+          category: productData.category,
           sizes: productData.variants.map((v) => ({
             id: v.id,
             size: v.size,
@@ -102,12 +104,13 @@ const EditProduct = () => {
         setProductName(productData.name);
         setProductBrand(productData.brand || '');
         setProductColor(productData.color || '');
-        setProductCategory(productData.category.name);
+        setProductCategory(productData.category);
         setProductType(productData.type);
         setProductStatus(productData.status);
         setProductPrice(productData.basePrice);
         setProductDescription(productData.description || '');
         setProductObservations(productData.observations || '');
+        setProductSku(productData.sku || '');
 
         // Mapear as imagens existentes para um array de 6 posições ordenado
         const imagesArray: Array<{
@@ -140,7 +143,7 @@ const EditProduct = () => {
           // Fallback: Se não tiver array de images mas tiver mainImageUrl, usar ela
           imagesArray[0] = {
             originalUrl: productData.mainImageUrl,
-            thumbnailUrl: productData.mainThumbnailUrl,
+            thumbnailUrl: productData.mainThumbnailImageUrl,
             position: 0,
             isMain: true,
           };
@@ -374,6 +377,7 @@ const EditProduct = () => {
           size: size.size.trim(),
           stockAvailable: Number(size.quantity),
         })),
+        sku: productSku.trim() || undefined,
       };
 
       // 1. Atualizar o produto
@@ -424,7 +428,7 @@ const EditProduct = () => {
 
   return (
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         <div className='mb-8'>
           <div className='flex items-center gap-4 mb-4'>
             <button
@@ -682,32 +686,66 @@ const EditProduct = () => {
               {/* Imagens Adicionais */}
               {Array(5)
                 .fill('')
-                .map((_, index) => (
-                  <div key={index + 1} className='relative group'>
-                    <label htmlFor={`image${index + 1}`} className='cursor-pointer block'>
-                      <input
-                        accept='image/*'
-                        type='file'
-                        id={`image${index + 1}`}
-                        onChange={(e) => handleImageChange(index + 1, e)}
-                        className='hidden'
-                      />
-                      {productImages[index + 1] ? (
-                        <div className='aspect-square rounded-lg overflow-hidden border-2 border-slate-300 shadow-lg group-hover:shadow-xl transition-all duration-300 relative'>
-                          <img
-                            src={
-                              productImages[index + 1]?.originalUrl ||
-                              productImages[index + 1]?.thumbnailUrl ||
-                              ''
-                            }
-                            alt={`Imagem ${index + 2}`}
-                            className='w-full h-full object-cover'
-                          />
-                          <div className='absolute inset-0 bg-transparent group-hover:bg-white/20 transition-all duration-300 flex items-center justify-center'>
-                            <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
-                              <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg'>
+                .map((_, index) => {
+                  const img = productImages[index + 1];
+                  const key = img?.id ? `img-${img.id}` : `img-slot-${index + 1}`;
+                  return (
+                    <div key={key} className='relative group'>
+                      <label htmlFor={`image${index + 1}`} className='cursor-pointer block'>
+                        <input
+                          accept='image/*'
+                          type='file'
+                          id={`image${index + 1}`}
+                          onChange={(e) => handleImageChange(index + 1, e)}
+                          className='hidden'
+                        />
+                        {productImages[index + 1] ? (
+                          <div className='aspect-square rounded-lg overflow-hidden border-2 border-slate-300 shadow-lg group-hover:shadow-xl transition-all duration-300 relative'>
+                            <img
+                              src={
+                                productImages[index + 1]?.originalUrl ||
+                                productImages[index + 1]?.thumbnailUrl ||
+                                ''
+                              }
+                              alt={`Imagem ${index + 2}`}
+                              className='w-full h-full object-cover'
+                            />
+                            <div className='absolute inset-0 bg-transparent group-hover:bg-white/20 transition-all duration-300 flex items-center justify-center'>
+                              <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                                <div className='w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg'>
+                                  <svg
+                                    className='w-4 h-4 text-purple-600'
+                                    fill='none'
+                                    stroke='currentColor'
+                                    viewBox='0 0 24 24'
+                                  >
+                                    <path
+                                      strokeLinecap='round'
+                                      strokeLinejoin='round'
+                                      strokeWidth={2}
+                                      d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+                                    />
+                                  </svg>
+                                </div>
+                              </div>
+                            </div>
+                            <button
+                              type='button'
+                              onClick={(e) => {
+                                e.preventDefault();
+                                removeImage(index + 1);
+                              }}
+                              className='absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg'
+                            >
+                              <X className='w-3 h-3' />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className='aspect-square border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center bg-slate-50 group-hover:border-purple-400 group-hover:bg-purple-50 transition-all duration-300'>
+                            <div className='text-center'>
+                              <div className='w-8 h-8 mx-auto mb-2 bg-slate-200 rounded-full flex items-center justify-center group-hover:bg-purple-200 transition-colors'>
                                 <svg
-                                  className='w-4 h-4 text-purple-600'
+                                  className='w-4 h-4 text-slate-500 group-hover:text-purple-600'
                                   fill='none'
                                   stroke='currentColor'
                                   viewBox='0 0 24 24'
@@ -716,50 +754,20 @@ const EditProduct = () => {
                                     strokeLinecap='round'
                                     strokeLinejoin='round'
                                     strokeWidth={2}
-                                    d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
+                                    d='M12 6v6m0 0v6m0-6h6m-6 0H6'
                                   />
                                 </svg>
                               </div>
+                              <p className='text-xs text-slate-500 group-hover:text-purple-600'>
+                                Adicionar
+                              </p>
                             </div>
                           </div>
-                          <button
-                            type='button'
-                            onClick={(e) => {
-                              e.preventDefault();
-                              removeImage(index + 1);
-                            }}
-                            className='absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-lg'
-                          >
-                            <X className='w-3 h-3' />
-                          </button>
-                        </div>
-                      ) : (
-                        <div className='aspect-square border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center bg-slate-50 group-hover:border-purple-400 group-hover:bg-purple-50 transition-all duration-300'>
-                          <div className='text-center'>
-                            <div className='w-8 h-8 mx-auto mb-2 bg-slate-200 rounded-full flex items-center justify-center group-hover:bg-purple-200 transition-colors'>
-                              <svg
-                                className='w-4 h-4 text-slate-500 group-hover:text-purple-600'
-                                fill='none'
-                                stroke='currentColor'
-                                viewBox='0 0 24 24'
-                              >
-                                <path
-                                  strokeLinecap='round'
-                                  strokeLinejoin='round'
-                                  strokeWidth={2}
-                                  d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                                />
-                              </svg>
-                            </div>
-                            <p className='text-xs text-slate-500 group-hover:text-purple-600'>
-                              Adicionar
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </label>
-                  </div>
-                ))}
+                        )}
+                      </label>
+                    </div>
+                  );
+                })}
             </div>
           </div>
 

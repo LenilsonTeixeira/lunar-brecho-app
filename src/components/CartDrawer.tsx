@@ -58,7 +58,7 @@ const CartDrawer = () => {
               >
                 <img
                   src={
-                    item.snapshot.mainThumbnailUrl ||
+                    item.snapshot.mainThumbnailImageUrl ||
                     item.snapshot.mainImageUrl ||
                     'https://via.placeholder.com/80'
                   }

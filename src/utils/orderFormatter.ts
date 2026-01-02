@@ -1,17 +1,22 @@
-import { OrderResponse } from '../services/types';
+import { OrderResponse, StoreResponse } from '../services/types';
 import { formatToBRL } from './priceUtils';
-import { ENV } from '../config/env';
 
 /**
  * Formata os dados de um pedido em uma string para o WhatsApp.
  * @param orderData - Os dados do pedido.
+ * @param store - Os dados da loja (nome e configurações).
  * @returns A mensagem formatada.
  */
-export const formatOrderForWhatsApp = (orderData: OrderResponse) => {
+export const formatOrderForWhatsApp = (orderData: OrderResponse, store: StoreResponse) => {
   const itemsText = orderData.items
     .map((item) => {
+      const skuText = item.sku && item.sku.trim() !== '' ? `\n🏷️ SKU: ${item.sku}` : '';
+      const imageText =
+        item.mainImageUrl && item.mainImageUrl.trim() !== ''
+          ? `\n🖼️ Imagem: ${item.mainImageUrl}`
+          : '';
       return `${item.quantity}x ${item.name} (${item.size}) - ${formatToBRL(item.subtotal)}
-📋 Código: ${item.externalId}`;
+📋 Código: ${item.externalId}${skuText}${imageText}`;
     })
     .join('\n\n');
 
@@ -26,12 +31,11 @@ export const formatOrderForWhatsApp = (orderData: OrderResponse) => {
       : '';
 
   const message = `
-🛍️ *NOVO PEDIDO - LUNAR BRECHÓ 🌙*
+🛍️ *NOVO PEDIDO - ${store.name.toUpperCase()}*
 
 👤 *Cliente:*
 Nome: ${orderData.customer.fullName}
 WhatsApp: ${orderData.customer.phone}
-${orderData.customer.email ? `Email: ${orderData.customer.email}` : ''}
 
 📦 *Itens do Pedido:* (${orderData.items.length} ${orderData.items.length === 1 ? 'item' : 'itens'})
 ${itemsText}
@@ -40,7 +44,7 @@ ${itemsText}
 ${
   orderData.deliveryType === 'HOME_DELIVERY'
     ? `📍 Entregar no endereço:
-${orderData.deliveryAddress.street}, ${orderData.deliveryAddress.number}${orderData.deliveryAddress.complement ? ` - ${orderData.deliveryAddress.complement}` : ''}
+${orderData.deliveryAddress.address}, ${orderData.deliveryAddress.number}${orderData.deliveryAddress.complement ? ` - ${orderData.deliveryAddress.complement}` : ''}
 ${orderData.deliveryAddress.neighborhood}, ${orderData.deliveryAddress.city} - ${orderData.deliveryAddress.state}
 CEP: ${orderData.deliveryAddress.zipCode}`
     : '🏪 Retirar na loja'
@@ -49,10 +53,10 @@ CEP: ${orderData.deliveryAddress.zipCode}`
 💳 *Pagamento:* ${getPaymentMethodName(orderData.paymentMethod)}
 ${orderData.paymentMethod === 'PIX' ? '' : ''}
 ${
-  orderData.paymentMethod === 'PIX'
+  orderData.paymentMethod === 'PIX' && store.config?.pixKey
     ? `
 🔑 *Chave PIX para pagamento:*
-${ENV.PIX_KEY}
+${store.config.pixKey}
 
 💡 *Instruções:*
 1. Copie a chave PIX acima
@@ -142,7 +146,7 @@ export const formatProductForWhatsApp = (
     name: string;
     basePrice: number;
     mainImageUrl?: string;
-    mainThumbnailUrl?: string;
+    mainThumbnailImageUrl?: string;
     variants?: Array<{
       size: string;
       stockAvailable?: number;

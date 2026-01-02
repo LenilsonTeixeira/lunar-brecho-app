@@ -5,7 +5,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  token: string;
+  accessToken: string;
   refreshToken: string;
   type: string;
   expiresIn: number;
@@ -17,7 +17,7 @@ export interface RefreshTokenRequest {
 }
 
 export interface RefreshTokenResponse {
-  token: string;
+  accessToken: string;
   refreshToken: string;
   type: string;
   expiresIn: number;
@@ -53,7 +53,7 @@ export interface CategoryRequest {
 
 export interface CategoryResponse {
   id: string;
-  externalId: string;
+  externalId?: string | null;
   name: string;
   description?: string;
   color?: string;
@@ -82,7 +82,7 @@ export interface ProductImage {
 
 export interface ProductRequest {
   mainImageUrl?: string;
-  mainThumbnailUrl?: string;
+  mainThumbnailImageUrl?: string;
   name: string;
   description?: string;
   brand?: string;
@@ -95,19 +95,21 @@ export interface ProductRequest {
   discountValue?: number;
   status: 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK';
   variants: ProductVariant[];
+  sku?: string;
 }
 
 export interface ProductResponse {
   id: string;
   externalId: string;
+  sku?: string;
   mainImageUrl?: string;
-  mainThumbnailUrl?: string;
+  mainThumbnailImageUrl?: string;
   name: string;
   description?: string;
   brand?: string;
   color?: string;
   observations?: string;
-  category: CategoryResponse;
+  category: string;
   type: 'NEW' | 'BAZAAR';
   basePrice: number;
   discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
@@ -126,13 +128,39 @@ export interface ProductImageMetadataRequest {
   operationType: 'ADD' | 'UPDATE';
 }
 
-export interface ProductListResponse {
-  content: ProductResponse[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
+export interface ProductListItemResponse {
+  id: string;
+  externalId: string;
+  sku?: string;
+  name: string;
+  mainImageUrl: string;
+  mainThumbnailImageUrl: string;
+  category: string;
+  description: string;
+  status: 'ACTIVE' | 'INACTIVE' | 'OUT_OF_STOCK';
+  brand: string;
+  color: string;
+  observations: string;
+  isNew: boolean;
+  basePrice: number;
+  discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE';
+  discountValue: number;
+  storeId: string;
+  variants: Array<{
+    size: string;
+    stockAvailable: number;
+  }>;
+  images: Array<{
+    originalUrl?: string;
+    position: number;
+    isMain: boolean;
+    thumbnailUrl?: string;
+  }>;
+  createdAt: string;
+  updatedAt: string;
 }
+
+export type ProductListResponse = ProductListItemResponse[];
 
 // Common types
 export class ApiError extends Error {
@@ -146,95 +174,76 @@ export class ApiError extends Error {
 }
 
 // Customer types
-export interface CustomerAddressRequest {
-  street: string;
-  number: string;
-  complement?: string;
-  neighborhood?: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  type: 'HOME' | 'WORK' | 'OUTRO';
-  isDefault: boolean;
-}
-
 export interface CustomerRequest {
+  externalId?: string | null;
   name: string;
-  email?: string;
+  email?: string | null;
   phone: string;
-  cpf?: string;
-  addresses: CustomerAddressRequest[];
-}
-
-export interface CustomerAddressResponse {
-  id: string;
-  street: string;
-  number: string;
-  complement?: string;
-  neighborhood?: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  type: 'HOME' | 'WORK' | 'OUTRO';
-  isDefault: boolean;
+  address?: string | null;
+  neighborhood?: string | null;
+  number?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
+  complement?: string | null;
 }
 
 export interface CustomerResponse {
-  id: string;
-  externalId?: string;
+  id?: string | null;
+  externalId?: string | null;
   name: string;
-  email?: string;
+  email?: string | null;
   phone: string;
-  cpf?: string;
-  addresses: CustomerAddressResponse[];
+  address?: string | null;
+  neighborhood?: string | null;
+  number?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
+  complement?: string | null;
+  storeId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface CustomerListResponse {
-  content: CustomerResponse[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-}
+export type CustomerListResponse = CustomerResponse[];
 
 // Order types
 export interface OrderCustomer {
-  id: string;
   fullName: string;
-  email: string;
   phone: string;
 }
 
 export interface OrderItem {
-  id: string;
-  externalId: string;
-  name: string;
+  productId: string;
+  sku?: string | null;
+  externalId?: string | null;
   mainImageUrl: string;
-  mainImageThumbnailUrl: string;
+  mainThumbnailImageUrl: string;
+  name: string;
   brand: string;
   size: string;
   quantity: number;
-  discountApplied: number;
+  discountApplied?: number | null;
   unitPrice: number;
   subtotal: number;
 }
 
 export interface OrderFinancialSummary {
   subtotal: number;
-  totalAmount: number;
-  deliveryFee: number;
   discountAmount: number;
+  deliveryFee: number;
+  totalAmount: number;
 }
 
 export interface OrderDeliveryAddress {
-  id: string;
-  street: string;
-  number: string;
-  complement: string;
-  neighborhood: string;
-  city: string;
-  state: string;
-  zipCode: string;
+  address: string;
+  neighborhood?: string | null;
+  number?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zipCode?: string | null;
+  complement?: string | null;
 }
 
 export interface OrderRequest {
@@ -243,7 +252,7 @@ export interface OrderRequest {
   customer: OrderCustomer;
   items: OrderItem[];
   financialSummary: OrderFinancialSummary;
-  status: 'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED';
+  status: 'PENDING' | 'APPROVED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
   deliveryType: 'HOME_DELIVERY' | 'STORE_PICKUP';
   deliveryAddress: OrderDeliveryAddress;
   paymentMethod: 'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CASH';
@@ -255,20 +264,62 @@ export interface OrderResponse {
   customer: OrderCustomer;
   items: OrderItem[];
   financialSummary: OrderFinancialSummary;
-  status: 'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED';
+  status: 'PENDING' | 'APPROVED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
   deliveryType: 'HOME_DELIVERY' | 'STORE_PICKUP';
   deliveryAddress: OrderDeliveryAddress;
   paymentMethod: 'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CASH';
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-export interface OrderListResponse {
-  content: OrderResponse[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-}
+export type OrderListResponse = OrderResponse[];
 
 export interface OrderStatusUpdateRequest {
-  status: 'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED';
+  status: 'PENDING' | 'APPROVED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
 }
+
+// Store types
+export interface StoreConfigProps {
+  pixKey: string;
+  whatsapp: string;
+  deliveryFee: number;
+}
+
+export interface StoreRequest {
+  name: string;
+  slug: string;
+  logo?: string | null;
+  description?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
+  website?: string | null;
+  facebook?: string | null;
+  instagram?: string | null;
+  config?: StoreConfigProps;
+}
+
+export interface StoreResponse {
+  id: string;
+  name: string;
+  slug: string;
+  logo?: string | null;
+  description?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
+  website?: string | null;
+  facebook?: string | null;
+  instagram?: string | null;
+  config?: StoreConfigProps;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type StoreListResponse = StoreResponse[];

@@ -1,457 +1,535 @@
 import { useState } from 'react';
-import { Plus, X, Star, StarOff } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { customerService, ApiError, CustomerRequest } from '@/services';
+import { customerService } from '@/services/customer/CustomerService';
+import { ApiError, CustomerRequest } from '@/services/types';
 
 const AddCustomer = () => {
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState('');
-  const [phones, setPhones] = useState([{ id: 1, phone: '' }]);
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      cep: '',
-      street: '',
-      number: '',
-      complement: '',
-      neighborhood: '',
-      city: '',
-      state: '',
-      isMain: true,
-    },
-  ]);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
 
-  const addPhone = () => {
-    const newId = Math.max(...phones.map((p) => p.id), 0) + 1;
-    setPhones([...phones, { id: newId, phone: '' }]);
-  };
+  const [formData, setFormData] = useState<CustomerRequest>({
+    externalId: null,
+    name: '',
+    email: null,
+    phone: '',
+    address: null,
+    neighborhood: null,
+    number: null,
+    city: null,
+    state: null,
+    zip: null,
+    complement: null,
+  });
 
-  const removePhone = (id: number) => {
-    if (phones.length > 1) {
-      setPhones(phones.filter((p) => p.id !== id));
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+
+    // Formatação do CEP enquanto digita
+    if (name === 'zip') {
+      const cleanValue = value.replace(/\D/g, '');
+      const formattedValue = cleanValue.replace(/(\d{5})(\d)/, '$1-$2');
+      setFormData((prev) => ({
+        ...prev,
+        [name]: formattedValue || null,
+      }));
+
+      // Auto-consulta quando tiver 8 dígitos
+      if (cleanValue.length === 8) {
+        handleZipCodeValidation(cleanValue);
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value || null,
+      }));
+    }
+
+    // Limpa erro do campo quando o usuário começa a digitar
+    if (fieldErrors[name]) {
+      setFieldErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
     }
   };
 
-  const updatePhone = (id: number, value: string) => {
-    setPhones(phones.map((p) => (p.id === id ? { ...p, phone: value } : p)));
-  };
+  const handleZipCodeValidation = async (zipCodeValue?: string) => {
+    const zipToValidate = zipCodeValue || formData.zip?.replace(/\D/g, '') || '';
+    const cleanZipCode = zipToValidate.replace(/\D/g, '');
 
-  const addAddress = () => {
-    const newId = Math.max(...addresses.map((a) => a.id), 0) + 1;
-    setAddresses([
-      ...addresses,
-      {
-        id: newId,
-        cep: '',
-        street: '',
-        number: '',
-        complement: '',
-        neighborhood: '',
-        city: '',
-        state: '',
-        isMain: false,
-      },
-    ]);
-  };
+    if (cleanZipCode.length !== 8) {
+      return;
+    }
 
-  const removeAddress = (id: number) => {
-    if (addresses.length > 1) {
-      setAddresses(addresses.filter((a) => a.id !== id));
+    try {
+      setIsLoadingCep(true);
+      const response = await fetch(`https://viacep.com.br/ws/${cleanZipCode}/json/`);
+      const data = await response.json();
+
+      if (data.erro) {
+        setError('CEP não encontrado. Verifique o número digitado.');
+        return;
+      }
+
+      // Preencher campos automaticamente com os dados da API
+      setFormData((prev) => ({
+        ...prev,
+        address: data.logradouro || prev.address,
+        neighborhood: data.bairro || prev.neighborhood,
+        city: data.localidade || prev.city,
+        state: data.uf || prev.state,
+        complement: data.complemento || prev.complement,
+        zip: data.cep || cleanZipCode.replace(/(\d{5})(\d{3})/, '$1-$2'),
+      }));
+    } catch (error) {
+      console.error('Erro ao consultar CEP:', error);
+      setError('Erro ao consultar CEP. Tente novamente.');
+    } finally {
+      setIsLoadingCep(false);
     }
   };
 
-  const updateAddress = (id: number, field: string, value: string | boolean) => {
-    setAddresses(addresses.map((a) => (a.id === id ? { ...a, [field]: value } : a)));
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.name.trim()) {
+      errors.name = 'Nome é obrigatório';
+    }
+
+    if (!formData.phone.trim()) {
+      errors.phone = 'Telefone é obrigatório';
+    }
+
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Email inválido';
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const setMainAddress = (id: number) => {
-    setAddresses(
-      addresses.map((a) => ({
-        ...a,
-        isMain: a.id === id,
-      })),
-    );
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!validateForm()) {
+      setError('Por favor, corrija os erros no formulário.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const submitData: CustomerRequest = {
+        externalId: formData.externalId?.trim() || null,
+        name: formData.name.trim(),
+        email: formData.email?.trim() || null,
+        phone: formData.phone.trim(),
+        address: formData.address?.trim() || null,
+        neighborhood: formData.neighborhood?.trim() || null,
+        number: formData.number?.trim() || null,
+        city: formData.city?.trim() || null,
+        state: formData.state?.trim() || null,
+        zip: formData.zip?.trim() || null,
+        complement: formData.complement?.trim() || null,
+      };
+
+      await customerService.createCustomer(submitData);
+      navigate('/admin/clientes');
+    } catch (err) {
+      console.error('Erro ao criar cliente:', err);
+      if (err instanceof ApiError) {
+        setError(`Erro ao criar cliente: ${err.message}`);
+      } else {
+        setError('Erro de conexão. Tente novamente.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+    <div className='py-6 flex flex-col justify-between bg-slate-50 min-h-screen'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         <div className='mb-8'>
+          <div className='flex items-center gap-4 mb-4'>
+            <button
+              onClick={() => navigate('/admin/clientes')}
+              className='flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all duration-300'
+            >
+              <ArrowLeft className='w-4 h-4' />
+              Voltar
+            </button>
+          </div>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Adicionar Cliente</h1>
           <p className='text-sm sm:text-base text-slate-600'>
             Preencha as informações do cliente abaixo
           </p>
         </div>
 
+        {/* Error Message */}
         {error && (
-          <div className='bg-red-50 border border-red-200 rounded-lg p-4 mb-4'>
-            <p className='text-sm text-red-700'>{error}</p>
+          <div className='bg-red-50 border border-red-200 rounded-lg p-4 mb-6'>
+            <div className='flex items-center'>
+              <div className='flex-shrink-0'>
+                <svg className='h-5 w-5 text-red-400' viewBox='0 0 20 20' fill='currentColor'>
+                  <path
+                    fillRule='evenodd'
+                    d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
+                    clipRule='evenodd'
+                  />
+                </svg>
+              </div>
+              <div className='ml-3'>
+                <p className='text-sm text-red-800'>{error}</p>
+              </div>
+              <div className='ml-auto pl-3'>
+                <button onClick={() => setError(null)} className='text-red-400 hover:text-red-600'>
+                  <span className='sr-only'>Fechar</span>
+                  <svg className='h-5 w-5' viewBox='0 0 20 20' fill='currentColor'>
+                    <path
+                      fillRule='evenodd'
+                      d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'
+                      clipRule='evenodd'
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
         <form
-          onSubmit={async (e) => {
-            e.preventDefault();
-            setError(null);
-            if (!fullName.trim()) {
-              setError('Por favor, informe o nome completo.');
-              return;
-            }
-            if (!phones[0]?.phone.trim()) {
-              setError('Informe ao menos um telefone.');
-              return;
-            }
-            const main = addresses.find((a) => a.isMain);
-            if (!main) {
-              setError('Selecione um endereço principal.');
-              return;
-            }
-            const requiredMissing = addresses.some(
-              (a) =>
-                !a.street.trim() ||
-                !a.number.trim() ||
-                !a.neighborhood.trim() ||
-                !a.city.trim() ||
-                !a.state.trim() ||
-                !a.cep.trim(),
-            );
-            if (requiredMissing) {
-              setError('Preencha todos os campos obrigatórios dos endereços.');
-              return;
-            }
-
-            const request: CustomerRequest = {
-              name: fullName.trim(),
-              phone: phones[0].phone.replace(/\D/g, ''),
-              addresses: addresses.map((a) => ({
-                street: a.street,
-                number: a.number,
-                complement: a.complement || undefined,
-                neighborhood: a.neighborhood || undefined,
-                city: a.city || undefined,
-                state: a.state || undefined,
-                zipCode: a.cep || undefined,
-                type: a.isMain ? 'HOME' : 'OUTRO',
-                isDefault: a.isMain,
-              })),
-            };
-
-            try {
-              setLoading(true);
-              await customerService.createCustomer(request);
-              navigate('/admin/clientes');
-            } catch (err) {
-              if (err instanceof ApiError) {
-                setError(err.message);
-              } else {
-                setError('Erro de conexão. Tente novamente.');
-              }
-            } finally {
-              setLoading(false);
-            }
-          }}
+          onSubmit={handleSubmit}
           className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'
         >
-          {/* User Name */}
-          <div className='flex flex-col gap-2'>
-            <label
-              className='text-sm sm:text-base font-semibold text-slate-700'
-              htmlFor='user-name'
-            >
-              Nome Completo
-            </label>
-            <input
-              id='user-name'
-              type='text'
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder='Digite o nome completo'
-              className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-              required
-            />
-          </div>
-
-          {/* Phones - Dynamic Management */}
-          <div>
-            <div className='flex items-center justify-between mb-4'>
-              <label className='text-sm sm:text-base font-semibold text-slate-700'>Telefones</label>
-              <button
-                type='button'
-                onClick={addPhone}
-                className='flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all duration-300'
-              >
-                <Plus className='w-4 h-4' />
-                Adicionar Telefone
-              </button>
-            </div>
-
-            <div className='space-y-3'>
-              {phones.map((phoneItem, index) => (
-                <div
-                  key={phoneItem.id}
-                  className='flex items-center gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200'
-                >
-                  <div className='flex-1'>
-                    <label className='text-xs sm:text-sm font-medium text-slate-600 mb-2 block'>
-                      Telefone {index + 1}
-                    </label>
-                    <input
-                      type='tel'
-                      value={phoneItem.phone}
-                      onChange={(e) => updatePhone(phoneItem.id, e.target.value)}
-                      placeholder='(11) 99999-9999'
-                      className='w-full outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                      required
+          {/* Validation Error Alert */}
+          {Object.keys(fieldErrors).length > 0 && (
+            <div className='bg-red-50 border-l-4 border-red-500 rounded-lg p-4'>
+              <div className='flex items-start'>
+                <div className='flex-shrink-0'>
+                  <svg className='h-5 w-5 text-red-500' viewBox='0 0 20 20' fill='currentColor'>
+                    <path
+                      fillRule='evenodd'
+                      d='M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z'
+                      clipRule='evenodd'
                     />
-                  </div>
-
-                  {phones.length > 1 && (
-                    <button
-                      type='button'
-                      onClick={() => removePhone(phoneItem.id)}
-                      className='mt-6 p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300'
-                      aria-label='Remover telefone'
-                    >
-                      <X className='w-4 h-4' />
-                    </button>
-                  )}
+                  </svg>
                 </div>
-              ))}
+                <div className='ml-3'>
+                  <h3 className='text-sm font-semibold text-red-800'>
+                    Preencha todos os campos obrigatórios
+                  </h3>
+                  <p className='text-sm text-red-700 mt-1'>
+                    Por favor, corrija os campos destacados em vermelho antes de continuar.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Informações Básicas */}
+          <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
+            <h3 className='text-lg font-semibold text-slate-800 mb-4'>Informações Básicas</h3>
+
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              <div className='flex flex-col gap-2'>
+                <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='name'>
+                  Nome <span className='text-red-500'>*</span>
+                </label>
+                <input
+                  id='name'
+                  name='name'
+                  type='text'
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder='Digite o nome completo'
+                  className={`outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border transition-all duration-300 bg-white ${
+                    fieldErrors.name
+                      ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                      : 'border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
+                  }`}
+                  required
+                />
+                {fieldErrors.name && (
+                  <p className='text-sm text-red-600 flex items-center gap-1'>
+                    <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                      <path
+                        fillRule='evenodd'
+                        d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    {fieldErrors.name}
+                  </p>
+                )}
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='phone'
+                >
+                  Telefone <span className='text-red-500'>*</span>
+                </label>
+                <input
+                  id='phone'
+                  name='phone'
+                  type='tel'
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder='(00) 00000-0000'
+                  className={`outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border transition-all duration-300 bg-white ${
+                    fieldErrors.phone
+                      ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                      : 'border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
+                  }`}
+                  required
+                />
+                {fieldErrors.phone && (
+                  <p className='text-sm text-red-600 flex items-center gap-1'>
+                    <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                      <path
+                        fillRule='evenodd'
+                        d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    {fieldErrors.phone}
+                  </p>
+                )}
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='email'
+                >
+                  Email
+                </label>
+                <input
+                  id='email'
+                  name='email'
+                  type='email'
+                  value={formData.email || ''}
+                  onChange={handleChange}
+                  placeholder='email@exemplo.com'
+                  className={`outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border transition-all duration-300 bg-white ${
+                    fieldErrors.email
+                      ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                      : 'border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
+                  }`}
+                />
+                {fieldErrors.email && (
+                  <p className='text-sm text-red-600 flex items-center gap-1'>
+                    <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
+                      <path
+                        fillRule='evenodd'
+                        d='M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z'
+                        clipRule='evenodd'
+                      />
+                    </svg>
+                    {fieldErrors.email}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Addresses - Dynamic Management */}
-          <div>
-            <div className='flex items-center justify-between mb-4'>
-              <label className='text-sm sm:text-base font-semibold text-slate-700'>
-                Endereços de Entrega
-              </label>
-              <button
-                type='button'
-                onClick={addAddress}
-                className='flex items-center gap-2 px-3 py-2 text-xs sm:text-sm font-medium text-purple-600 bg-purple-50 rounded-lg hover:bg-purple-100 transition-all duration-300'
-              >
-                <Plus className='w-4 h-4' />
-                Adicionar Endereço
-              </button>
-            </div>
+          {/* Endereço */}
+          <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
+            <h3 className='text-lg font-semibold text-slate-800 mb-4'>Endereço</h3>
 
-            <div className='space-y-6'>
-              {addresses.map((addressItem, index) => (
-                <div
-                  key={addressItem.id}
-                  className='p-6 bg-slate-50 rounded-lg border border-slate-200'
-                >
-                  {/* Address Header */}
-                  <div className='flex items-center justify-between mb-4'>
-                    <div className='flex items-center gap-3'>
-                      <h4 className='text-sm sm:text-base font-semibold text-slate-800'>
-                        Endereço {index + 1}
-                      </h4>
-                      {addressItem.isMain && (
-                        <span className='flex items-center gap-1 px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full'>
-                          <Star className='w-3 h-3' />
-                          Principal
-                        </span>
-                      )}
-                    </div>
-                    <div className='flex items-center gap-2'>
-                      {!addressItem.isMain && (
-                        <button
-                          type='button'
-                          onClick={() => setMainAddress(addressItem.id)}
-                          className='p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-all duration-300'
-                          title='Definir como principal'
-                        >
-                          <StarOff className='w-4 h-4' />
-                        </button>
-                      )}
-                      {addresses.length > 1 && (
-                        <button
-                          type='button'
-                          onClick={() => removeAddress(addressItem.id)}
-                          className='p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300'
-                          aria-label='Remover endereço'
-                        >
-                          <X className='w-4 h-4' />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Address Fields */}
-                  <div className='space-y-4'>
-                    {/* CEP and Street */}
-                    <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-                      <div className='flex flex-col gap-2'>
-                        <label
-                          className='text-xs sm:text-sm font-medium text-slate-600'
-                          htmlFor={`cep-${addressItem.id}`}
-                        >
-                          CEP
-                        </label>
-                        <input
-                          id={`cep-${addressItem.id}`}
-                          type='text'
-                          value={addressItem.cep}
-                          onChange={(e) => updateAddress(addressItem.id, 'cep', e.target.value)}
-                          placeholder='00000-000'
-                          className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                          required
-                        />
-                      </div>
-
-                      <div className='flex flex-col gap-2'>
-                        <label
-                          className='text-xs sm:text-sm font-medium text-slate-600'
-                          htmlFor={`street-${addressItem.id}`}
-                        >
-                          Rua
-                        </label>
-                        <input
-                          id={`street-${addressItem.id}`}
-                          type='text'
-                          value={addressItem.street}
-                          onChange={(e) => updateAddress(addressItem.id, 'street', e.target.value)}
-                          placeholder='Nome da rua'
-                          className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    {/* Number and Complement */}
-                    <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-                      <div className='flex flex-col gap-2'>
-                        <label
-                          className='text-xs sm:text-sm font-medium text-slate-600'
-                          htmlFor={`number-${addressItem.id}`}
-                        >
-                          Número
-                        </label>
-                        <input
-                          id={`number-${addressItem.id}`}
-                          type='text'
-                          value={addressItem.number}
-                          onChange={(e) => updateAddress(addressItem.id, 'number', e.target.value)}
-                          placeholder='123'
-                          className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                          required
-                        />
-                      </div>
-
-                      <div className='flex flex-col gap-2'>
-                        <label
-                          className='text-xs sm:text-sm font-medium text-slate-600'
-                          htmlFor={`complement-${addressItem.id}`}
-                        >
-                          Complemento
-                        </label>
-                        <input
-                          id={`complement-${addressItem.id}`}
-                          type='text'
-                          value={addressItem.complement}
-                          onChange={(e) =>
-                            updateAddress(addressItem.id, 'complement', e.target.value)
-                          }
-                          placeholder='Apartamento, bloco, etc.'
-                          className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                        />
-                      </div>
-                    </div>
-
-                    {/* Neighborhood and City */}
-                    <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-                      <div className='flex flex-col gap-2'>
-                        <label
-                          className='text-xs sm:text-sm font-medium text-slate-600'
-                          htmlFor={`neighborhood-${addressItem.id}`}
-                        >
-                          Bairro
-                        </label>
-                        <input
-                          id={`neighborhood-${addressItem.id}`}
-                          type='text'
-                          value={addressItem.neighborhood}
-                          onChange={(e) =>
-                            updateAddress(addressItem.id, 'neighborhood', e.target.value)
-                          }
-                          placeholder='Nome do bairro'
-                          className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                          required
-                        />
-                      </div>
-
-                      <div className='flex flex-col gap-2'>
-                        <label
-                          className='text-xs sm:text-sm font-medium text-slate-600'
-                          htmlFor={`city-${addressItem.id}`}
-                        >
-                          Cidade
-                        </label>
-                        <input
-                          id={`city-${addressItem.id}`}
-                          type='text'
-                          value={addressItem.city}
-                          onChange={(e) => updateAddress(addressItem.id, 'city', e.target.value)}
-                          placeholder='Nome da cidade'
-                          className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    {/* State */}
-                    <div className='flex flex-col gap-2'>
-                      <label
-                        className='text-xs sm:text-sm font-medium text-slate-600'
-                        htmlFor={`state-${addressItem.id}`}
-                      >
-                        Estado
-                      </label>
-                      <select
-                        id={`state-${addressItem.id}`}
-                        value={addressItem.state}
-                        onChange={(e) => updateAddress(addressItem.id, 'state', e.target.value)}
-                        className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                        required
-                      >
-                        <option value=''>Selecione o estado</option>
-                        <option value='SP'>São Paulo</option>
-                        <option value='RJ'>Rio de Janeiro</option>
-                        <option value='MG'>Minas Gerais</option>
-                        <option value='RS'>Rio Grande do Sul</option>
-                        <option value='PR'>Paraná</option>
-                        <option value='SC'>Santa Catarina</option>
-                        <option value='BA'>Bahia</option>
-                        <option value='GO'>Goiás</option>
-                        <option value='PE'>Pernambuco</option>
-                        <option value='CE'>Ceará</option>
-                        <option value='PA'>Pará</option>
-                        <option value='MA'>Maranhão</option>
-                        <option value='ES'>Espírito Santo</option>
-                        <option value='PB'>Paraíba</option>
-                        <option value='MT'>Mato Grosso</option>
-                        <option value='MS'>Mato Grosso do Sul</option>
-                        <option value='PI'>Piauí</option>
-                        <option value='RN'>Rio Grande do Norte</option>
-                        <option value='AL'>Alagoas</option>
-                        <option value='SE'>Sergipe</option>
-                        <option value='RO'>Rondônia</option>
-                        <option value='TO'>Tocantins</option>
-                        <option value='AC'>Acre</option>
-                        <option value='AP'>Amapá</option>
-                        <option value='AM'>Amazonas</option>
-                        <option value='RR'>Roraima</option>
-                        <option value='DF'>Distrito Federal</option>
-                      </select>
-                    </div>
-                  </div>
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              {/* CEP - Primeiro campo */}
+              <div className='flex flex-col gap-2'>
+                <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='zip'>
+                  CEP
+                </label>
+                <div className='flex gap-2'>
+                  <input
+                    id='zip'
+                    name='zip'
+                    type='text'
+                    value={formData.zip || ''}
+                    onChange={handleChange}
+                    onBlur={() => {
+                      const cleanZip = formData.zip?.replace(/\D/g, '') || '';
+                      if (cleanZip.length === 8) {
+                        handleZipCodeValidation(cleanZip);
+                      }
+                    }}
+                    placeholder='00000-000'
+                    maxLength={9}
+                    className='flex-1 outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  />
+                  <button
+                    type='button'
+                    onClick={() => {
+                      const cleanZip = formData.zip?.replace(/\D/g, '') || '';
+                      if (cleanZip.length === 8) {
+                        handleZipCodeValidation(cleanZip);
+                      } else {
+                        setError('CEP deve conter 8 dígitos');
+                      }
+                    }}
+                    disabled={isLoadingCep}
+                    className='px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-semibold text-sm sm:text-base shadow-md hover:shadow-lg whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed'
+                  >
+                    {isLoadingCep ? (
+                      <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+                    ) : (
+                      'BUSCAR'
+                    )}
+                  </button>
                 </div>
-              ))}
+                {isLoadingCep && <p className='text-xs text-slate-500'>Buscando endereço...</p>}
+              </div>
+
+              {/* Rua/Logradouro */}
+              <div className='lg:col-span-2 flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='address'
+                >
+                  Rua/Logradouro
+                </label>
+                <input
+                  id='address'
+                  name='address'
+                  type='text'
+                  value={formData.address || ''}
+                  onChange={handleChange}
+                  placeholder='Nome da rua'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+
+              {/* Número */}
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='number'
+                >
+                  Número
+                </label>
+                <input
+                  id='number'
+                  name='number'
+                  type='text'
+                  value={formData.number || ''}
+                  onChange={handleChange}
+                  placeholder='123'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+
+              {/* Complemento */}
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='complement'
+                >
+                  Complemento
+                </label>
+                <input
+                  id='complement'
+                  name='complement'
+                  type='text'
+                  value={formData.complement || ''}
+                  onChange={handleChange}
+                  placeholder='Apartamento, bloco, etc.'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+
+              {/* Bairro */}
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='neighborhood'
+                >
+                  Bairro
+                </label>
+                <input
+                  id='neighborhood'
+                  name='neighborhood'
+                  type='text'
+                  value={formData.neighborhood || ''}
+                  onChange={handleChange}
+                  placeholder='Nome do bairro'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+
+              {/* Cidade */}
+              <div className='flex flex-col gap-2'>
+                <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='city'>
+                  Cidade
+                </label>
+                <input
+                  id='city'
+                  name='city'
+                  type='text'
+                  value={formData.city || ''}
+                  onChange={handleChange}
+                  placeholder='Nome da cidade'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+
+              {/* Estado */}
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='state'
+                >
+                  Estado
+                </label>
+                <select
+                  id='state'
+                  name='state'
+                  value={formData.state || ''}
+                  onChange={handleChange}
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                >
+                  <option value=''>Selecione o estado</option>
+                  <option value='SP'>São Paulo</option>
+                  <option value='RJ'>Rio de Janeiro</option>
+                  <option value='MG'>Minas Gerais</option>
+                  <option value='RS'>Rio Grande do Sul</option>
+                  <option value='PR'>Paraná</option>
+                  <option value='SC'>Santa Catarina</option>
+                  <option value='BA'>Bahia</option>
+                  <option value='GO'>Goiás</option>
+                  <option value='PE'>Pernambuco</option>
+                  <option value='CE'>Ceará</option>
+                  <option value='PA'>Pará</option>
+                  <option value='MA'>Maranhão</option>
+                  <option value='ES'>Espírito Santo</option>
+                  <option value='PB'>Paraíba</option>
+                  <option value='MT'>Mato Grosso</option>
+                  <option value='MS'>Mato Grosso do Sul</option>
+                  <option value='PI'>Piauí</option>
+                  <option value='RN'>Rio Grande do Norte</option>
+                  <option value='AL'>Alagoas</option>
+                  <option value='SE'>Sergipe</option>
+                  <option value='RO'>Rondônia</option>
+                  <option value='TO'>Tocantins</option>
+                  <option value='AC'>Acre</option>
+                  <option value='AP'>Amapá</option>
+                  <option value='AM'>Amazonas</option>
+                  <option value='RR'>Roraima</option>
+                  <option value='DF'>Distrito Federal</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -460,9 +538,16 @@ const AddCustomer = () => {
             <button
               type='submit'
               disabled={loading}
-              className='w-full py-2 sm:py-3 px-4 sm:px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-sm sm:text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed'
+              className='w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-pink-500 text-white text-base font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2'
             >
-              {loading ? 'Salvando...' : 'Adicionar Cliente'}
+              {loading ? (
+                <>
+                  <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+                  Criando...
+                </>
+              ) : (
+                'Criar Cliente'
+              )}
             </button>
           </div>
         </form>

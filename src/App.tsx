@@ -69,6 +69,10 @@ import ProfitSimulation from './pages/admin/ProfitSimulation';
 import FeatureFlags from './pages/admin/FeatureFlags';
 import Login from './pages/admin/Login';
 import Register from './pages/admin/Register';
+import ListStore from './pages/admin/ListStore';
+import AddStore from './pages/admin/AddStore';
+import ViewStore from './pages/admin/ViewStore';
+import EditStore from './pages/admin/EditStore';
 
 const App = () => {
   const isAdminPath = useLocation().pathname.includes('admin');
@@ -514,6 +518,40 @@ const App = () => {
                         element={
                           <ProtectedRoute>
                             <ProfitSimulation />
+                          </ProtectedRoute>
+                        }
+                      />
+
+                      {/* Rotas de Lojas - Apenas para Super Admins */}
+                      <Route
+                        path='lojas'
+                        element={
+                          <ProtectedRoute requireSuperAdmin={true}>
+                            <ListStore />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path='lojas/adicionar'
+                        element={
+                          <ProtectedRoute requireSuperAdmin={true}>
+                            <AddStore />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path='lojas/visualizar/:storeId'
+                        element={
+                          <ProtectedRoute requireSuperAdmin={true}>
+                            <ViewStore />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path='lojas/editar/:storeId'
+                        element={
+                          <ProtectedRoute requireSuperAdmin={true}>
+                            <EditStore />
                           </ProtectedRoute>
                         }
                       />

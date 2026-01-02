@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Tag, FileText, Image, ArrowLeft, X, Loader2 } from 'lucide-react';
+import { Tag, Image, ArrowLeft, X, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
-import { categoryService, CategoryResponse, ApiError } from '@/services';
+import { categoryService } from '@/services/category/CategoryService';
+import { CategoryResponse, ApiError } from '@/services/types';
 
 const EditCategory = () => {
   const navigate = useNavigate();
@@ -9,7 +10,6 @@ const EditCategory = () => {
 
   const [category, setCategory] = useState<CategoryResponse | null>(null);
   const [categoryName, setCategoryName] = useState('');
-  const [categoryDescription, setCategoryDescription] = useState('');
   const [categoryOrderDisplay, setCategoryOrderDisplay] = useState<number | ''>('');
   const [categoryStatus, setCategoryStatus] = useState<'ACTIVE' | 'INACTIVE'>('ACTIVE');
   const [categoryImage, setCategoryImage] = useState('');
@@ -31,7 +31,6 @@ const EditCategory = () => {
         const categoryData = await categoryService.getCategory(categoryId);
         setCategory(categoryData);
         setCategoryName(categoryData.name);
-        setCategoryDescription(categoryData.description || '');
         setCategoryOrderDisplay(categoryData.orderDisplay ?? '');
         setCategoryStatus(categoryData.status || 'ACTIVE');
         setCategoryImage(categoryData.imageUrl || '');
@@ -95,7 +94,6 @@ const EditCategory = () => {
       // 1. Update category first
       const updateData = {
         name: categoryName.trim(),
-        description: categoryDescription.trim() || undefined,
         orderDisplay: categoryOrderDisplay !== '' ? Number(categoryOrderDisplay) : undefined,
         status: categoryStatus,
       };
@@ -174,8 +172,8 @@ const EditCategory = () => {
   }
 
   return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+    <div className='py-6 flex flex-col justify-between bg-slate-50 min-h-screen'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         <div className='mb-8'>
           <div className='flex items-center gap-4 mb-4'>
             <button
@@ -348,27 +346,7 @@ const EditCategory = () => {
             </div>
           </div>
 
-          {/* Descrição */}
-          <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
-            <div className='flex items-center gap-3 mb-4'>
-              <FileText className='w-5 h-5 text-purple-600' />
-              <h3 className='text-lg font-semibold text-slate-800'>Descrição</h3>
-            </div>
-
-            <div className='flex flex-col gap-2'>
-              <label className='text-sm font-medium text-slate-700' htmlFor='category-description'>
-                Descrição da Categoria
-              </label>
-              <textarea
-                id='category-description'
-                value={categoryDescription}
-                onChange={(e) => setCategoryDescription(e.target.value)}
-                placeholder='Descreva a categoria...'
-                rows={4}
-                className='outline-none py-3 px-4 text-base text-slate-900 rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white resize-none'
-              />
-            </div>
-          </div>
+          {/* Descrição removida */}
 
           {/* Submit Button */}
           <div className='pt-4'>

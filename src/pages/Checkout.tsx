@@ -17,7 +17,7 @@ import {
 import { useCart } from '../contexts/CartContext';
 import { useCartDrawer } from '../contexts/CartDrawerContext';
 import { formatToBRL, calculateFinalPrice } from '../utils/priceUtils';
-import { customerService } from '../services';
+import { customerService } from '../services/customer/CustomerService';
 import { useGTM } from '../hooks/useGTM';
 
 const Checkout = () => {
@@ -29,11 +29,12 @@ const Checkout = () => {
   const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup'>('delivery');
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | 'cash'>('pix');
   const [whatsapp, setWhatsapp] = useState('');
+  const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [manualAddress, setManualAddress] = useState(false);
-  const [street, setStreet] = useState('');
+  const [address, setAddress] = useState('');
   const [number, setNumber] = useState('');
   const [neighborhood, setNeighborhood] = useState('');
   const [city, setCity] = useState('');
@@ -50,11 +51,12 @@ const Checkout = () => {
     if (location.state && location.state.orderData) {
       const data = location.state.orderData;
       setWhatsapp(data.whatsapp);
+      setEmail(data.email || '');
       setFirstName(data.firstName);
       setLastName(data.lastName);
       setDeliveryMethod(data.deliveryMethod);
       setPaymentMethod(data.paymentMethod);
-      setStreet(data.street);
+      setAddress(data.address);
       setNumber(data.number);
       setNeighborhood(data.neighborhood);
       setCity(data.city);
@@ -109,7 +111,7 @@ const Checkout = () => {
       }
 
       // Preencher campos automaticamente com os dados da API
-      setStreet(data.logradouro || '');
+      setAddress(data.logradouro || '');
       setNeighborhood(data.bairro || '');
       setCity(data.localidade || '');
       setState(data.uf || '');
@@ -134,28 +136,46 @@ const Checkout = () => {
       setIsLoadingCustomer(true);
       const customer = await customerService.getCustomerByPhone(number);
       if (customer) {
-        setCustomerId(customer.id);
+        setCustomerId(customer.id || null);
+
+        // Preencher nome completo
         if (customer.name) {
           const parts = customer.name.trim().split(/\s+/);
           setFirstName(parts[0] || '');
           setLastName(parts.slice(1).join(' ') || '');
         }
-        const address = customer.addresses?.find((a) => a.isDefault) || customer.addresses?.[0];
-        if (address) {
+
+        // Preencher email
+        if (customer.email) {
+          setEmail(customer.email);
+        }
+
+        // Preencher telefone (garantir formato correto)
+        if (customer.phone) {
+          setWhatsapp(customer.phone);
+        }
+
+        // Preencher endereço
+        if (customer.address || customer.zip) {
           setDeliveryMethod('delivery');
-          setStreet(address.street || '');
-          setNumber(address.number || '');
-          setNeighborhood(address.neighborhood || '');
-          setCity(address.city || '');
-          setState(address.state || '');
-          setZipCode(address.zipCode || '');
-          setComplement(address.complement || '');
+          setAddress(customer.address || '');
+          setNumber(customer.number || '');
+          setNeighborhood(customer.neighborhood || '');
+          setCity(customer.city || '');
+          setState(customer.state || '');
+          setZipCode(customer.zip || '');
+          setComplement(customer.complement || '');
         }
       } else {
         setCustomerId(null);
+        // Limpar campos se cliente não encontrado
+        setEmail('');
+        setFirstName('');
+        setLastName('');
       }
     } catch (error) {
       console.error('Erro buscando cliente por telefone', error);
+      setCustomerId(null);
     } finally {
       setIsLoadingCustomer(false);
     }
@@ -180,7 +200,10 @@ const Checkout = () => {
       return;
     }
 
-    if (deliveryMethod === 'delivery' && (!street || !number || !neighborhood || !city || !state)) {
+    if (
+      deliveryMethod === 'delivery' &&
+      (!address || !number || !neighborhood || !city || !state)
+    ) {
       alert('Por favor, preencha todos os campos obrigatórios de endereço.');
       return;
     }
@@ -188,11 +211,12 @@ const Checkout = () => {
     // Preparar dados do pedido para passar para a tela de confirmação
     const orderData = {
       whatsapp,
+      email,
       firstName,
       lastName,
       deliveryMethod,
       paymentMethod,
-      street: deliveryMethod === 'delivery' ? street : '',
+      address: deliveryMethod === 'delivery' ? address : '',
       number: deliveryMethod === 'delivery' ? number : '',
       neighborhood: deliveryMethod === 'delivery' ? neighborhood : '',
       city: deliveryMethod === 'delivery' ? city : '',
@@ -209,7 +233,7 @@ const Checkout = () => {
   if (items.length === 0) {
     return (
       <div className='min-h-screen bg-slate-50 pt-80 sm:pt-24 pb-20'>
-        <div className='max-w-4xl mx-auto px-4 sm:px-6'>
+        <div className='w-full mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='bg-white rounded-xl shadow-sm border border-slate-200 p-8 sm:p-12 text-center'>
             <div className='w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-6'>
               <Package className='w-8 h-8 sm:w-10 sm:h-10 text-purple-600' />
@@ -237,7 +261,7 @@ const Checkout = () => {
     <div className='min-h-screen bg-slate-50'>
       {/* Header */}
       <div className='border-b border-slate-300 bg-slate-900 shadow-lg sticky top-0 z-10'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5'>
+        <div className='w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5'>
           <div className='flex items-center justify-between'>
             <Link to='/' className='flex items-center gap-2 hover:scale-105 transition-transform'>
               <h1 className='text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent'>
@@ -257,7 +281,7 @@ const Checkout = () => {
 
       {/* Breadcrumb */}
       <div className='bg-white border-b border-slate-200 shadow-sm'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6'>
+        <div className='w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6'>
           <div className='flex items-center gap-2 text-xs sm:text-sm overflow-x-auto'>
             <span className='text-sky-600 font-semibold whitespace-nowrap'>1. Pedido</span>
             <span className='text-slate-400'>&gt;</span>
@@ -266,7 +290,7 @@ const Checkout = () => {
         </div>
       </div>
 
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10'>
+      <div className='w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10'>
         <div className='grid lg:grid-cols-3 gap-6 sm:gap-8'>
           {/* Left Column - Form */}
           <div className='lg:col-span-2 space-y-6 sm:space-y-8'>
@@ -316,6 +340,18 @@ const Checkout = () => {
                     placeholder='Seu sobrenome'
                   />
                 </div>
+              </div>
+
+              {/* Email */}
+              <div className='mb-5'>
+                <label className='block text-sm font-semibold text-slate-700 mb-2'>E-mail</label>
+                <input
+                  type='email'
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
+                  placeholder='seu@email.com'
+                />
               </div>
 
               {/* Delivery Method */}
@@ -440,7 +476,7 @@ const Checkout = () => {
                   )}
 
                   {/* Campos de endereço - aparecem após validar CEP ou ao marcar manual */}
-                  {(street || manualAddress) && (
+                  {(address || manualAddress) && (
                     <div className='space-y-4 mt-4'>
                       <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
                         <div className='sm:col-span-2'>
@@ -449,8 +485,8 @@ const Checkout = () => {
                           </label>
                           <input
                             type='text'
-                            value={street}
-                            onChange={(e) => setStreet(e.target.value)}
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
                             className='w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent transition-all text-sm sm:text-base'
                             placeholder='Nome da rua'
                           />
@@ -629,7 +665,7 @@ const Checkout = () => {
                     <div className='w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden flex-shrink-0 bg-slate-100'>
                       <img
                         src={
-                          item.snapshot.mainThumbnailUrl ||
+                          item.snapshot.mainThumbnailImageUrl ||
                           item.snapshot.mainImageUrl ||
                           'https://via.placeholder.com/64'
                         }

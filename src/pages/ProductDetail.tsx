@@ -5,6 +5,7 @@ import { useParams } from 'react-router';
 import ProductDetailLayout from '../components/product/ProductDetailLayout';
 import ProductImageSection from '../components/product/ProductImageSection';
 import ProductInfoSection from '../components/product/ProductInfoSection';
+import { isValidImageUrl } from '../constants/images';
 
 // Tipo estendido do ProductResponse com propriedades calculadas
 type EnrichedProductResponse = ProductResponse & {
@@ -25,16 +26,20 @@ const ProductDetail = () => {
       const response = await productService.getProduct(productId);
 
       // Aplica regras de conversão diretamente no ProductResponse
+      // Filtra imagens vazias ou inválidas
       const imageUrls =
-        response.images?.map((img) => img.originalUrl || img.thumbnailUrl || '') || [];
-      if (response.mainImageUrl && !imageUrls.includes(response.mainImageUrl)) {
-        imageUrls.unshift(response.mainImageUrl);
+        (response.images
+          ?.map((img) => img.originalUrl || img.thumbnailUrl)
+          .filter(isValidImageUrl) as string[]) || [];
+
+      if (isValidImageUrl(response.mainImageUrl) && !imageUrls.includes(response.mainImageUrl!)) {
+        imageUrls.unshift(response.mainImageUrl!);
       }
 
       // Retorna ProductResponse enriquecido com propriedades calculadas
       return {
         ...response,
-        imageUrls: imageUrls.filter(Boolean),
+        imageUrls,
       };
     } catch (error) {
       console.error('Erro ao buscar produto:', error);

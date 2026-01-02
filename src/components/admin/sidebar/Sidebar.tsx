@@ -18,9 +18,10 @@ import {
   ChevronRight,
   Calculator,
   Flag,
+  Store,
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import MoonIcon from '../../icon/MoonIcon';
 import { useFeatureFlagsContext } from '@/contexts/FeatureFlagsContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -94,13 +95,16 @@ const getSidebarGroups = (
         icon: <Users />,
         path: '/admin/clientes',
         enabled:
-          isFeatureEnabled('customers') && (userRole === 'ADMIN' || userRole === 'SUPER_ADMIN'),
+          isFeatureEnabled('customers') &&
+          (userRole?.toUpperCase() === 'ADMIN' || userRole?.toUpperCase() === 'SUPER_ADMIN'),
       },
       {
         label: 'Pedidos',
         icon: <ShoppingCart />,
         path: '/admin/pedidos',
-        enabled: isFeatureEnabled('orders') && (userRole === 'ADMIN' || userRole === 'SUPER_ADMIN'),
+        enabled:
+          isFeatureEnabled('orders') &&
+          (userRole?.toUpperCase() === 'ADMIN' || userRole?.toUpperCase() === 'SUPER_ADMIN'),
       },
       {
         label: 'Cupons',
@@ -145,6 +149,12 @@ const getSidebarGroups = (
     label: 'Sistema',
     items: [
       {
+        label: 'Lojas',
+        icon: <Store />,
+        path: '/admin/lojas',
+        enabled: isSuperAdmin, // Apenas para Super Admins
+      },
+      {
         label: 'Usuários',
         icon: <Users />,
         path: '/admin/usuarios',
@@ -173,11 +183,29 @@ const Sidebar = () => {
   const { isFeatureEnabled } = useFeatureFlagsContext();
   const { user } = useAuth();
 
-  // Verifica se o usuário é super admin
-  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+  // Verifica se o usuário é super admin (aceita tanto SUPER_ADMIN quanto super_admin)
+  const isSuperAdmin = user?.role?.toUpperCase() === 'SUPER_ADMIN';
 
-  // Obtém os grupos do sidebar com base nas feature flags
-  const sidebarGroups = getSidebarGroups(isFeatureEnabled, isSuperAdmin, user?.role || '');
+  // Obtém os grupos do sidebar com base nas feature flags (memoizado para evitar recriação)
+  const sidebarGroups = useMemo(
+    () => getSidebarGroups(isFeatureEnabled, isSuperAdmin, user?.role || ''),
+    [isFeatureEnabled, isSuperAdmin, user?.role],
+  );
+
+  // Expandir automaticamente o grupo Sistema se o usuário for super admin e tiver itens habilitados
+  useEffect(() => {
+    if (isSuperAdmin) {
+      setCollapsedGroups((prev) => {
+        // Só atualiza se o grupo ainda estiver colapsado
+        if (prev.has('system')) {
+          const newSet = new Set(prev);
+          newSet.delete('system');
+          return newSet;
+        }
+        return prev;
+      });
+    }
+  }, [isSuperAdmin]); // Apenas depende de isSuperAdmin para evitar loop infinito
 
   const toggleSidebar = () => setIsOpen(!isOpen);
   const closeSidebar = () => setIsOpen(false);

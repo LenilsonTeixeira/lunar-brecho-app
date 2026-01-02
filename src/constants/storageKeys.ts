@@ -4,10 +4,14 @@
  */
 
 export const STORAGE_KEYS = {
-  // Autenticação
+  // Autenticação Admin/Super Admin
   AUTH_TOKEN: 'authToken',
   REFRESH_TOKEN: 'refreshToken',
   USER_DATA: 'userData',
+
+  // Autenticação Public Client (frontend)
+  PUBLIC_CLIENT_TOKEN: 'publicClientToken',
+  PUBLIC_CLIENT_REFRESH_TOKEN: 'publicClientRefreshToken',
 
   // Feature Flags
   FEATURE_FLAGS: 'lunar-feature-flags',

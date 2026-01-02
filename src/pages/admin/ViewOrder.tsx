@@ -40,13 +40,24 @@ const ViewOrder = () => {
     }).format(price);
   };
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'Não informado';
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'PENDING':
         return 'bg-yellow-300 text-slate-950';
       case 'APPROVED':
         return 'bg-blue-300 text-slate-950';
-      case 'SENT':
+      case 'SHIPPED':
         return 'bg-purple-300 text-slate-950';
       case 'DELIVERED':
         return 'bg-green-300 text-slate-950';
@@ -63,7 +74,7 @@ const ViewOrder = () => {
         return 'Pendente';
       case 'APPROVED':
         return 'Aprovado';
-      case 'SENT':
+      case 'SHIPPED':
         return 'Enviado';
       case 'DELIVERED':
         return 'Entregue';
@@ -76,8 +87,8 @@ const ViewOrder = () => {
 
   if (loading) {
     return (
-      <div className='py-6 flex flex-col justify-between bg-slate-50'>
-        <div className='w-full max-w-7xl mx-auto'>
+      <div className='py-6 flex flex-col justify-between bg-slate-50 min-h-screen'>
+        <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
           <div className='flex items-center justify-center py-12'>
             <div className='text-center'>
               <div className='w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center'>
@@ -93,8 +104,8 @@ const ViewOrder = () => {
 
   if (error || !order) {
     return (
-      <div className='py-6 flex flex-col justify-between bg-slate-50'>
-        <div className='w-full max-w-7xl mx-auto'>
+      <div className='py-6 flex flex-col justify-between bg-slate-50 min-h-screen'>
+        <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
           <div className='flex items-center justify-center py-12'>
             <div className='text-center'>
               <div className='w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center'>
@@ -117,8 +128,8 @@ const ViewOrder = () => {
   }
 
   return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+    <div className='py-6 flex flex-col justify-between bg-slate-50 min-h-screen'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         <div className='mb-8'>
           <div className='flex items-center gap-4 mb-4'>
             <button
@@ -132,7 +143,12 @@ const ViewOrder = () => {
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
             Pedido #{order.externalId}
           </h1>
-          <p className='text-sm sm:text-base text-slate-600'>Detalhes completos do pedido</p>
+          <div className='flex flex-col sm:flex-row sm:items-center sm:gap-4'>
+            <p className='text-sm sm:text-base text-slate-600'>Detalhes completos do pedido</p>
+            {order.createdAt && (
+              <p className='text-sm text-slate-500'>Criado em {formatDate(order.createdAt)}</p>
+            )}
+          </div>
         </div>
 
         <div className='bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8 space-y-6'>
@@ -210,13 +226,15 @@ const ViewOrder = () => {
               <div className='p-3 bg-white rounded-lg border border-slate-200'>
                 <div className='space-y-1'>
                   <p className='text-slate-800'>
-                    {order.deliveryAddress.street}, {order.deliveryAddress.number}
+                    {order.deliveryAddress.address}, {order.deliveryAddress.number || ''}
                   </p>
                   <p className='text-slate-600'>
-                    {order.deliveryAddress.neighborhood} - {order.deliveryAddress.city}/
-                    {order.deliveryAddress.state}
+                    {order.deliveryAddress.neighborhood || ''} - {order.deliveryAddress.city || ''}/
+                    {order.deliveryAddress.state || ''}
                   </p>
-                  <p className='text-slate-600 font-mono'>CEP: {order.deliveryAddress.zipCode}</p>
+                  {order.deliveryAddress.zipCode && (
+                    <p className='text-slate-600 font-mono'>CEP: {order.deliveryAddress.zipCode}</p>
+                  )}
                   {order.deliveryAddress.complement && (
                     <p className='text-slate-600'>
                       Complemento: {order.deliveryAddress.complement}
@@ -239,17 +257,28 @@ const ViewOrder = () => {
                   <div className='flex items-center justify-between'>
                     <div className='flex items-center gap-3'>
                       <div className='w-12 h-12 rounded-lg overflow-hidden border border-slate-200 flex-shrink-0'>
-                        <img
-                          src={item.mainImageThumbnailUrl || item.mainImageUrl}
-                          alt={item.name}
-                          className='w-full h-full object-cover'
-                        />
+                        {item.mainThumbnailImageUrl || item.mainImageUrl ? (
+                          <img
+                            src={item.mainThumbnailImageUrl || item.mainImageUrl}
+                            alt={item.name}
+                            className='w-full h-full object-cover'
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <div className='w-full h-full bg-slate-100 flex items-center justify-center'>
+                            <Package className='w-6 h-6 text-slate-400' />
+                          </div>
+                        )}
                       </div>
                       <div>
                         <p className='text-slate-800 font-medium'>{item.name}</p>
                         <p className='text-sm text-slate-600'>
-                          Código: {item.externalId} | Marca: {item.brand} | Tamanho: {item.size} |
-                          Qtd: {item.quantity} | Unit: {formatPrice(item.unitPrice)}
+                          {item.sku && `SKU: ${item.sku} | `}
+                          Código: {item.externalId || '-'} | Marca: {item.brand} | Tamanho:{' '}
+                          {item.size} | Qtd: {item.quantity} | Unit: {formatPrice(item.unitPrice)}
                         </p>
                       </div>
                     </div>
@@ -313,14 +342,16 @@ const ViewOrder = () => {
                 </div>
               </div>
 
-              <div>
-                <label className='text-sm font-semibold text-slate-700 mb-2 block'>
-                  Email do Cliente
-                </label>
-                <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                  <span className='text-slate-800'>{order.customer.email}</span>
+              {order.createdAt && (
+                <div>
+                  <label className='text-sm font-semibold text-slate-700 mb-2 block'>
+                    Data de Criação
+                  </label>
+                  <div className='p-3 bg-white rounded-lg border border-slate-200'>
+                    <span className='text-slate-800'>{formatDate(order.createdAt)}</span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 

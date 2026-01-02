@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { Plus, X, Package, User, MapPin, CreditCard, Store, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { orderService } from '../../services/order/OrderService';
+import { customerService } from '../../services/customer/CustomerService';
+import { productService } from '../../services/product/ProductService';
 import { OrderRequest } from '../../services/types';
 
 interface OrderItem {
-  id: string;
+  productId: string | null;
+  sku: string | null;
   externalId: string;
   name: string;
   brand: string;
@@ -13,6 +16,9 @@ interface OrderItem {
   quantity: number;
   unitPrice: number;
   subtotal: number;
+  mainImageUrl: string;
+  mainThumbnailImageUrl: string;
+  discountApplied: number | null;
 }
 
 const AddOrder = () => {
@@ -25,16 +31,18 @@ const AddOrder = () => {
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
+  const [isLoadingCustomer, setIsLoadingCustomer] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'CASH'>(
     'PIX',
   );
   const [orderStatus, setOrderStatus] = useState<
-    'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED'
+    'PENDING' | 'APPROVED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED'
   >('PENDING');
 
   const [items, setItems] = useState<OrderItem[]>([
     {
-      id: 'temp-1',
+      productId: null,
+      sku: null,
       externalId: '',
       name: '',
       brand: '',
@@ -42,6 +50,9 @@ const AddOrder = () => {
       quantity: 1,
       unitPrice: 0,
       subtotal: 0,
+      mainImageUrl: '',
+      mainThumbnailImageUrl: '',
+      discountApplied: null,
     },
   ]);
 
@@ -56,11 +67,11 @@ const AddOrder = () => {
   });
 
   const addItem = () => {
-    const newId = `temp-${Date.now()}`;
     setItems([
       ...items,
       {
-        id: newId,
+        productId: null,
+        sku: null,
         externalId: '',
         name: '',
         brand: '',
@@ -68,24 +79,99 @@ const AddOrder = () => {
         quantity: 1,
         unitPrice: 0,
         subtotal: 0,
+        mainImageUrl: '',
+        mainThumbnailImageUrl: '',
+        discountApplied: null,
       },
     ]);
   };
 
-  const removeItem = (id: string) => {
+  const removeItem = (index: number) => {
     if (items.length > 1) {
-      setItems(items.filter((item) => item.id !== id));
+      setItems(items.filter((_, i) => i !== index));
     }
   };
 
-  const updateItem = (id: string, field: string, value: string | number) => {
+  const handleSkuSearch = async (sku: string, index: number) => {
+    if (sku.length !== 6) return;
+
+    try {
+      const product = await productService.getProductBySku(sku);
+      if (product) {
+        // Encontrar a primeira variante disponível ou usar a primeira
+        const firstVariant =
+          product.variants && product.variants.length > 0 ? product.variants[0] : null;
+
+        // Calcular preço final com desconto
+        const calculateFinalPrice = (
+          basePrice: number,
+          discountType: 'PERCENTAGE' | 'FIXED_AMOUNT' | 'NONE',
+          discountValue?: number,
+        ): number => {
+          let finalPrice = basePrice;
+          if (discountType === 'PERCENTAGE' && discountValue) {
+            finalPrice = basePrice - (basePrice * discountValue) / 100;
+          } else if (discountType === 'FIXED_AMOUNT' && discountValue) {
+            finalPrice = basePrice - discountValue;
+          }
+          return finalPrice;
+        };
+
+        const finalPrice = calculateFinalPrice(
+          product.basePrice,
+          product.discountType,
+          product.discountValue,
+        );
+
+        const discountApplied =
+          product.discountType === 'PERCENTAGE' && product.discountValue
+            ? (product.basePrice * product.discountValue) / 100
+            : product.discountType === 'FIXED_AMOUNT' && product.discountValue
+              ? product.discountValue
+              : 0;
+
+        setItems(
+          items.map((item, i) => {
+            if (i === index) {
+              return {
+                ...item,
+                productId: product.id,
+                sku: sku, // Mantém o SKU digitado
+                externalId: product.externalId || '',
+                name: product.name,
+                brand: product.brand || '',
+                size: firstVariant?.size || '',
+                unitPrice: finalPrice,
+                subtotal: finalPrice * item.quantity,
+                mainImageUrl: product.mainImageUrl || '',
+                mainThumbnailImageUrl: product.mainThumbnailImageUrl || '',
+                discountApplied: discountApplied > 0 ? discountApplied : null,
+              };
+            }
+            return item;
+          }),
+        );
+      }
+    } catch (error) {
+      console.error('Erro ao buscar produto por SKU:', error);
+      // Não fazer nada se não encontrar o produto
+    }
+  };
+
+  const updateItem = (index: number, field: string, value: string | number) => {
     setItems(
-      items.map((item) => {
-        if (item.id === id) {
+      items.map((item, i) => {
+        if (i === index) {
           const updatedItem = { ...item, [field]: value };
           if (field === 'quantity' || field === 'unitPrice') {
             updatedItem.subtotal = updatedItem.quantity * updatedItem.unitPrice;
           }
+
+          // Se o campo for sku e tiver 6 dígitos, buscar produto por SKU
+          if (field === 'sku' && typeof value === 'string' && value.length === 6) {
+            handleSkuSearch(value, index);
+          }
+
           return updatedItem;
         }
         return item;
@@ -108,6 +194,55 @@ const AddOrder = () => {
       style: 'currency',
       currency: 'BRL',
     }).format(price);
+  };
+
+  const sanitizePhone = (value: string) => value.replace(/\D/g, '');
+
+  const handlePhoneBlur = async () => {
+    const number = sanitizePhone(customerPhone);
+    if (!number) return;
+    try {
+      setIsLoadingCustomer(true);
+      const customer = await customerService.getCustomerByPhone(number);
+      if (customer) {
+        // Preencher nome completo
+        if (customer.name) {
+          setCustomerName(customer.name);
+        }
+
+        // Preencher email
+        if (customer.email) {
+          setCustomerEmail(customer.email);
+        }
+
+        // Preencher telefone (garantir formato correto)
+        if (customer.phone) {
+          setCustomerPhone(customer.phone);
+        }
+
+        // Preencher endereço
+        if (customer.address || customer.zip) {
+          setDeliveryType('HOME_DELIVERY');
+          setDeliveryAddress({
+            street: customer.address || '',
+            number: customer.number || '',
+            neighborhood: customer.neighborhood || '',
+            city: customer.city || '',
+            state: customer.state || '',
+            zipCode: customer.zip || '',
+            complement: customer.complement || '',
+          });
+        }
+      } else {
+        // Limpar campos se cliente não encontrado
+        setCustomerEmail('');
+        setCustomerName('');
+      }
+    } catch (error) {
+      console.error('Erro buscando cliente por telefone', error);
+    } finally {
+      setIsLoadingCustomer(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -133,7 +268,7 @@ const AddOrder = () => {
 
     // Validar itens
     const invalidItems = items.filter(
-      (item) => !item.name.trim() || !item.externalId.trim() || item.unitPrice <= 0,
+      (item) => !item.productId || !item.name.trim() || item.unitPrice <= 0,
     );
     if (invalidItems.length > 0) {
       alert('Por favor, preencha corretamente todos os itens.');
@@ -145,53 +280,50 @@ const AddOrder = () => {
 
       const orderRequest: OrderRequest = {
         customer: {
-          id: '', // Será gerado pelo backend
           fullName: customerName,
-          email: customerEmail,
-          phone: customerPhone,
+          phone: customerPhone.replace(/\D/g, ''),
         },
         items: items.map((item) => ({
-          id: item.id,
-          externalId: item.externalId,
+          productId: item.productId || '',
+          sku: item.sku || null,
+          externalId: item.externalId || null,
+          mainImageUrl: item.mainImageUrl || '',
+          mainThumbnailImageUrl: item.mainThumbnailImageUrl || '',
           name: item.name,
-          mainImageUrl: '',
-          mainImageThumbnailUrl: '',
           brand: item.brand,
           size: item.size,
           quantity: item.quantity,
-          discountApplied: 0,
+          discountApplied: item.discountApplied || null,
           unitPrice: item.unitPrice,
           subtotal: item.subtotal,
         })),
         financialSummary: {
           subtotal: calculateTotal(),
-          totalAmount: calculateTotal(),
+          discountAmount: items.reduce((sum, item) => sum + (item.discountApplied || 0), 0),
           deliveryFee: 0,
-          discountAmount: 0,
+          totalAmount: calculateTotal(),
         },
         status: orderStatus,
         deliveryType,
         deliveryAddress:
           deliveryType === 'HOME_DELIVERY'
             ? {
-                id: '',
-                street: deliveryAddress.street,
-                number: deliveryAddress.number,
-                complement: deliveryAddress.complement,
-                neighborhood: deliveryAddress.neighborhood,
-                city: deliveryAddress.city,
-                state: deliveryAddress.state,
-                zipCode: deliveryAddress.zipCode,
+                address: deliveryAddress.street,
+                number: deliveryAddress.number || null,
+                complement: deliveryAddress.complement || null,
+                neighborhood: deliveryAddress.neighborhood || null,
+                city: deliveryAddress.city || null,
+                state: deliveryAddress.state || null,
+                zipCode: deliveryAddress.zipCode || null,
               }
             : {
-                id: '',
-                street: 'Retirada na Loja',
-                number: '',
-                complement: '',
-                neighborhood: '',
-                city: '',
-                state: '',
-                zipCode: '',
+                address: 'Retirada na Loja',
+                number: null,
+                complement: null,
+                neighborhood: null,
+                city: null,
+                state: null,
+                zipCode: null,
               },
         paymentMethod,
       };
@@ -208,8 +340,8 @@ const AddOrder = () => {
   };
 
   return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+    <div className='py-6 flex flex-col justify-between bg-slate-50 min-h-screen'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         <div className='mb-8'>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Novo Pedido</h1>
           <p className='text-sm sm:text-base text-slate-600'>
@@ -230,6 +362,22 @@ const AddOrder = () => {
 
             <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
               <div className='flex flex-col gap-2'>
+                <label className='text-sm font-semibold text-slate-700' htmlFor='customer-phone'>
+                  Telefone *
+                </label>
+                <input
+                  id='customer-phone'
+                  type='tel'
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  onBlur={handlePhoneBlur}
+                  placeholder='(11) 99999-9999'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                  required
+                />
+                {isLoadingCustomer && <p className='text-xs text-slate-500'>Buscando cliente...</p>}
+              </div>
+              <div className='flex flex-col gap-2'>
                 <label className='text-sm font-semibold text-slate-700' htmlFor='customer-name'>
                   Nome Completo *
                 </label>
@@ -239,20 +387,6 @@ const AddOrder = () => {
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder='Digite o nome completo'
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                  required
-                />
-              </div>
-              <div className='flex flex-col gap-2'>
-                <label className='text-sm font-semibold text-slate-700' htmlFor='customer-phone'>
-                  Telefone *
-                </label>
-                <input
-                  id='customer-phone'
-                  type='tel'
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                  placeholder='(11) 99999-9999'
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                   required
                 />
@@ -293,105 +427,136 @@ const AddOrder = () => {
 
             <div className='space-y-4'>
               {items.map((item, index) => (
-                <div key={item.id} className='p-4 bg-white rounded-lg border border-slate-200'>
-                  <div className='flex items-center justify-between mb-3'>
+                <div key={index} className='p-4 bg-white rounded-lg border border-slate-200'>
+                  <div className='flex items-center justify-between mb-4'>
                     <h4 className='text-sm font-semibold text-slate-800'>Item {index + 1}</h4>
+                    {items.length > 1 && (
+                      <button
+                        type='button'
+                        onClick={() => removeItem(index)}
+                        className='p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300'
+                        aria-label='Remover item'
+                      >
+                        <X className='w-4 h-4' />
+                      </button>
+                    )}
                   </div>
 
-                  <div className='grid grid-cols-1 md:grid-cols-12 gap-4'>
-                    <div className='md:col-span-2 flex flex-col gap-2'>
-                      <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        Código do Item *
-                      </label>
-                      <input
-                        type='text'
-                        value={item.externalId}
-                        onChange={(e) => updateItem(item.id, 'externalId', e.target.value)}
-                        className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                        required
-                      />
-                    </div>
-
-                    <div className='md:col-span-3 flex flex-col gap-2'>
-                      <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        Nome do Item *
-                      </label>
-                      <input
-                        type='text'
-                        value={item.name}
-                        onChange={(e) => updateItem(item.id, 'name', e.target.value)}
-                        className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                        required
-                      />
-                    </div>
-
-                    <div className='md:col-span-2 flex flex-col gap-2'>
-                      <label className='text-xs sm:text-sm font-medium text-slate-600'>Marca</label>
-                      <input
-                        type='text'
-                        value={item.brand}
-                        onChange={(e) => updateItem(item.id, 'brand', e.target.value)}
-                        className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                      />
-                    </div>
-
-                    <div className='md:col-span-1 flex flex-col gap-2'>
-                      <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        Tamanho
-                      </label>
-                      <input
-                        type='text'
-                        value={item.size}
-                        onChange={(e) => updateItem(item.id, 'size', e.target.value)}
-                        className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                      />
-                    </div>
-
-                    <div className='md:col-span-1 flex flex-col gap-2'>
-                      <label className='text-xs sm:text-sm font-medium text-slate-600'>Qtd *</label>
-                      <input
-                        type='number'
-                        min='1'
-                        value={item.quantity}
-                        onChange={(e) =>
-                          updateItem(item.id, 'quantity', parseInt(e.target.value) || 1)
-                        }
-                        className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                        required
-                      />
-                    </div>
-
-                    <div className='md:col-span-2 flex flex-col gap-2'>
-                      <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        Preço (R$) *
-                      </label>
-                      <input
-                        type='number'
-                        min='0'
-                        step='0.01'
-                        value={item.unitPrice}
-                        onChange={(e) =>
-                          updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)
-                        }
-                        className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                        required
-                      />
-                    </div>
-
-                    <div className='md:col-span-1 flex flex-col gap-2'>
-                      <label className='text-xs sm:text-sm font-medium text-slate-600'>
-                        &nbsp;
-                      </label>
-                      {items.length > 1 && (
-                        <button
-                          type='button'
-                          onClick={() => removeItem(item.id)}
-                          className='p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all duration-300'
-                          aria-label='Remover item'
-                        >
-                          <X className='w-4 h-4' />
-                        </button>
+                  <div className='flex flex-col md:flex-row gap-4'>
+                    {/* Imagem do produto */}
+                    <div className='flex-shrink-0 flex justify-center md:justify-start'>
+                      {item.mainThumbnailImageUrl ? (
+                        <img
+                          src={item.mainThumbnailImageUrl}
+                          alt={item.name || 'Produto'}
+                          className='w-20 h-20 object-cover rounded-lg border border-slate-200 shadow-sm'
+                        />
+                      ) : (
+                        <div className='w-20 h-20 bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center'>
+                          <Package className='w-8 h-8 text-slate-400' />
+                        </div>
                       )}
+                    </div>
+
+                    {/* Campos do formulário */}
+                    <div className='flex-1 grid grid-cols-1 md:grid-cols-12 gap-4'>
+                      <div className='md:col-span-2 flex flex-col gap-2'>
+                        <label className='text-xs sm:text-sm font-medium text-slate-600'>
+                          SKU *
+                        </label>
+                        <input
+                          type='text'
+                          value={item.sku || ''}
+                          onChange={(e) => updateItem(index, 'sku', e.target.value)}
+                          className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                          placeholder='000000'
+                          maxLength={6}
+                          required
+                        />
+                      </div>
+
+                      <div className='md:col-span-2 flex flex-col gap-2'>
+                        <label className='text-xs sm:text-sm font-medium text-slate-600'>
+                          ID *
+                        </label>
+                        <input
+                          type='text'
+                          value={item.externalId}
+                          onChange={(e) => updateItem(index, 'externalId', e.target.value)}
+                          className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                          required
+                        />
+                      </div>
+
+                      <div className='md:col-span-4 flex flex-col gap-2'>
+                        <label className='text-xs sm:text-sm font-medium text-slate-600'>
+                          Nome do Item *
+                        </label>
+                        <input
+                          type='text'
+                          value={item.name}
+                          onChange={(e) => updateItem(index, 'name', e.target.value)}
+                          className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                          required
+                        />
+                      </div>
+
+                      <div className='md:col-span-2 flex flex-col gap-2'>
+                        <label className='text-xs sm:text-sm font-medium text-slate-600'>
+                          Marca
+                        </label>
+                        <input
+                          type='text'
+                          value={item.brand}
+                          onChange={(e) => updateItem(index, 'brand', e.target.value)}
+                          className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                        />
+                      </div>
+
+                      <div className='md:col-span-2 flex flex-col gap-2'>
+                        <label className='text-xs sm:text-sm font-medium text-slate-600'>
+                          Tamanho
+                        </label>
+                        <input
+                          type='text'
+                          value={item.size}
+                          onChange={(e) => updateItem(index, 'size', e.target.value)}
+                          className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                        />
+                      </div>
+
+                      <div className='md:col-span-2 flex flex-col gap-2'>
+                        <label className='text-xs sm:text-sm font-medium text-slate-600'>
+                          Qtd *
+                        </label>
+                        <input
+                          type='number'
+                          min='1'
+                          value={item.quantity}
+                          onChange={(e) =>
+                            updateItem(index, 'quantity', parseInt(e.target.value) || 1)
+                          }
+                          className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                          required
+                        />
+                      </div>
+
+                      <div className='md:col-span-2 flex flex-col gap-2'>
+                        <label className='text-xs sm:text-sm font-medium text-slate-600'>
+                          Preço (R$) *
+                        </label>
+                        <input
+                          type='number'
+                          min='0'
+                          step='0.01'
+                          value={item.unitPrice}
+                          onChange={(e) =>
+                            updateItem(index, 'unitPrice', parseFloat(e.target.value) || 0)
+                          }
+                          className='outline-none py-2 px-3 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                          required
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -669,7 +834,12 @@ const AddOrder = () => {
                   value={orderStatus}
                   onChange={(e) =>
                     setOrderStatus(
-                      e.target.value as 'PENDING' | 'APPROVED' | 'SENT' | 'DELIVERED' | 'CANCELLED',
+                      e.target.value as
+                        | 'PENDING'
+                        | 'APPROVED'
+                        | 'SHIPPED'
+                        | 'DELIVERED'
+                        | 'CANCELLED',
                     )
                   }
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
@@ -677,7 +847,7 @@ const AddOrder = () => {
                 >
                   <option value='PENDING'>Pendente</option>
                   <option value='APPROVED'>Aprovado</option>
-                  <option value='SENT'>Enviado</option>
+                  <option value='SHIPPED'>Enviado</option>
                   <option value='DELIVERED'>Entregue</option>
                   <option value='CANCELLED'>Cancelado</option>
                 </select>

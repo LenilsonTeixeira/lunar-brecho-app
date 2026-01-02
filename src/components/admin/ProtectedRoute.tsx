@@ -32,8 +32,8 @@ const ProtectedRoute = ({
     return <Navigate to='/admin/login' replace />;
   }
 
-  // Se requer super admin e o usuário não é super admin, redireciona
-  if (requireSuperAdmin && user?.role !== 'SUPER_ADMIN') {
+  // Se requer super admin e o usuário não é super admin, redireciona (aceita tanto SUPER_ADMIN quanto super_admin)
+  if (requireSuperAdmin && user?.role?.toUpperCase() !== 'SUPER_ADMIN') {
     return <Navigate to='/admin' replace />;
   }
 
@@ -77,14 +77,16 @@ const ProtectedRoute = ({
 
   // Super Admins e Admins ignoram feature flags, EXCETO para o dashboard
   const isDashboardRoute = location.pathname === '/admin';
-  const isAdminOrAbove = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
+  const isAdminOrAbove =
+    user?.role?.toUpperCase() === 'ADMIN' || user?.role?.toUpperCase() === 'SUPER_ADMIN';
   if (isAdminOrAbove && !isDashboardRoute) {
     return <>{children}</>;
   }
 
   if (!isEnabled) {
     // Super Admins sem acesso ao dashboard vão para feature flags
-    const redirectPath = user?.role === 'SUPER_ADMIN' ? '/admin/feature-flags' : fallbackPath;
+    const redirectPath =
+      user?.role?.toUpperCase() === 'SUPER_ADMIN' ? '/admin/feature-flags' : fallbackPath;
     return <Navigate to={redirectPath} replace />;
   }
 

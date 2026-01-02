@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { authService, ApiError } from '@/services';
+import { authService } from '@/services/auth/AuthService';
+import { ApiError } from '@/services/types';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 
 interface User {
@@ -41,6 +42,7 @@ interface RegisterData {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isPublicClientReady: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>;
@@ -56,31 +58,47 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPublicClientReady, setIsPublicClientReady] = useState(false);
 
-  // Verifica se há token salvo no localStorage ao inicializar
+  // Inicializa a autenticação do public_client e verifica tokens de admin
   useEffect(() => {
-    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-    const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
-    const userData = localStorage.getItem(STORAGE_KEYS.USER_DATA);
-
-    if (token && userData) {
+    const initializeAuth = async () => {
       try {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
-      } catch (error) {
-        console.error('Erro ao parsear dados do usuário:', error);
-        localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-        localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-        localStorage.removeItem(STORAGE_KEYS.USER_DATA);
-      }
-    } else if (!token && refreshToken) {
-      // Se não há token mas há refresh token, limpa tudo
-      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-      localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
-      localStorage.removeItem(STORAGE_KEYS.USER_DATA);
-    }
+        // Primeiro, tenta autenticar o public_client para garantir acesso básico
+        await authService.authenticatePublicClient();
+        setIsPublicClientReady(true);
 
-    setIsLoading(false);
+        // Verifica se há token de admin salvo no localStorage
+        const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+        const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN);
+        const userData = localStorage.getItem(STORAGE_KEYS.USER_DATA);
+
+        if (token && userData) {
+          try {
+            const parsedUser = JSON.parse(userData);
+            setUser(parsedUser);
+          } catch (error) {
+            console.error('Erro ao parsear dados do usuário:', error);
+            localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+            localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+            localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+          }
+        } else if (!token && refreshToken) {
+          // Se não há token mas há refresh token, limpa tokens de admin
+          localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+          localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
+          localStorage.removeItem(STORAGE_KEYS.USER_DATA);
+        }
+      } catch (error) {
+        console.error('Erro ao inicializar autenticação:', error);
+        // Mesmo com erro, marca como pronto para não bloquear a UI
+        setIsPublicClientReady(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   const login = async (
@@ -94,11 +112,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       localStorage.removeItem(STORAGE_KEYS.FEATURE_FLAGS);
 
       // Salva os tokens
-      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.token);
+      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.accessToken);
       localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.refreshToken);
 
       // Decodifica o JWT para extrair os dados do usuário
-      const decodedToken = decodeJWT(response.token);
+      const decodedToken = decodeJWT(response.accessToken);
 
       if (!decodedToken) {
         return { success: false, error: 'Erro ao processar token de autenticação.' };
@@ -162,17 +180,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = () => {
+    // Remove apenas tokens de admin - mantém tokens do public_client
     localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
     localStorage.removeItem(STORAGE_KEYS.USER_DATA);
     // Limpa o cache de feature flags no logout também
     localStorage.removeItem(STORAGE_KEYS.FEATURE_FLAGS);
     setUser(null);
+
+    // O frontend continua usando o token do public_client para requisições básicas
+    // Isso permite que o usuário continue navegando na loja sem problemas
   };
 
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
+    isPublicClientReady,
     isLoading,
     login,
     register,

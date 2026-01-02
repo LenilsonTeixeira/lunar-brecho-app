@@ -1,68 +1,75 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
-import { customerService } from '@/services/customer/CustomerService';
-import { ApiError, CustomerRequest } from '@/services/types';
+import { storeService } from '@/services/store/StoreService';
+import { ApiError, StoreRequest } from '@/services/types';
 
-const EditCustomer = () => {
+const EditStore = () => {
   const navigate = useNavigate();
-  const { customerId } = useParams();
+  const { storeId } = useParams();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [isLoadingCep, setIsLoadingCep] = useState(false);
 
-  const [formData, setFormData] = useState<CustomerRequest>({
-    externalId: '',
+  const [formData, setFormData] = useState<StoreRequest>({
     name: '',
+    slug: '',
+    logo: null,
+    description: null,
+    phone: null,
     email: null,
-    phone: '',
     address: null,
-    neighborhood: null,
-    number: null,
     city: null,
     state: null,
     zip: null,
-    complement: null,
+    website: null,
+    facebook: null,
+    instagram: null,
+    config: {
+      pixKey: '',
+    },
   });
 
   useEffect(() => {
-    const fetchCustomer = async () => {
-      if (!customerId) {
-        setError('ID do cliente não fornecido');
+    const fetchStore = async () => {
+      if (!storeId) {
+        setError('ID da loja não fornecido');
         return;
       }
 
       try {
         setLoading(true);
         setError(null);
-        const data = await customerService.getCustomer(customerId);
+        const storeData = await storeService.getStore(storeId);
         setFormData({
-          externalId: data.externalId || '',
-          name: data.name,
-          email: data.email || null,
-          phone: data.phone,
-          address: data.address || null,
-          neighborhood: data.neighborhood || null,
-          number: data.number || null,
-          city: data.city || null,
-          state: data.state || null,
-          zip: data.zip || null,
-          complement: data.complement || null,
+          name: storeData.name,
+          slug: storeData.slug,
+          logo: storeData.logo || null,
+          description: storeData.description || null,
+          phone: storeData.phone || null,
+          email: storeData.email || null,
+          address: storeData.address || null,
+          city: storeData.city || null,
+          state: storeData.state || null,
+          zip: storeData.zip || null,
+          website: storeData.website || null,
+          facebook: storeData.facebook || null,
+          instagram: storeData.instagram || null,
+          config: storeData.config || { pixKey: '' },
         });
       } catch (err) {
-        console.error('Erro ao buscar cliente:', err);
+        console.error('Erro ao buscar loja:', err);
         if (err instanceof ApiError) {
           switch (err.status) {
             case 404:
-              setError('Cliente não encontrado');
+              setError('Loja não encontrada');
               break;
             case 401:
               setError('Não autorizado. Faça login novamente.');
               break;
             default:
-              setError('Erro ao carregar cliente. Tente novamente.');
+              setError('Erro ao carregar loja. Tente novamente.');
           }
         } else {
           setError('Erro de conexão. Verifique sua internet.');
@@ -72,33 +79,15 @@ const EditCustomer = () => {
       }
     };
 
-    fetchCustomer();
-  }, [customerId]);
+    fetchStore();
+  }, [storeId]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-
-    // Formatação do CEP enquanto digita
-    if (name === 'zip') {
-      const cleanValue = value.replace(/\D/g, '');
-      const formattedValue = cleanValue.replace(/(\d{5})(\d)/, '$1-$2');
-      setFormData((prev) => ({
-        ...prev,
-        [name]: formattedValue || null,
-      }));
-
-      // Auto-consulta quando tiver 8 dígitos
-      if (cleanValue.length === 8) {
-        handleZipCodeValidation(cleanValue);
-      }
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value || null,
-      }));
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value || null,
+    }));
 
     if (fieldErrors[name]) {
       setFieldErrors((prev) => {
@@ -109,51 +98,50 @@ const EditCustomer = () => {
     }
   };
 
-  const handleZipCodeValidation = async (zipCodeValue?: string) => {
-    const zipToValidate = zipCodeValue || formData.zip?.replace(/\D/g, '') || '';
-    const cleanZipCode = zipToValidate.replace(/\D/g, '');
+  const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      config: {
+        ...prev.config,
+        [name]: value,
+      },
+    }));
+  };
 
-    if (cleanZipCode.length !== 8) {
-      return;
-    }
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  };
 
-    try {
-      setIsLoadingCep(true);
-      const response = await fetch(`https://viacep.com.br/ws/${cleanZipCode}/json/`);
-      const data = await response.json();
-
-      if (data.erro) {
-        setError('CEP não encontrado. Verifique o número digitado.');
-        return;
-      }
-
-      // Preencher campos automaticamente com os dados da API
-      setFormData((prev) => ({
-        ...prev,
-        address: data.logradouro || prev.address,
-        neighborhood: data.bairro || prev.neighborhood,
-        city: data.localidade || prev.city,
-        state: data.uf || prev.state,
-        complement: data.complemento || prev.complement,
-        zip: data.cep || cleanZipCode.replace(/(\d{5})(\d{3})/, '$1-$2'),
-      }));
-    } catch (error) {
-      console.error('Erro ao consultar CEP:', error);
-      setError('Erro ao consultar CEP. Tente novamente.');
-    } finally {
-      setIsLoadingCep(false);
-    }
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const name = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      name,
+      slug: prev.slug || generateSlug(name),
+    }));
+    handleChange(e);
   };
 
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
-      errors.name = 'Nome é obrigatório';
+      errors.name = 'Nome da loja é obrigatório';
     }
 
-    if (!formData.phone.trim()) {
-      errors.phone = 'Telefone é obrigatório';
+    if (!formData.slug.trim()) {
+      errors.slug = 'Slug é obrigatório';
+    } else {
+      const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+      if (!slugRegex.test(formData.slug)) {
+        errors.slug = 'Slug deve conter apenas letras minúsculas, números e hífens';
+      }
     }
 
     if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -176,25 +164,32 @@ const EditCustomer = () => {
     setSaving(true);
 
     try {
-      const submitData: CustomerRequest = {
+      const submitData: StoreRequest = {
         name: formData.name.trim(),
+        slug: formData.slug.trim(),
+        logo: formData.logo?.trim() || null,
+        description: formData.description?.trim() || null,
+        phone: formData.phone?.trim() || null,
         email: formData.email?.trim() || null,
-        phone: formData.phone.trim(),
         address: formData.address?.trim() || null,
-        neighborhood: formData.neighborhood?.trim() || null,
-        number: formData.number?.trim() || null,
         city: formData.city?.trim() || null,
         state: formData.state?.trim() || null,
         zip: formData.zip?.trim() || null,
-        complement: formData.complement?.trim() || null,
+        website: formData.website?.trim() || null,
+        facebook: formData.facebook?.trim() || null,
+        instagram: formData.instagram?.trim() || null,
+        config:
+          formData.config?.pixKey?.trim() && formData.config.pixKey.trim() !== ''
+            ? { pixKey: formData.config.pixKey.trim() }
+            : undefined,
       };
 
-      await customerService.updateCustomer(customerId!, submitData);
-      navigate('/admin/clientes');
+      await storeService.updateStore(storeId!, submitData);
+      navigate('/admin/lojas');
     } catch (err) {
-      console.error('Erro ao atualizar cliente:', err);
+      console.error('Erro ao atualizar loja:', err);
       if (err instanceof ApiError) {
-        setError(`Erro ao atualizar cliente: ${err.message}`);
+        setError(`Erro ao atualizar loja: ${err.message}`);
       } else {
         setError('Erro de conexão. Tente novamente.');
       }
@@ -208,30 +203,28 @@ const EditCustomer = () => {
       <div className='py-6 flex items-center justify-center bg-slate-50 min-h-screen'>
         <div className='flex flex-col items-center gap-4'>
           <div className='w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin'></div>
-          <p className='text-slate-600 font-medium'>Carregando cliente...</p>
+          <p className='text-slate-600 font-medium'>Carregando loja...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50 min-h-screen'>
+    <div className='py-6 flex flex-col justify-between bg-slate-50'>
       <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         <div className='mb-8'>
           <div className='flex items-center gap-4 mb-4'>
             <button
-              onClick={() => navigate('/admin/clientes')}
+              onClick={() => navigate('/admin/lojas')}
               className='flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-all duration-300'
             >
               <ArrowLeft className='w-4 h-4' />
               Voltar
             </button>
           </div>
-          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
-            Editar Cliente #{formData.externalId}
-          </h1>
+          <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>Editar Loja</h1>
           <p className='text-sm sm:text-base text-slate-600'>
-            Modifique as informações do cliente abaixo
+            Modifique as informações da loja abaixo
           </p>
         </div>
 
@@ -303,15 +296,15 @@ const EditCustomer = () => {
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
               <div className='flex flex-col gap-2'>
                 <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='name'>
-                  Nome <span className='text-red-500'>*</span>
+                  Nome da Loja <span className='text-red-500'>*</span>
                 </label>
                 <input
                   id='name'
                   name='name'
                   type='text'
                   value={formData.name}
-                  onChange={handleChange}
-                  placeholder='Digite o nome completo'
+                  onChange={handleNameChange}
+                  placeholder='Digite o nome da loja'
                   className={`outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border transition-all duration-300 bg-white ${
                     fieldErrors.name
                       ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
@@ -334,27 +327,24 @@ const EditCustomer = () => {
               </div>
 
               <div className='flex flex-col gap-2'>
-                <label
-                  className='text-sm sm:text-base font-semibold text-slate-700'
-                  htmlFor='phone'
-                >
-                  Telefone <span className='text-red-500'>*</span>
+                <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='slug'>
+                  Slug <span className='text-red-500'>*</span>
                 </label>
                 <input
-                  id='phone'
-                  name='phone'
-                  type='tel'
-                  value={formData.phone}
+                  id='slug'
+                  name='slug'
+                  type='text'
+                  value={formData.slug}
                   onChange={handleChange}
-                  placeholder='(00) 00000-0000'
+                  placeholder='exemplo-loja'
                   className={`outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border transition-all duration-300 bg-white ${
-                    fieldErrors.phone
+                    fieldErrors.slug
                       ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
                       : 'border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20'
                   }`}
                   required
                 />
-                {fieldErrors.phone && (
+                {fieldErrors.slug && (
                   <p className='text-sm text-red-600 flex items-center gap-1'>
                     <svg className='w-4 h-4' fill='currentColor' viewBox='0 0 20 20'>
                       <path
@@ -363,9 +353,24 @@ const EditCustomer = () => {
                         clipRule='evenodd'
                       />
                     </svg>
-                    {fieldErrors.phone}
+                    {fieldErrors.slug}
                   </p>
                 )}
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='logo'>
+                  Logo (URL)
+                </label>
+                <input
+                  id='logo'
+                  name='logo'
+                  type='text'
+                  value={formData.logo || ''}
+                  onChange={handleChange}
+                  placeholder='https://exemplo.com/logo.png'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
               </div>
 
               <div className='flex flex-col gap-2'>
@@ -381,7 +386,7 @@ const EditCustomer = () => {
                   type='email'
                   value={formData.email || ''}
                   onChange={handleChange}
-                  placeholder='email@exemplo.com'
+                  placeholder='contato@loja.com'
                   className={`outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border transition-all duration-300 bg-white ${
                     fieldErrors.email
                       ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
@@ -401,6 +406,60 @@ const EditCustomer = () => {
                   </p>
                 )}
               </div>
+
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='phone'
+                >
+                  Telefone
+                </label>
+                <input
+                  id='phone'
+                  name='phone'
+                  type='text'
+                  value={formData.phone || ''}
+                  onChange={handleChange}
+                  placeholder='(00) 00000-0000'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='website'
+                >
+                  Website
+                </label>
+                <input
+                  id='website'
+                  name='website'
+                  type='url'
+                  value={formData.website || ''}
+                  onChange={handleChange}
+                  placeholder='https://www.loja.com'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+            </div>
+
+            <div className='mt-6 flex flex-col gap-2'>
+              <label
+                className='text-sm sm:text-base font-semibold text-slate-700'
+                htmlFor='description'
+              >
+                Descrição
+              </label>
+              <textarea
+                id='description'
+                name='description'
+                value={formData.description || ''}
+                onChange={handleChange}
+                rows={4}
+                placeholder='Descreva a loja...'
+                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 resize-none bg-white'
+              />
             </div>
           </div>
 
@@ -409,58 +468,12 @@ const EditCustomer = () => {
             <h3 className='text-lg font-semibold text-slate-800 mb-4'>Endereço</h3>
 
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
-              {/* CEP - Primeiro campo */}
-              <div className='flex flex-col gap-2'>
-                <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='zip'>
-                  CEP
-                </label>
-                <div className='flex gap-2'>
-                  <input
-                    id='zip'
-                    name='zip'
-                    type='text'
-                    value={formData.zip || ''}
-                    onChange={handleChange}
-                    onBlur={() => {
-                      const cleanZip = formData.zip?.replace(/\D/g, '') || '';
-                      if (cleanZip.length === 8) {
-                        handleZipCodeValidation(cleanZip);
-                      }
-                    }}
-                    placeholder='00000-000'
-                    maxLength={9}
-                    className='flex-1 outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                  />
-                  <button
-                    type='button'
-                    onClick={() => {
-                      const cleanZip = formData.zip?.replace(/\D/g, '') || '';
-                      if (cleanZip.length === 8) {
-                        handleZipCodeValidation(cleanZip);
-                      } else {
-                        setError('CEP deve conter 8 dígitos');
-                      }
-                    }}
-                    disabled={isLoadingCep}
-                    className='px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-semibold text-sm sm:text-base shadow-md hover:shadow-lg whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed'
-                  >
-                    {isLoadingCep ? (
-                      <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
-                    ) : (
-                      'BUSCAR'
-                    )}
-                  </button>
-                </div>
-                {isLoadingCep && <p className='text-xs text-slate-500'>Buscando endereço...</p>}
-              </div>
-
-              {/* Rua/Logradouro */}
               <div className='lg:col-span-2 flex flex-col gap-2'>
                 <label
                   className='text-sm sm:text-base font-semibold text-slate-700'
                   htmlFor='address'
                 >
-                  Rua/Logradouro
+                  Endereço
                 </label>
                 <input
                   id='address'
@@ -468,69 +481,11 @@ const EditCustomer = () => {
                   type='text'
                   value={formData.address || ''}
                   onChange={handleChange}
-                  placeholder='Nome da rua'
+                  placeholder='Rua, número, complemento'
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                 />
               </div>
 
-              {/* Número */}
-              <div className='flex flex-col gap-2'>
-                <label
-                  className='text-sm sm:text-base font-semibold text-slate-700'
-                  htmlFor='number'
-                >
-                  Número
-                </label>
-                <input
-                  id='number'
-                  name='number'
-                  type='text'
-                  value={formData.number || ''}
-                  onChange={handleChange}
-                  placeholder='123'
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                />
-              </div>
-
-              {/* Complemento */}
-              <div className='flex flex-col gap-2'>
-                <label
-                  className='text-sm sm:text-base font-semibold text-slate-700'
-                  htmlFor='complement'
-                >
-                  Complemento
-                </label>
-                <input
-                  id='complement'
-                  name='complement'
-                  type='text'
-                  value={formData.complement || ''}
-                  onChange={handleChange}
-                  placeholder='Apartamento, bloco, etc.'
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                />
-              </div>
-
-              {/* Bairro */}
-              <div className='flex flex-col gap-2'>
-                <label
-                  className='text-sm sm:text-base font-semibold text-slate-700'
-                  htmlFor='neighborhood'
-                >
-                  Bairro
-                </label>
-                <input
-                  id='neighborhood'
-                  name='neighborhood'
-                  type='text'
-                  value={formData.neighborhood || ''}
-                  onChange={handleChange}
-                  placeholder='Nome do bairro'
-                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                />
-              </div>
-
-              {/* Cidade */}
               <div className='flex flex-col gap-2'>
                 <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='city'>
                   Cidade
@@ -541,12 +496,11 @@ const EditCustomer = () => {
                   type='text'
                   value={formData.city || ''}
                   onChange={handleChange}
-                  placeholder='Nome da cidade'
+                  placeholder='Cidade'
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
                 />
               </div>
 
-              {/* Estado */}
               <div className='flex flex-col gap-2'>
                 <label
                   className='text-sm sm:text-base font-semibold text-slate-700'
@@ -554,43 +508,94 @@ const EditCustomer = () => {
                 >
                   Estado
                 </label>
-                <select
+                <input
                   id='state'
                   name='state'
+                  type='text'
                   value={formData.state || ''}
                   onChange={handleChange}
+                  placeholder='Estado'
                   className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
-                >
-                  <option value=''>Selecione o estado</option>
-                  <option value='SP'>São Paulo</option>
-                  <option value='RJ'>Rio de Janeiro</option>
-                  <option value='MG'>Minas Gerais</option>
-                  <option value='RS'>Rio Grande do Sul</option>
-                  <option value='PR'>Paraná</option>
-                  <option value='SC'>Santa Catarina</option>
-                  <option value='BA'>Bahia</option>
-                  <option value='GO'>Goiás</option>
-                  <option value='PE'>Pernambuco</option>
-                  <option value='CE'>Ceará</option>
-                  <option value='PA'>Pará</option>
-                  <option value='MA'>Maranhão</option>
-                  <option value='ES'>Espírito Santo</option>
-                  <option value='PB'>Paraíba</option>
-                  <option value='MT'>Mato Grosso</option>
-                  <option value='MS'>Mato Grosso do Sul</option>
-                  <option value='PI'>Piauí</option>
-                  <option value='RN'>Rio Grande do Norte</option>
-                  <option value='AL'>Alagoas</option>
-                  <option value='SE'>Sergipe</option>
-                  <option value='RO'>Rondônia</option>
-                  <option value='TO'>Tocantins</option>
-                  <option value='AC'>Acre</option>
-                  <option value='AP'>Amapá</option>
-                  <option value='AM'>Amazonas</option>
-                  <option value='RR'>Roraima</option>
-                  <option value='DF'>Distrito Federal</option>
-                </select>
+                />
               </div>
+
+              <div className='flex flex-col gap-2'>
+                <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='zip'>
+                  CEP
+                </label>
+                <input
+                  id='zip'
+                  name='zip'
+                  type='text'
+                  value={formData.zip || ''}
+                  onChange={handleChange}
+                  placeholder='00000-000'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Redes Sociais */}
+          <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
+            <h3 className='text-lg font-semibold text-slate-800 mb-4'>Redes Sociais</h3>
+
+            <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='facebook'
+                >
+                  Facebook
+                </label>
+                <input
+                  id='facebook'
+                  name='facebook'
+                  type='url'
+                  value={formData.facebook || ''}
+                  onChange={handleChange}
+                  placeholder='https://www.facebook.com/loja'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+
+              <div className='flex flex-col gap-2'>
+                <label
+                  className='text-sm sm:text-base font-semibold text-slate-700'
+                  htmlFor='instagram'
+                >
+                  Instagram
+                </label>
+                <input
+                  id='instagram'
+                  name='instagram'
+                  type='url'
+                  value={formData.instagram || ''}
+                  onChange={handleChange}
+                  placeholder='https://www.instagram.com/loja'
+                  className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Configurações */}
+          <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
+            <h3 className='text-lg font-semibold text-slate-800 mb-4'>Configurações</h3>
+
+            <div className='flex flex-col gap-2'>
+              <label className='text-sm sm:text-base font-semibold text-slate-700' htmlFor='pixKey'>
+                Chave PIX
+              </label>
+              <input
+                id='pixKey'
+                name='pixKey'
+                type='text'
+                value={formData.config?.pixKey || ''}
+                onChange={handleConfigChange}
+                placeholder='Chave PIX para pagamentos'
+                className='outline-none py-2 sm:py-3 px-4 text-sm sm:text-base rounded-lg border border-slate-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all duration-300 bg-white'
+              />
             </div>
           </div>
 
@@ -607,7 +612,7 @@ const EditCustomer = () => {
                   Atualizando...
                 </>
               ) : (
-                'Atualizar Cliente'
+                'Atualizar Loja'
               )}
             </button>
           </div>
@@ -617,4 +622,4 @@ const EditCustomer = () => {
   );
 };
 
-export default EditCustomer;
+export default EditStore;

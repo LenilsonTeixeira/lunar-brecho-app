@@ -1,6 +1,6 @@
 import { ShoppingCart } from 'lucide-react';
 import WhatsappIcon from '../icon/WhatsappIcon';
-import { ProductResponse } from '../../services/types';
+import { ProductResponse, ProductListItemResponse } from '../../services/types';
 import { useCart } from '../../contexts/CartContext';
 import { formatProductForWhatsApp } from '../../utils/orderFormatter';
 import { useGTM } from '../../hooks/useGTM';
@@ -9,6 +9,38 @@ type Props = {
   product: ProductResponse;
   selectedSize: string;
 };
+
+// Converte ProductResponse para ProductListItemResponse
+const toCartProduct = (product: ProductResponse): ProductListItemResponse => ({
+  id: product.id,
+  externalId: product.externalId,
+  name: product.name,
+  mainImageUrl: product.mainImageUrl || '',
+  mainThumbnailImageUrl: product.mainThumbnailImageUrl || '',
+  category: product.category,
+  description: product.description || '',
+  status: product.status,
+  brand: product.brand || '',
+  color: product.color || '',
+  observations: product.observations || '',
+  isNew: product.type === 'NEW',
+  basePrice: product.basePrice,
+  discountType: product.discountType,
+  discountValue: product.discountValue || 0,
+  storeId: '',
+  variants: product.variants.map((v) => ({
+    size: v.size,
+    stockAvailable: v.stockAvailable || 0,
+  })),
+  images: product.images.map((img) => ({
+    originalUrl: img.originalUrl,
+    position: img.position,
+    isMain: img.isMain,
+    thumbnailUrl: img.thumbnailUrl,
+  })),
+  createdAt: product.createdAt || '',
+  updatedAt: product.updatedAt || '',
+});
 
 const ProductActions = ({ product, selectedSize }: Props) => {
   const { addToCart, getItemQuantity } = useCart();
@@ -34,13 +66,13 @@ const ProductActions = ({ product, selectedSize }: Props) => {
 
     // Busca a variante selecionada
     const selectedVariant = product.variants?.find((v) => v.size === selectedSize);
-    if (!selectedVariant || !selectedVariant.id) {
+    if (!selectedVariant) {
       alert('Variante não encontrada.');
       return;
     }
 
     const stockAvailable = selectedVariant.stockAvailable || 0;
-    const currentQuantity = getItemQuantity(product.id, selectedVariant.id);
+    const currentQuantity = getItemQuantity(product.id, selectedSize);
     const availableQuantity = stockAvailable - currentQuantity;
 
     if (availableQuantity <= 0) {
@@ -48,7 +80,7 @@ const ProductActions = ({ product, selectedSize }: Props) => {
       return;
     }
 
-    addToCart(product, 1, selectedVariant.id);
+    addToCart(toCartProduct(product), 1, selectedSize);
     alert('Produto adicionado ao carrinho!');
   };
 
@@ -73,9 +105,8 @@ const ProductActions = ({ product, selectedSize }: Props) => {
   // Busca a variante selecionada para verificar estoque
   const selectedVariant = product.variants?.find((v) => v.size === selectedSize);
   const stockAvailable = selectedVariant?.stockAvailable || 0;
-  const variantId = selectedVariant?.id || '';
 
-  const currentQuantity = variantId ? getItemQuantity(product.id, variantId) : 0;
+  const currentQuantity = selectedSize ? getItemQuantity(product.id, selectedSize) : 0;
   const isOutOfStock = selectedSize ? currentQuantity >= stockAvailable : false;
 
   return (

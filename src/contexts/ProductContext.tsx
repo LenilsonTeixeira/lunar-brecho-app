@@ -1,10 +1,10 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ProductResponse } from '../services/types';
+import { ProductListItemResponse } from '../services/types';
 import { productService } from '../services/product/ProductService';
 
 interface ProductContextData {
-  products: ProductResponse[];
-  filteredProducts: ProductResponse[];
+  products: ProductListItemResponse[];
+  filteredProducts: ProductListItemResponse[];
   selectedCategory: string | null;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -20,13 +20,11 @@ interface ProductContextData {
 const ProductContext = createContext<ProductContextData>({} as ProductContextData);
 
 export const ProductProvider = ({ children }: { children: ReactNode }) => {
-  const [products, setProducts] = useState<ProductResponse[]>([]);
+  const [products, setProducts] = useState<ProductListItemResponse[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
 
   const getProducts = async (page: number = 0, size: number = 200) => {
     try {
@@ -34,7 +32,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       return response;
     } catch (error) {
       console.error('Erro ao buscar produtos:', error);
-      return { content: [], totalPages: 0, totalElements: 0, size: 0, number: 0 };
+      return [];
     }
   };
 
@@ -42,10 +40,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       const response = await getProducts(0, 200);
-      setProducts(response.content || []);
+      setProducts(response || []);
       setCurrentPage(0);
-      setTotalPages(response.totalPages || 0);
-      setTotalElements(response.totalElements || 0);
     } finally {
       setIsLoading(false);
     }
@@ -55,17 +51,15 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       const response = await getProducts(page, 200);
-      setProducts(response.content || []);
+      setProducts(response || []);
       setCurrentPage(page);
-      setTotalPages(response.totalPages || 0);
-      setTotalElements(response.totalElements || 0);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    refreshProducts();
+    //refreshProducts();
   }, []);
 
   const handleCategorySelect = (category: string | null) => {
@@ -76,7 +70,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const filteredProducts = products.filter((product) => {
-    const matchesCategory = !selectedCategory || product.category.name === selectedCategory;
+    const matchesCategory = !selectedCategory || product.category === selectedCategory;
     const matchesSearch =
       !searchQuery ||
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -95,8 +89,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         handleCategorySelect,
         isLoading,
         currentPage,
-        totalPages,
-        totalElements,
+        totalPages: 1,
+        totalElements: products.length,
         refreshProducts,
         loadPage,
       }}

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ProductResponse } from '../services/types';
+import { ProductListItemResponse } from '../services/types';
 import { CartItem, CartContextData } from '../types/cart';
 import { STORAGE_KEYS } from '@/constants/storageKeys';
 import { calculateFinalPrice } from '../utils/priceUtils';
@@ -43,18 +43,23 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(items));
   }, [items]);
 
-  const addToCart = (product: ProductResponse, quantity: number, variantId: string) => {
+  const addToCart = (product: ProductListItemResponse, quantity: number, variantSize: string) => {
     if (quantity <= 0) return;
 
-    // Buscar a variante selecionada
-    const variant = product.variants.find((v) => v.id === variantId);
+    // Buscar a variante selecionada pelo tamanho
+    const variant = product.variants.find((v) => v.size === variantSize);
     if (!variant) {
       alert('Variante não encontrada.');
       return;
     }
 
-    // Verificar se o produto já está no carrinho com a mesma variante
-    const existingItemIndex = items.findIndex((item) => item.variantId === variantId);
+    // Criar um identificador único para o item (produto + tamanho)
+    const itemKey = `${product.id}-${variantSize}`;
+
+    // Verificar se o produto já está no carrinho com o mesmo tamanho
+    const existingItemIndex = items.findIndex(
+      (item) => item.productId === product.id && item.variantSize === variantSize,
+    );
 
     if (existingItemIndex >= 0) {
       // Atualizar quantidade do item existente
@@ -81,23 +86,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const newItem: CartItem = {
-        id: `${product.id}-${variantId}-${Date.now()}`,
+        id: `${itemKey}-${Date.now()}`,
         productId: product.id,
-        productExternalId: product.externalId,
-        variantId,
+        externalId: product.externalId,
+        variantSize,
         quantity,
         snapshot: {
           name: product.name,
           mainImageUrl: product.mainImageUrl,
-          mainThumbnailUrl: product.mainThumbnailUrl,
+          mainThumbnailImageUrl: product.mainThumbnailImageUrl,
           brand: product.brand,
-          type: product.type,
-          category: product.category.name,
+          type: product.isNew ? 'NEW' : 'BAZAAR',
+          category: product.category,
           basePrice: product.basePrice,
           discountType: product.discountType,
           discountValue: product.discountValue,
           size: variant.size,
           stockAvailable: variant.stockAvailable || 0,
+          sku: product.sku,
         },
       };
       setItems([...items, newItem]);
@@ -132,8 +138,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setItems([]);
   };
 
-  const getItemQuantity = (productId: string, variantId: string): number => {
-    const item = items.find((item) => item.productId === productId && item.variantId === variantId);
+  const getItemQuantity = (productId: string, variantSize: string): number => {
+    const item = items.find(
+      (item) => item.productId === productId && item.variantSize === variantSize,
+    );
     return item ? item.quantity : 0;
   };
 

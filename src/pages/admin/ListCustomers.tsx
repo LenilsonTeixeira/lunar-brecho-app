@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Search, Edit, Trash2, Eye, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { customerService, ApiError, CustomerResponse, CustomerListResponse } from '@/services';
+import { customerService } from '@/services/customer/CustomerService';
+import { ApiError, CustomerResponse } from '@/services/types';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 const ListCustomers = () => {
   const navigate = useNavigate();
@@ -12,6 +14,7 @@ const ListCustomers = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
+  const [deletingCustomer, setDeletingCustomer] = useState<CustomerResponse | undefined>(undefined);
 
   useEffect(() => {
     loadCustomers();
@@ -21,36 +24,80 @@ const ListCustomers = () => {
     setLoading(true);
     setError(null);
     try {
-      const res: CustomerListResponse = await customerService.getCustomers(currentPage, 100);
-      setCustomers(res.content);
-      setTotalPages(res.totalPages);
-      setTotalElements(res.totalElements);
+      const response = await customerService.getCustomers(currentPage, 100);
+      const customersList = Array.isArray(response) ? response : [];
+      setCustomers(customersList);
+      setTotalPages(1); // Sem paginação no novo padrão
+      setTotalElements(customersList.length);
     } catch (err) {
       console.error('Erro ao carregar clientes:', err);
       if (err instanceof ApiError) setError(err.message);
       else setError('Erro de conexão.');
+      setCustomers([]); // Garantir que customers seja sempre um array
+      setTotalPages(0);
+      setTotalElements(0);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredUsers = customers.filter((user) => {
+  const handleDeleteCustomer = (customer: CustomerResponse) => {
+    setDeletingCustomer(customer);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingCustomer || !deletingCustomer.id) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      await customerService.deleteCustomer(deletingCustomer.id);
+
+      // Reload customers to get updated data
+      await loadCustomers();
+      setDeletingCustomer(undefined);
+    } catch (error) {
+      console.error('Erro ao excluir cliente:', error);
+      if (error instanceof ApiError) {
+        setError(`Erro ao excluir cliente: ${error.message}`);
+      } else {
+        setError('Erro de conexão. Tente novamente.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredUsers = (customers || []).filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.phone?.includes(searchTerm) ||
-      (user.addresses &&
-        user.addresses.some((a) =>
-          `${a.street || ''} ${a.number || ''} ${a.neighborhood || ''} ${a.city || ''}`
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()),
-        ));
+      `${user.address || ''} ${user.number || ''} ${user.neighborhood || ''} ${user.city || ''}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
 
     return matchesSearch;
   });
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '—';
+    try {
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(date);
+    } catch {
+      return '—';
+    }
+  };
+
   return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+    <div className='py-6 flex flex-col justify-between bg-slate-50 min-h-screen'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         {/* Header */}
         <div className='mb-8'>
           <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
@@ -118,6 +165,9 @@ const ListCustomers = () => {
                     Endereço
                   </th>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
+                    Data de Criação
+                  </th>
+                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700'>
                     Ações
                   </th>
                 </tr>
@@ -125,7 +175,7 @@ const ListCustomers = () => {
               <tbody className='divide-y divide-slate-200'>
                 {loading && (
                   <tr>
-                    <td colSpan={4} className='py-12 text-center text-slate-500'>
+                    <td colSpan={5} className='py-12 text-center text-slate-500'>
                       Carregando...
                     </td>
                   </tr>
@@ -150,10 +200,13 @@ const ListCustomers = () => {
                       <td className='px-6 py-4 text-xs sm:text-sm text-slate-700'>{user.phone}</td>
                       <td className='px-6 py-4'>
                         <p className='text-xs sm:text-sm text-slate-700 max-w-xs truncate'>
-                          {user.addresses && user.addresses[0]
-                            ? `${user.addresses[0].street || ''}, ${user.addresses[0].number || ''} - ${user.addresses[0].neighborhood || ''}, ${user.addresses[0].city || ''}`
+                          {user.address
+                            ? `${user.address || ''}, ${user.number || ''} - ${user.neighborhood || ''}, ${user.city || ''}`
                             : '—'}
                         </p>
+                      </td>
+                      <td className='px-6 py-4 text-xs sm:text-sm text-slate-700'>
+                        {formatDate(user.createdAt)}
                       </td>
                       <td className='px-6 py-4'>
                         <div className='flex items-center gap-1 sm:gap-2'>
@@ -172,6 +225,7 @@ const ListCustomers = () => {
                             <Edit className='w-3 h-3 sm:w-4 sm:h-4' />
                           </button>
                           <button
+                            onClick={() => handleDeleteCustomer(user)}
                             className='p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200'
                             title='Excluir'
                           >
@@ -183,7 +237,7 @@ const ListCustomers = () => {
                   ))}
                 {!loading && filteredUsers.length === 0 && (
                   <tr>
-                    <td colSpan={4} className='py-12 text-center text-slate-500'>
+                    <td colSpan={5} className='py-12 text-center text-slate-500'>
                       Nenhum cliente encontrado
                     </td>
                   </tr>
@@ -235,6 +289,18 @@ const ListCustomers = () => {
             </div>
           </div>
         )}
+
+        {/* Confirm Delete Dialog */}
+        <ConfirmDialog
+          isOpen={!!deletingCustomer}
+          title='Excluir Cliente'
+          message={`Tem certeza que deseja excluir o cliente "${deletingCustomer?.name}"? Esta ação não pode ser desfeita.`}
+          confirmText='Excluir'
+          cancelText='Cancelar'
+          onConfirm={confirmDelete}
+          onCancel={() => setDeletingCustomer(undefined)}
+          type='danger'
+        />
       </div>
     </div>
   );

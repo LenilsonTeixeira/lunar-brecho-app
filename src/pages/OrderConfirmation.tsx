@@ -13,6 +13,7 @@ import {
   Check,
   User,
   Phone,
+  Mail,
   Package,
   Shield,
   Clock,
@@ -21,9 +22,12 @@ import {
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { formatToBRL } from '../utils/priceUtils';
-import { customerService, orderService } from '../services';
-import { CustomerRequest, OrderRequest } from '../services/types';
+import { customerService } from '../services/customer/CustomerService';
+import { orderService } from '../services/order/OrderService';
+import { storeService } from '../services/store/StoreService';
+import { CustomerRequest, OrderRequest, StoreResponse } from '../services/types';
 import { formatOrderForWhatsApp } from '../utils/orderFormatter';
+import { ENV } from '../config/env';
 
 const OrderConfirmation = () => {
   const { items, totalPrice, clearCart } = useCart();
@@ -33,11 +37,12 @@ const OrderConfirmation = () => {
   // Receber dados do Checkout via location state
   const [orderData, setOrderData] = useState({
     whatsapp: '',
+    email: '',
     firstName: '',
     lastName: '',
     deliveryMethod: 'delivery',
     paymentMethod: 'pix',
-    street: '',
+    address: '',
     number: '',
     neighborhood: '',
     city: '',
@@ -47,12 +52,15 @@ const OrderConfirmation = () => {
     customerId: null as string | null,
   });
 
+  // Estado para dados da loja
+  const [store, setStore] = useState<StoreResponse | null>(null);
+
   // Estado para edição
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [isEditingContact, setIsEditingContact] = useState(false);
 
   const [editedAddress, setEditedAddress] = useState({
-    street: '',
+    address: '',
     number: '',
     neighborhood: '',
     city: '',
@@ -65,7 +73,22 @@ const OrderConfirmation = () => {
     firstName: '',
     lastName: '',
     whatsapp: '',
+    email: '',
   });
+
+  // Carregar dados da loja
+  useEffect(() => {
+    const fetchStore = async () => {
+      try {
+        const storeData = await storeService.getStore(ENV.STORE_ID);
+        setStore(storeData);
+      } catch (error) {
+        console.error('Erro ao buscar dados da loja:', error);
+      }
+    };
+
+    fetchStore();
+  }, []);
 
   // Carregar dados do Checkout ao montar o componente
   useEffect(() => {
@@ -73,7 +96,7 @@ const OrderConfirmation = () => {
       const data = location.state.orderData;
       setOrderData(data);
       setEditedAddress({
-        street: data.street,
+        address: data.address,
         number: data.number,
         neighborhood: data.neighborhood,
         city: data.city,
@@ -85,6 +108,7 @@ const OrderConfirmation = () => {
         firstName: data.firstName,
         lastName: data.lastName,
         whatsapp: data.whatsapp,
+        email: data.email || '',
       });
     } else {
       navigate('/checkout');
@@ -108,16 +132,17 @@ const OrderConfirmation = () => {
     return item.basePrice;
   };
 
-  const deliveryFee = orderData.deliveryMethod === 'delivery' ? 5 : 0;
-  const pixDiscount = orderData.paymentMethod === 'pix' ? 0.05 : 0;
+  const deliveryFee =
+    orderData.deliveryMethod === 'delivery' && store?.config?.deliveryFee
+      ? store.config.deliveryFee
+      : 0;
   const subtotal = totalPrice;
-  const discountAmount = subtotal * pixDiscount;
-  const totalWithDiscount = subtotal - discountAmount;
-  const finalTotal = totalWithDiscount + deliveryFee;
+  const discountAmount = 0;
+  const finalTotal = subtotal + deliveryFee;
 
   const handleSaveAddress = () => {
     if (
-      !editedAddress.street ||
+      !editedAddress.address ||
       !editedAddress.number ||
       !editedAddress.neighborhood ||
       !editedAddress.city ||
@@ -140,13 +165,14 @@ const OrderConfirmation = () => {
       firstName: editedContact.firstName,
       lastName: editedContact.lastName,
       whatsapp: editedContact.whatsapp,
+      email: editedContact.email,
     });
     setIsEditingContact(false);
   };
 
   const handleCancelEditAddress = () => {
     setEditedAddress({
-      street: orderData.street,
+      address: orderData.address,
       number: orderData.number,
       neighborhood: orderData.neighborhood,
       city: orderData.city,
@@ -162,6 +188,7 @@ const OrderConfirmation = () => {
       firstName: orderData.firstName,
       lastName: orderData.lastName,
       whatsapp: orderData.whatsapp,
+      email: orderData.email || '',
     });
     setIsEditingContact(false);
   };
@@ -173,22 +200,15 @@ const OrderConfirmation = () => {
       const customerRequest: CustomerRequest = {
         name: fullName,
         phone: orderData.whatsapp.replace(/\D/g, ''),
-        addresses:
-          orderData.deliveryMethod === 'delivery'
-            ? [
-                {
-                  street: orderData.street,
-                  number: orderData.number,
-                  complement: orderData.complement || undefined,
-                  neighborhood: orderData.neighborhood || undefined,
-                  city: orderData.city || undefined,
-                  state: orderData.state || undefined,
-                  zipCode: orderData.zipCode || undefined,
-                  type: 'HOME',
-                  isDefault: true,
-                },
-              ]
-            : [],
+        email: orderData.email || null,
+        address: orderData.deliveryMethod === 'delivery' ? orderData.address || null : null,
+        number: orderData.deliveryMethod === 'delivery' ? orderData.number || null : null,
+        neighborhood:
+          orderData.deliveryMethod === 'delivery' ? orderData.neighborhood || null : null,
+        city: orderData.deliveryMethod === 'delivery' ? orderData.city || null : null,
+        state: orderData.deliveryMethod === 'delivery' ? orderData.state || null : null,
+        zip: orderData.deliveryMethod === 'delivery' ? orderData.zipCode || null : null,
+        complement: orderData.deliveryMethod === 'delivery' ? orderData.complement || null : null,
       };
 
       let customerId = orderData.customerId;
@@ -196,56 +216,72 @@ const OrderConfirmation = () => {
         await customerService.updateCustomer(customerId, customerRequest);
       } else {
         const created = await customerService.createCustomer(customerRequest);
-        customerId = created.id;
+        customerId = created.id || null;
       }
 
       // Criar pedido no backend
+      if (!customerId) {
+        alert('Erro ao criar/atualizar cliente. Tente novamente.');
+        return;
+      }
+
       const orderRequest: OrderRequest = {
         customer: {
-          id: customerId,
           fullName: fullName,
-          email: '', // Não temos email no formulário atual
           phone: orderData.whatsapp.replace(/\D/g, ''),
         },
         items: items.map((item) => {
           const itemPrice = calculateItemPrice(item.snapshot);
-          const orderItem = {
-            id: item.productId,
-            externalId: item.productExternalId,
-            name: item.snapshot.name,
+          const discountApplied =
+            item.snapshot.discountType === 'PERCENTAGE'
+              ? (item.snapshot.basePrice * (item.snapshot.discountValue || 0)) / 100
+              : item.snapshot.discountType === 'FIXED_AMOUNT'
+                ? item.snapshot.discountValue || 0
+                : 0;
+
+          return {
+            productId: item.productId,
+            sku: item.snapshot.sku || null,
+            externalId: item.externalId || null,
             mainImageUrl: item.snapshot.mainImageUrl || '',
-            mainImageThumbnailUrl: item.snapshot.mainThumbnailUrl || '',
+            mainThumbnailImageUrl: item.snapshot.mainThumbnailImageUrl || '',
+            name: item.snapshot.name,
             brand: item.snapshot.brand || '',
             size: item.snapshot.size,
             quantity: item.quantity,
-            discountApplied:
-              item.snapshot.discountType === 'PERCENTAGE'
-                ? (item.snapshot.basePrice * (item.snapshot.discountValue || 0)) / 100
-                : item.snapshot.discountValue || 0,
+            discountApplied: discountApplied > 0 ? discountApplied : null,
             unitPrice: itemPrice,
             subtotal: itemPrice * item.quantity,
           };
-
-          return orderItem;
         }),
         financialSummary: {
           subtotal: subtotal,
-          totalAmount: finalTotal,
-          deliveryFee: deliveryFee,
           discountAmount: discountAmount,
+          deliveryFee: deliveryFee,
+          totalAmount: finalTotal,
         },
         status: 'PENDING',
         deliveryType: orderData.deliveryMethod === 'delivery' ? 'HOME_DELIVERY' : 'STORE_PICKUP',
-        deliveryAddress: {
-          id: '', // Será gerado pelo backend
-          street: orderData.deliveryMethod === 'delivery' ? orderData.street : 'Retirada na Loja',
-          number: orderData.deliveryMethod === 'delivery' ? orderData.number : '',
-          complement: orderData.deliveryMethod === 'delivery' ? orderData.complement || '' : '',
-          neighborhood: orderData.deliveryMethod === 'delivery' ? orderData.neighborhood || '' : '',
-          city: orderData.deliveryMethod === 'delivery' ? orderData.city || '' : '',
-          state: orderData.deliveryMethod === 'delivery' ? orderData.state || '' : '',
-          zipCode: orderData.deliveryMethod === 'delivery' ? orderData.zipCode || '' : '',
-        },
+        deliveryAddress:
+          orderData.deliveryMethod === 'delivery'
+            ? {
+                address: orderData.address,
+                number: orderData.number || null,
+                complement: orderData.complement || null,
+                neighborhood: orderData.neighborhood || null,
+                city: orderData.city || null,
+                state: orderData.state || null,
+                zipCode: orderData.zipCode || null,
+              }
+            : {
+                address: 'Retirada na Loja',
+                number: null,
+                complement: null,
+                neighborhood: null,
+                city: null,
+                state: null,
+                zipCode: null,
+              },
         paymentMethod:
           orderData.paymentMethod === 'pix'
             ? 'PIX'
@@ -256,11 +292,19 @@ const OrderConfirmation = () => {
 
       const createdOrder = await orderService.createOrder(orderRequest);
 
+      // Verificar se temos dados da loja
+      if (!store) {
+        alert('Erro ao carregar dados da loja. Tente novamente.');
+        return;
+      }
+
       // Formatar mensagem para WhatsApp usando o orderFormatter
-      const formattedMessage = formatOrderForWhatsApp(createdOrder);
+      const formattedMessage = formatOrderForWhatsApp(createdOrder, store);
 
       // Enviar mensagem para WhatsApp
-      const phoneNumber = '34996962488'; // Número fixo da loja
+      const phoneNumberRaw = store.config?.whatsapp || store.phone || '34996962488';
+      // Remove caracteres não numéricos do número
+      const phoneNumber = phoneNumberRaw.replace(/\D/g, '');
       const encodedMessage = encodeURIComponent(formattedMessage);
       const whatsappUrl = `https://api.whatsapp.com/send?phone=55${phoneNumber}&text=${encodedMessage}`;
 
@@ -312,7 +356,7 @@ const OrderConfirmation = () => {
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-purple-50/30'>
       {/* Header */}
       <div className='bg-white/80 backdrop-blur-md border-b border-slate-200/50 sticky top-0 z-10'>
-        <div className='max-w-6xl mx-auto px-4 sm:px-6 py-4'>
+        <div className='w-full mx-auto px-4 sm:px-6 lg:px-8 py-4'>
           <div className='flex items-center justify-between'>
             <Link
               to='/checkout'
@@ -341,7 +385,7 @@ const OrderConfirmation = () => {
         </div>
       </div>
 
-      <div className='max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10'>
+      <div className='w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10'>
         {/* Title Section */}
         <div className='text-center mb-8'>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-900 mb-2'>
@@ -388,6 +432,12 @@ const OrderConfirmation = () => {
                       <Phone className='w-4 h-4 text-slate-400' />
                       <span className='text-slate-900'>{orderData.whatsapp}</span>
                     </div>
+                    {orderData.email && (
+                      <div className='flex items-center gap-3'>
+                        <Mail className='w-4 h-4 text-slate-400' />
+                        <span className='text-slate-900'>{orderData.email}</span>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className='space-y-4'>
@@ -432,6 +482,19 @@ const OrderConfirmation = () => {
                         className='w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm'
                       />
                     </div>
+                    <div>
+                      <label className='block text-xs font-medium text-slate-600 mb-1.5'>
+                        E-mail
+                      </label>
+                      <input
+                        type='email'
+                        value={editedContact.email}
+                        onChange={(e) =>
+                          setEditedContact({ ...editedContact, email: e.target.value })
+                        }
+                        className='w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm'
+                      />
+                    </div>
                     <div className='flex gap-2 pt-2'>
                       <button
                         onClick={handleSaveContact}
@@ -472,7 +535,7 @@ const OrderConfirmation = () => {
                     </h3>
                     <p className='text-sm text-slate-600'>
                       {orderData.deliveryMethod === 'delivery'
-                        ? `Taxa: ${formatToBRL(5)}`
+                        ? `Taxa: ${formatToBRL(store?.config?.deliveryFee || 0)}`
                         : 'Sem taxa adicional'}
                     </p>
                   </div>
@@ -500,7 +563,7 @@ const OrderConfirmation = () => {
                     {!isEditingAddress ? (
                       <div className='space-y-1 text-sm text-slate-600'>
                         <p className='font-medium text-slate-900'>
-                          {orderData.street}, {orderData.number}
+                          {orderData.address}, {orderData.number}
                           {orderData.complement && ` - ${orderData.complement}`}
                         </p>
                         <p>{orderData.neighborhood}</p>
@@ -514,9 +577,9 @@ const OrderConfirmation = () => {
                           <input
                             type='text'
                             placeholder='Rua'
-                            value={editedAddress.street}
+                            value={editedAddress.address}
                             onChange={(e) =>
-                              setEditedAddress({ ...editedAddress, street: e.target.value })
+                              setEditedAddress({ ...editedAddress, address: e.target.value })
                             }
                             className='col-span-2 px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm'
                           />
@@ -610,11 +673,6 @@ const OrderConfirmation = () => {
                     <h3 className='text-lg font-semibold text-slate-900'>
                       {getPaymentMethodName()}
                     </h3>
-                    {orderData.paymentMethod === 'pix' && (
-                      <p className='text-sm text-emerald-600 font-medium'>
-                        5% de desconto aplicado
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
@@ -639,7 +697,7 @@ const OrderConfirmation = () => {
                       <div className='w-16 h-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0'>
                         <img
                           src={
-                            item.snapshot.mainThumbnailUrl ||
+                            item.snapshot.mainThumbnailImageUrl ||
                             item.snapshot.mainImageUrl ||
                             'https://via.placeholder.com/64'
                           }
@@ -675,14 +733,6 @@ const OrderConfirmation = () => {
                   <span className='text-slate-600'>Subtotal</span>
                   <span className='font-medium text-slate-900'>{formatToBRL(subtotal)}</span>
                 </div>
-                {orderData.paymentMethod === 'pix' && (
-                  <div className='flex justify-between text-sm'>
-                    <span className='text-emerald-600'>Desconto PIX</span>
-                    <span className='font-medium text-emerald-600'>
-                      -{formatToBRL(discountAmount)}
-                    </span>
-                  </div>
-                )}
                 <div className='flex justify-between text-sm'>
                   <span className='text-slate-600'>Entrega</span>
                   <span className='font-medium text-slate-900'>

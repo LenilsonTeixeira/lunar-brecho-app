@@ -26,10 +26,29 @@ const OrderPage = () => {
       setLoading(true);
       setError(null);
       const response = await orderService.getOrders(0, 100);
-      setOrders(response.content);
+
+      // Tratar diferentes formatos de resposta
+      let ordersList: OrderResponse[] = [];
+
+      if (Array.isArray(response)) {
+        ordersList = response;
+      } else if (response && typeof response === 'object') {
+        // Se a resposta for paginada (com content ou data)
+        const responseObj = response as any;
+        if ('content' in responseObj && Array.isArray(responseObj.content)) {
+          ordersList = responseObj.content;
+        } else if ('data' in responseObj && Array.isArray(responseObj.data)) {
+          ordersList = responseObj.data;
+        } else if ('items' in responseObj && Array.isArray(responseObj.items)) {
+          ordersList = responseObj.items;
+        }
+      }
+
+      setOrders(ordersList);
     } catch (err) {
       setError('Erro ao carregar pedidos');
       console.error('Erro ao carregar pedidos:', err);
+      setOrders([]); // Garantir que orders seja sempre um array
     } finally {
       setLoading(false);
     }
@@ -50,7 +69,7 @@ const OrderPage = () => {
         return 'bg-yellow-300 text-slate-950';
       case 'APPROVED':
         return 'bg-blue-300 text-slate-950';
-      case 'SENT':
+      case 'SHIPPED':
         return 'bg-purple-300 text-slate-950';
       case 'DELIVERED':
         return 'bg-green-300 text-slate-950';
@@ -127,10 +146,21 @@ const OrderPage = () => {
     }).format(price);
   };
 
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '—';
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   if (loading) {
     return (
-      <div className='py-6 flex flex-col bg-slate-50'>
-        <div className='w-full max-w-7xl mx-auto'>
+      <div className='py-6 flex flex-col bg-slate-50 min-h-screen'>
+        <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
           <div className='flex items-center justify-center py-12'>
             <div className='text-center'>
               <div className='w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center'>
@@ -146,8 +176,8 @@ const OrderPage = () => {
 
   if (error) {
     return (
-      <div className='py-6 flex flex-col bg-slate-50'>
-        <div className='w-full max-w-7xl mx-auto'>
+      <div className='py-6 flex flex-col bg-slate-50 min-h-screen'>
+        <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
           <div className='flex items-center justify-center py-12'>
             <div className='text-center'>
               <div className='w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center'>
@@ -168,8 +198,8 @@ const OrderPage = () => {
   }
 
   return (
-    <div className='py-6 flex flex-col bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+    <div className='py-6 flex flex-col bg-slate-50 min-h-screen'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         {/* Header */}
         <div className='mb-8'>
           <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
@@ -263,7 +293,7 @@ const OrderPage = () => {
         {/* Orders Table */}
         <div className='bg-slate-50 rounded-xl shadow-lg overflow-hidden'>
           <div className='overflow-x-auto md:overflow-x-visible'>
-            <table className='w-full md:min-w-full min-w-[1000px]'>
+            <table className='w-full md:min-w-full min-w-[1150px]'>
               <thead className='bg-slate-50 border-b border-slate-200'>
                 <tr>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[50px]'>
@@ -294,6 +324,9 @@ const OrderPage = () => {
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[100px]'>
                     Entrega
                   </th>
+                  <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[150px]'>
+                    Data de Criação
+                  </th>
                   <th className='px-6 py-4 text-left text-xs sm:text-sm font-semibold text-slate-700 min-w-[120px]'>
                     Ações
                   </th>
@@ -316,7 +349,7 @@ const OrderPage = () => {
                     <td className='px-6 py-4'>
                       <div>
                         <p className='text-xs sm:text-sm font-medium text-slate-800'>
-                          #{order.externalId}
+                          #{order.externalId || order.id}
                         </p>
                       </div>
                     </td>
@@ -334,9 +367,9 @@ const OrderPage = () => {
                           <div key={index} className='flex items-center gap-3 min-w-[280px]'>
                             {/* Thumbnail da imagem */}
                             <div className='flex-shrink-0'>
-                              {item.mainImageThumbnailUrl ? (
+                              {item.mainThumbnailImageUrl ? (
                                 <img
-                                  src={item.mainImageThumbnailUrl}
+                                  src={item.mainThumbnailImageUrl}
                                   alt={item.name}
                                   className='w-12 h-12 rounded-lg object-cover border border-slate-200'
                                   onError={(e) => {
@@ -364,7 +397,9 @@ const OrderPage = () => {
                               <div className='flex items-center gap-2 text-xs text-slate-500'>
                                 <span className='truncate'>{item.brand}</span>
                                 <span className='text-slate-300'>•</span>
-                                <span className='font-mono'>#{item.externalId}</span>
+                                <span className='font-mono'>
+                                  #{item.externalId || item.sku || '-'}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -387,6 +422,9 @@ const OrderPage = () => {
                       <span className='text-xs text-slate-600'>
                         {order.deliveryType === 'HOME_DELIVERY' ? 'Entrega' : 'Retirada'}
                       </span>
+                    </td>
+                    <td className='px-6 py-4'>
+                      <span className='text-xs text-slate-600'>{formatDate(order.createdAt)}</span>
                     </td>
                     <td className='px-6 py-4'>
                       <div className='flex items-center gap-1 sm:gap-2'>

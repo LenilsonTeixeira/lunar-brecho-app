@@ -51,6 +51,13 @@ const ProductTitleSection = ({ product }: Props) => {
           <Share2 className='w-4 h-4 sm:w-5 sm:h-5' />
         </button>
       </div>
+      {product.sku && (
+        <ProductDetailItem
+          label='SKU'
+          value={product.sku}
+          className='mt-4 text-sm sm:text-base font-mono text-slate-600'
+        />
+      )}
       <ProductDetailItem
         value={formatToBRL(pixPrice)}
         className='mt-4 text-2xl sm:text-3xl font-medium'

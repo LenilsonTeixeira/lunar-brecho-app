@@ -211,7 +211,7 @@ Os endpoints de criação e atualização (POST e PUT) exigem também o header:
   - `imageId` (UUID): ID da imagem.
 - **Body:** Multipart Form Data:
   - `file`: Arquivo da imagem (MultipartFile).
-  - `data`: Objeto `ProductImageMetadataRequest` (JSON). Content-type application/json
+  - `metadata`: Objeto `ProductImageMetadataRequest` (JSON). Content-type application/json
 - **Request Example:**
 
   ```

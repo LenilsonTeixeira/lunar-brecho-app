@@ -1,17 +1,15 @@
-import { ProductResponse } from '../services/types';
+import { ProductListItemResponse } from '../services/types';
 
 export interface CartItem {
-  id: string; // ID único do item no carrinho
+  id: string;
   productId: string;
-  productExternalId: string;
-  variantId: string; // ID da variante selecionada
+  externalId: string;
+  variantSize: string;
   quantity: number;
-
-  // Snapshot do produto no momento da adição (para exibição e cálculo)
   snapshot: {
     name: string;
     mainImageUrl?: string;
-    mainThumbnailUrl?: string;
+    mainThumbnailImageUrl?: string;
     brand?: string;
     type: 'NEW' | 'BAZAAR';
     category: string;
@@ -20,6 +18,7 @@ export interface CartItem {
     discountValue?: number;
     size: string;
     stockAvailable: number;
+    sku?: string;
   };
 }
 
@@ -27,9 +26,9 @@ export interface CartContextData {
   items: CartItem[];
   totalItems: number;
   totalPrice: number;
-  addToCart: (product: ProductResponse, quantity: number, variantId: string) => void;
+  addToCart: (product: ProductListItemResponse, quantity: number, variantSize: string) => void;
   removeFromCart: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
-  getItemQuantity: (productId: string, variantId: string) => number;
+  getItemQuantity: (productId: string, variantSize: string) => number;
 }

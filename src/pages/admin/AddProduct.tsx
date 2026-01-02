@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Plus, X, ChevronLeft, ChevronRight, Check, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { productService } from '@/services/product/ProductService';
+import { categoryService } from '@/services/category/CategoryService';
 import {
-  productService,
   ApiError,
   ProductRequest,
   ProductImageMetadataRequest,
-  categoryService,
   CategoryResponse,
-} from '@/services';
+} from '@/services/types';
 
 const AddProduct = () => {
   const navigate = useNavigate();
@@ -1236,7 +1236,7 @@ const AddProduct = () => {
 
   return (
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         <div className='mb-8'>
           <div className='flex items-center gap-4 mb-4'>
             <button

@@ -1,13 +1,13 @@
-import { ArrowLeft, Tag, FileText, Image, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Tag, Image, Loader2, AlertCircle } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { useState, useEffect } from 'react';
-import { categoryService, ApiError } from '@/services';
+import { categoryService } from '@/services/category/CategoryService';
+import { ApiError } from '@/services/types';
 
 interface Category {
   id: string;
   externalId: string;
   name: string;
-  description?: string;
   orderDisplay?: number;
   imageUrl?: string;
   thumbnailUrl?: string;
@@ -119,8 +119,8 @@ const ViewCategory = () => {
   }
 
   return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+    <div className='py-6 flex flex-col justify-between bg-slate-50 min-h-screen'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         <div className='mb-8'>
           <div className='flex items-center gap-4 mb-4'>
             <button
@@ -236,19 +236,6 @@ const ViewCategory = () => {
               </div>
             )}
           </div>
-
-          {/* Descrição */}
-          {category.description && (
-            <div className='p-6 bg-slate-50 rounded-lg border border-slate-200'>
-              <div className='flex items-center gap-3 mb-4'>
-                <FileText className='w-5 h-5 text-purple-600' />
-                <h3 className='text-lg font-semibold text-slate-800'>Descrição</h3>
-              </div>
-              <div className='p-3 bg-white rounded-lg border border-slate-200'>
-                <span className='text-base text-slate-900'>{category.description}</span>
-              </div>
-            </div>
-          )}
 
           {/* Ações */}
           <div className='pt-6 border-t border-slate-200'>

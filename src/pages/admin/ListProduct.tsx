@@ -1,17 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Search, Edit, Trash2, Eye, Plus, FolderOpen, ImageOff } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import {
-  productService,
-  ApiError,
-  ProductResponse,
-  categoryService,
-  CategoryResponse,
-} from '@/services';
+import { productService } from '@/services/product/ProductService';
+import { categoryService } from '@/services/category/CategoryService';
+import { ApiError, CategoryResponse } from '@/services/types';
 
 interface ProductItem {
   id: string;
   externalId: string;
+  sku?: string;
   name: string;
   category: string;
   brand: string;
@@ -54,18 +51,27 @@ const ListProduct = () => {
     setError(null);
     try {
       const response = await productService.getProducts(currentPage, 100);
-      const formattedProducts: ProductItem[] = response.content.map((product: ProductResponse) => ({
+      if (!response || !Array.isArray(response) || response.length === 0) {
+        setProducts([]);
+        setTotalPages(0);
+        setTotalElements(0);
+        setError(null);
+        return;
+      }
+      const formattedProducts: ProductItem[] = response.map((product: any) => ({
         id: product.id,
         externalId: product.externalId,
+        sku: product.sku,
         name: product.name,
-        category: product.category.name,
+        category: product.category,
         brand: product.brand || '',
         color: product.color,
-        type: product.type,
+        type: product.isNew ? 'NEW' : 'BAZAAR',
         basePrice: product.basePrice,
         discountType: product.discountType,
         discountValue: product.discountValue,
-        totalCurrentStock: product.totalCurrentStock || 0,
+        totalCurrentStock:
+          product.variants?.reduce((sum: number, v: any) => sum + (v.stockAvailable || 0), 0) || 0,
         status: product.status,
         mainImageUrl:
           product.mainImageUrl && product.mainImageUrl.trim() !== ''
@@ -77,8 +83,8 @@ const ListProduct = () => {
         updatedAt: product.updatedAt,
       }));
       setProducts(formattedProducts);
-      setTotalPages(response.totalPages);
-      setTotalElements(response.totalElements);
+      setTotalPages(1); // Sem paginação no novo padrão
+      setTotalElements(response.length);
     } catch (error) {
       console.error('Erro ao carregar produtos:', error);
       if (error instanceof ApiError) {
@@ -157,7 +163,7 @@ const ListProduct = () => {
 
   return (
     <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         {/* Header */}
         <div className='mb-8'>
           <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
@@ -285,6 +291,7 @@ const ListProduct = () => {
                   <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
                     Produto
                   </th>
+                  <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>SKU</th>
                   <th className='px-6 py-4 text-left text-sm font-semibold text-slate-700'>
                     Categoria
                   </th>
@@ -305,7 +312,7 @@ const ListProduct = () => {
               <tbody className='divide-y divide-slate-200'>
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className='py-12 text-center text-slate-500'>
+                    <td colSpan={7} className='py-12 text-center text-slate-500'>
                       <div className='flex flex-col items-center gap-2'>
                         <div className='w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin'></div>
                         <p className='font-medium'>Carregando produtos...</p>
@@ -344,6 +351,11 @@ const ListProduct = () => {
                             <p className='text-sm text-slate-600'>ID: {product.externalId}</p>
                           </div>
                         </div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <span className='text-sm text-slate-900 font-mono'>
+                          {product.sku || '-'}
+                        </span>
                       </td>
                       <td className='px-6 py-4'>
                         <span className='text-sm text-slate-900'>{product.category}</span>
@@ -400,7 +412,7 @@ const ListProduct = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className='py-12 text-center text-slate-500'>
+                    <td colSpan={7} className='py-12 text-center text-slate-500'>
                       <div className='flex flex-col items-center gap-2'>
                         <div className='w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center'>
                           <FolderOpen className='w-8 h-8 text-slate-400' />

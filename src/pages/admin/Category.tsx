@@ -3,7 +3,8 @@ import { Search, Edit, Trash2, Eye, Plus, FolderOpen, ImageOff } from 'lucide-re
 import { useNavigate } from 'react-router';
 import CategoryForm from '../../components/admin/CategoryForm';
 import ConfirmDialog from '../../components/admin/ConfirmDialog';
-import { categoryService, ApiError, CategoryResponse } from '@/services';
+import { categoryService } from '@/services/category/CategoryService';
+import { ApiError, CategoryResponse } from '@/services/types';
 
 interface CategoryItem {
   id: string;
@@ -174,8 +175,8 @@ const Category = () => {
   );
 
   return (
-    <div className='py-6 flex flex-col bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+    <div className='py-6 flex flex-col bg-slate-50 min-h-screen'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         {/* Header */}
         <div className='mb-8'>
           <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>

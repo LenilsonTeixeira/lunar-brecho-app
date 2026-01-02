@@ -1,5 +1,6 @@
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { useRef, useState, useEffect } from 'react';
+import { handleImageError } from '../../constants/images';
 
 export interface ThumbnailsProps {
   images: string[];
@@ -57,6 +58,7 @@ const Thumbnails = ({ images, alt, onSelect, selectedImage }: ThumbnailsProps) =
             onClick={() => onSelect(img)}
             src={img}
             alt={`${alt} - imagem ${idx + 1}`}
+            onError={handleImageError}
             className={`shadow-md w-[22%] sm:w-[24%] lg:w-full lg:h-auto aspect-[2/3] object-cover flex-shrink-0 cursor-pointer border-2 p-0.5 sm:p-1 rounded-md transition-all duration-200 ${
               selectedImage === img
                 ? 'border-sky-400 shadow-lg shadow-sky-400/90'

@@ -1,42 +1,38 @@
 import { Link } from 'react-router';
 import { ShoppingCart } from 'lucide-react';
-import { ProductResponse } from '../../services/types';
+import { ProductListItemResponse } from '../../services/types';
 import { useCart } from '../../contexts/CartContext';
 import ProductTypeBadge from './ProductTypeBadge';
 import { formatToBRL, calculateFinalPrice } from '../../utils/priceUtils';
+import ProductImage from '../common/ProductImage';
 
 export interface ProductItemProps {
-  product: ProductResponse;
+  product: ProductListItemResponse;
 }
 
 const ProductItem = ({ product }: ProductItemProps) => {
   const { addToCart } = useCart();
 
-  // Calcula o preço com desconto aplicado (preço PIX/dinheiro)
   const pixPrice = calculateFinalPrice(
     product.basePrice,
     product.discountType,
     product.discountValue,
   );
 
-  // Para cartão, usa o preço base sem desconto
-  // TODO: Verificar se existe campo específico para preço de cartão no backend
   const cardPrice = product.basePrice;
-
-  //const installment = calculateInstallment(product.basePrice, 2);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault(); // Previne a navegação do Link
     e.stopPropagation();
 
-    if (product.variants?.length === 1 && product.variants[0].id) {
+    if (product.variants?.length === 1) {
       const stockAvailable = product.variants[0].stockAvailable || 0;
       if (stockAvailable === 0) {
         alert('Este produto está sem estoque.');
         return;
       }
       // Se só tem um tamanho e tem estoque, adiciona automaticamente
-      addToCart(product, 1, product.variants[0].id);
+      addToCart(product, 1, product.variants[0].size);
       alert('Produto adicionado ao carrinho!');
     } else {
       // Se tem múltiplos tamanhos, redireciona para a página do produto
@@ -60,7 +56,7 @@ const ProductItem = ({ product }: ProductItemProps) => {
       <div className='border-2 border-slate-200 p-1 rounded-lg shadow-sm relative w-full'>
         {/* Label tipo (Novo/Bazar) */}
         <div className='absolute top-1 left-1 sm:top-2 sm:left-2 z-10'>
-          <ProductTypeBadge type={product.type} variant='compact' />
+          <ProductTypeBadge type={product.isNew ? 'NEW' : 'BAZAAR'} variant='compact' />
         </div>
 
         {/* Botão do Carrinho */}
@@ -73,17 +69,15 @@ const ProductItem = ({ product }: ProductItemProps) => {
         </button>
 
         <div className='aspect-[3/4] overflow-hidden rounded-md relative'>
-          <img
+          <ProductImage
             src={
-              product.mainThumbnailUrl ||
+              product.mainThumbnailImageUrl ||
               product.mainImageUrl ||
               product.images?.[0]?.thumbnailUrl ||
-              product.images?.[0]?.originalUrl ||
-              ''
+              product.images?.[0]?.originalUrl
             }
             className='w-full h-full object-cover hover:scale-110 transition duration-500 ease-in-out'
             alt={product.name}
-            loading='lazy'
           />
           {product.status === 'OUT_OF_STOCK' && (
             <div className='absolute bottom-0 left-0 right-0 bg-red-500/90 text-white text-xs sm:text-sm font-semibold py-1 sm:py-1.5 px-2 text-center'>

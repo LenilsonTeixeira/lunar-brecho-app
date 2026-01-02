@@ -1,54 +1,63 @@
-import { ArrowLeft, User, MapPin } from 'lucide-react';
+import { ArrowLeft, User, MapPin, Trash2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 import { useEffect, useState } from 'react';
-import { customerService, ApiError } from '@/services';
-
-interface CustomerViewModel {
-  id: string;
-  name: string;
-  phone: string;
-  address: string;
-  totalPurchases?: number;
-  totalSpent?: number;
-  lastPurchase?: string;
-}
+import { customerService } from '@/services/customer/CustomerService';
+import { ApiError, CustomerResponse } from '@/services/types';
+import ConfirmDialog from '@/components/admin/ConfirmDialog';
 
 const ViewCustomer = () => {
   const navigate = useNavigate();
   const { customerId } = useParams();
 
-  const [customer, setCustomer] = useState<CustomerViewModel | null>(null);
+  const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [fetchError, setError] = useState<string | null>(null);
-  const [isLoading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [deletingCustomer, setDeletingCustomer] = useState<CustomerResponse | undefined>(undefined);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const load = async () => {
       if (!customerId) return;
       setError(null);
       try {
-        setLoading(true);
+        setIsLoading(true);
         const data = await customerService.getCustomer(customerId);
-        const address = data.addresses?.find((a) => a.isDefault) || data.addresses?.[0];
-        const addressStr = address
-          ? `${address.street || ''}, ${address.number || ''} - ${address.neighborhood || ''}, ${
-              address.city || ''
-            } - ${address.state || ''}`
-          : 'Não informado';
-        setCustomer({
-          id: data.id,
-          name: data.name,
-          phone: data.phone,
-          address: addressStr,
-        });
+        setCustomer(data);
       } catch (err) {
         if (err instanceof ApiError) setError(err.message);
         else setError('Erro de conexão.');
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
     load();
   }, [customerId]);
+
+  const handleDeleteCustomer = () => {
+    if (customer) {
+      setDeletingCustomer(customer);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingCustomer || !customerId) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      await customerService.deleteCustomer(customerId);
+      navigate('/admin/clientes');
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(`Erro ao excluir cliente: ${err.message}`);
+      } else {
+        setError('Erro de conexão. Tente novamente.');
+      }
+    } finally {
+      setLoading(false);
+      setDeletingCustomer(undefined);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -67,8 +76,8 @@ const ViewCustomer = () => {
   }
 
   return (
-    <div className='py-6 flex flex-col justify-between bg-slate-50'>
-      <div className='w-full max-w-7xl mx-auto'>
+    <div className='py-6 flex flex-col justify-between bg-slate-50 min-h-screen'>
+      <div className='w-full mx-auto px-4 sm:px-2 lg:px-2'>
         <div className='mb-8'>
           <div className='flex items-center gap-4 mb-4'>
             <button
@@ -80,7 +89,7 @@ const ViewCustomer = () => {
             </button>
           </div>
           <h1 className='text-2xl sm:text-3xl font-bold text-slate-800 mb-2'>
-            Cliente #{customerId}
+            Cliente #{customer?.externalId}
           </h1>
           <p className='text-sm sm:text-base text-slate-600'>Detalhes completos do cliente</p>
         </div>
@@ -119,7 +128,17 @@ const ViewCustomer = () => {
               <h3 className='text-lg font-semibold text-slate-800'>Endereço</h3>
             </div>
             <div className='p-3 bg-white rounded-lg border border-slate-200'>
-              <span className='text-slate-800'>{customer?.address || '—'}</span>
+              <span className='text-slate-800'>
+                {customer?.address
+                  ? `${customer.address}${customer.number ? `, ${customer.number}` : ''}${
+                      customer.neighborhood ? ` - ${customer.neighborhood}` : ''
+                    }${customer.city ? `, ${customer.city}` : ''}${
+                      customer.state ? ` - ${customer.state}` : ''
+                    }${customer.zip ? `, ${customer.zip}` : ''}${
+                      customer.complement ? ` (${customer.complement})` : ''
+                    }`
+                  : 'Não informado'}
+              </span>
             </div>
           </div>
 
@@ -127,8 +146,18 @@ const ViewCustomer = () => {
           <div className='pt-6 border-t border-slate-200'>
             <div className='flex flex-col sm:flex-row justify-end gap-3 sm:gap-4'>
               <button
+                type='button'
+                onClick={handleDeleteCustomer}
+                disabled={loading}
+                className='w-full sm:w-auto px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2'
+              >
+                <Trash2 className='w-4 h-4' />
+                Deletar Cliente
+              </button>
+              <button
+                type='button'
                 onClick={() => navigate(`/admin/clientes/editar/${customerId}`)}
-                className='w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl'
+                className='w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-600'
               >
                 Editar Cliente
               </button>
@@ -136,6 +165,17 @@ const ViewCustomer = () => {
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={!!deletingCustomer}
+        title='Excluir Cliente'
+        message={`Tem certeza que deseja excluir o cliente "${deletingCustomer?.name}"? Esta ação não pode ser desfeita.`}
+        confirmText='Excluir'
+        cancelText='Cancelar'
+        onConfirm={confirmDelete}
+        onCancel={() => setDeletingCustomer(undefined)}
+        type='danger'
+      />
     </div>
   );
 };

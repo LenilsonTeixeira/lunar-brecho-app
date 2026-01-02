@@ -20,6 +20,12 @@ export class ProductService extends BaseApiService {
     });
   }
 
+  async getProductBySku(sku: string): Promise<ProductResponse> {
+    return this.request<ProductResponse>(`/products/sku/${encodeURIComponent(sku)}`, {
+      method: 'GET',
+    });
+  }
+
   async createProduct(data: ProductRequest): Promise<ProductResponse> {
     return this.request<ProductResponse>('/products', {
       method: 'POST',
@@ -47,7 +53,7 @@ export class ProductService extends BaseApiService {
   ): Promise<ProductResponse> {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('data', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+    formData.append('metadata', JSON.stringify(metadata));
 
     const url = `${this.baseURL}/products/${productId}/images`;
     const token = localStorage.getItem('authToken');
@@ -55,7 +61,7 @@ export class ProductService extends BaseApiService {
     const config: any = {
       method: 'POST',
       headers: {
-        'store-id': ENV.STORE_ID,
+        'x-store-id': ENV.STORE_ID,
         ...(token && { Authorization: `Bearer ${token}` }),
       },
       body: formData,
@@ -86,7 +92,7 @@ export class ProductService extends BaseApiService {
   ): Promise<ProductResponse> {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('data', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+    formData.append('metadata', JSON.stringify(metadata));
 
     const url = `${this.baseURL}/products/${productId}/images/${imageId}`;
     const token = localStorage.getItem('authToken');
@@ -94,7 +100,7 @@ export class ProductService extends BaseApiService {
     const config: any = {
       method: 'PATCH',
       headers: {
-        'store-id': ENV.STORE_ID,
+        'x-store-id': ENV.STORE_ID,
         ...(token && { Authorization: `Bearer ${token}` }),
       },
       body: formData,
